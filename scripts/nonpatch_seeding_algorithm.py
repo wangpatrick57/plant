@@ -4,7 +4,7 @@ import re
 
 # settings
 MISSING_ALLOWED = 0
-SPEEDUP = 6 # actual speedup will be SPEEDUP ** 2
+SPEEDUP = 10 # actual speedup will be SPEEDUP ** 2
 
 # input
 k = int(sys.argv[1])
@@ -78,7 +78,13 @@ pairs_processed = 0
 percent_printed = 0
 
 for graphlet_id, s1_graphlet_indexes in s1_indexes.items():
+    if len(s1_graphlet_indexes) > 3:
+        continue
+
     if graphlet_id in s2_indexes:
+        if len(s2_indexes[graphlet_id]) > 3:
+            continue
+
         for i in range(0, len(s1_graphlet_indexes), SPEEDUP):
             s1_index = s1_graphlet_indexes[i]
 
