@@ -349,6 +349,13 @@ def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_s
             new_seed.extend(comp_index_list)
             orthologs_list.append(new_seed)
         
+        index1 = base_index
+        index2 = comp_index_list[0]
+        assert len(index1) == len(index2)
+
+        for i in range(len(index1)):
+            print(f'{index1[i]} {index2[i]}')
+
         pairs_processed += 1
 
     debug_print(f'on settings NUM_MATCHING_NODES={NUM_MATCHING_NODES} PATCH_PROX_INC={PATCH_PROX_INC}, there are {len(orthologs_list)} {MISSING_ALLOWED}|miss orthologs out of {pairs_processed} processed patched pairs, representing {len(orthologs_list) * 100 / pairs_processed}%')
@@ -420,8 +427,8 @@ def main():
     s2_patched_indexes = get_patched_indexes(s2_matching_poses_adj_list, s2_index_list, s2_adj_set)
 
     ## CHANGE MODE
-    s1_patched_indexes = get_modified_patched_indexes(s1_patched_indexes)
-    s2_patched_indexes = get_modified_patched_indexes(s2_patched_indexes)
+    # s1_patched_indexes = get_modified_patched_indexes(s1_patched_indexes)
+    # s2_patched_indexes = get_modified_patched_indexes(s2_patched_indexes)
     # print_sorted_sparsegraphs([s1_patched_indexes, s2_patched_indexes], [s1_adj_set, s2_adj_set])
 
     # calculate ortholog percentage
@@ -429,7 +436,8 @@ def main():
     orthologs_list = get_orthologs_list(s1_patched_indexes, [s2_patched_indexes], [s1_to_s2], [s1_adj_set, s2_adj_set])
     
     for ortholog in orthologs_list:
-        print(seed_to_str(*ortholog))
+        # print(seed_to_str(*ortholog))
+        pass
 
 
 if __name__ == '__main__':
