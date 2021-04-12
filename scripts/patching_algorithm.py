@@ -274,6 +274,7 @@ def get_patched_indexes(matching_poses_adj_list, index_list, adj_set):
 
 def get_si_to_sj(speciesi, speciesj):
     ortho_file = open(f'/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.{NETWORK_SOURCE}.tsv', 'r')
+    # ortho_file = open('/extra/wayne1/src/bionets/SANA.github/Jurisica/Migor/IID/IID-mouse-rat-perfect-s3.tsv', 'r')
     SPECIES_TO_INDEX = dict()
     species_line = ortho_file.readline().strip()
     species_order = re.split('[\s\t]+', species_line)
