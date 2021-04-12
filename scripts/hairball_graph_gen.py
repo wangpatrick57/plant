@@ -1,26 +1,38 @@
 import random
+import sys
 import re
 from collections import defaultdict, deque
 import json
 import copy
+import degree_distr
+import networkx as nx
 
 
 # SETTINGS
-CORE_INITIAL_SIZE = 400
+CORE_INITIAL_SIZE = 550
 FOLLICLE_COUNT = 9900
-HAIR_COUNT = FOLLICLE_COUNT * 3
+FOLLICLE_PRINT_STEP = 300
+HAIR_COUNT = FOLLICLE_COUNT * 1.5
+BARABASI_WEIGHT = 1
+
+
+# ARGS
+if len(sys.argv) == 1:
+    left_path = None
+    right_path = None
+elif len(sys.argv) == 3:
+    left_path = sys.argv[1]
+    right_path = sys.argv[2]
+else:
+    print('Usage: either no args or one arg for left and right')
 
 
 # FUNCTIONS
-def print_degree_distr(graph):
-    degree_distr = defaultdict(int)
+def debug_print(*args, **kwargs):
+    print(*args, file = sys.stderr, **kwargs)
 
-    for adj in graph.values():
-        degree_distr[len(adj)] += 1
-
-    print('\n'.join([f'{degree} {count}' for degree, count in degree_distr.items()]))
-
-def print_el(graph):
+def write_el(graph, fname):
+    f = open(fname, 'w')
     el = set()
 
     for node, adj in graph.items():
@@ -30,7 +42,7 @@ def print_el(graph):
             el.add((min_node, max_node))
 
     for node1, node2 in el:
-        print(f'{node1} {node2}')
+        f.write(f'{node1} {node2}\n')
 
 def get_induced_subgraph(graph, nodes):
     induced_subgraph = dict()
@@ -87,7 +99,7 @@ def read_in_graph(path):
 
     return graph
 
-def get_core():
+def make_core():
     # read in graphs
     mouse_graph = read_in_graph('/home/sana/Jurisica/IID/networks/IIDmouse.el')
     rat_graph = read_in_graph('/home/sana/Jurisica/IID/networks/IIDrat.el')
@@ -129,7 +141,7 @@ def get_core():
             mouse_degree = len(mouse_material_graph[mouse_node])
             rat_degree = len(rat_material_graph[rat_node])
             assert mouse_degree == rat_degree
-            relative_weights.append(mouse_degree)
+            relative_weights.append(1)
 
         # create core graph
         core_mouse_to_rat = dict()
@@ -172,7 +184,7 @@ def get_core():
 def fol_name(i):
     return f'follicle{i}'
 
-def get_fully_grown(core_graph):
+def grow_erdos_renyi(core_graph):
     out_graph = copy.deepcopy(core_graph)
     core_size = len(core_graph)
     core_nodes = list(core_graph.keys())
@@ -183,22 +195,50 @@ def get_fully_grown(core_graph):
     for _ in range(HAIR_COUNT):
         random1 = random.randrange(FOLLICLE_COUNT)
         node1 = fol_name(random1)
-        random2 = random.randrange(core_size + FOLLICLE_COUNT)
 
-        if random2 < core_size:
-            node2 = core_nodes[random2]
-        else:
-            node2 = fol_name(random2 - core_size)
+        while True:
+            random2 = random.randrange(core_size + FOLLICLE_COUNT)
+
+            if random2 < core_size:
+                node2 = core_nodes[random2]
+            else:
+                node2 = fol_name(random2 - core_size)
+
+            if node2 != node1:
+                break
 
         out_graph[node1].append(node2)
         out_graph[node2].append(node1)
 
     return find_largest_connected_component(out_graph)
 
+def gen_mst(size):
+    out_graph = defaultdict(list)
+
+def grow_barabasi_albert(core_graph, total_size):
+    out_graph = gen_mst(total_size)
+
+    return find_largest_connected_component(out_graph)
+
 def main():
-    core_graph = get_core()
-    full_graph = get_fully_grown(core_graph)
-    print_el(full_graph)
+    core_graph = make_core()
+    degree_distr.print_degree_distr(core_graph)
+    left_graph = grow_barabasi_albert(core_graph)
+
+    degree_distr.print_degree_distr(left_graph)
+    print(f'Size of left: {len(left_graph)}')
+
+    right_graph = grow_barabasi_albert(core_graph)
+
+    if left_path != None:
+        assert right_path != None
+        write_el(left_graph, left_path)
+        write_el(right_graph, right_path)
+    else:
+        assert right_path == None
+
+    print(f'Size of core: {len(core_graph)}')
+    print(f'Size of right: {len(right_graph)}')
 
 if __name__ == '__main__':
     main()
