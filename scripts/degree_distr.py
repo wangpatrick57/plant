@@ -2,13 +2,19 @@ import sys
 import re
 from collections import defaultdict
 
-def print_degree_distr(graph):
+def get_degree_distr(graph, do_print=False):
+    return get_sub_degree_distr(graph, graph.keys(), do_print=do_print)
+
+def get_sub_degree_distr(graph, nodes_to_count, do_print=False):
     degree_distr = defaultdict(int)
 
-    for adj in graph.values():
-        degree_distr[len(adj)] += 1
+    for node in nodes_to_count:
+        degree_distr[len(graph[node])] += 1
 
-    print('\n'.join([f'{degree} {count}' for degree, count in degree_distr.items()]))
+    if do_print:
+        print('\n'.join([f'{degree} {count}' for degree, count in sorted(degree_distr.items())]))
+
+    return degree_distr
 
 def read_in_graph(path):
     with open(path, 'r') as graph_file:
@@ -31,4 +37,4 @@ def read_in_graph(path):
 if __name__ == '__main__':
     path = sys.argv[1]
     graph = read_in_graph(path)
-    print_degree_distr(graph)
+    get_degree_distr(graph, do_print=True)

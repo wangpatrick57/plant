@@ -3,12 +3,22 @@ import json
 import re
 import random
 
-# functional constants
-MISSING_ALLOWED = 0
-
 # command line input
+times_called = 0
+
 def get_graph_path_for_species(species):
-    if NETWORK_SOURCE == 'Uniprot':
+    global times_called
+
+    if NETWORK_SOURCE == 'Hairball':
+        if times_called == 0:
+            times_called += 1
+            return '/home/wangph1/plant/networks/hairball/barabasi_Onl_wcore.el'
+        elif times_called == 1:
+            times_called += 1
+            return '/home/wangph1/plant/networks/hairball/barabasi_Onr_wcore.el'
+        else:
+            assert False, 'no more hairball networks'
+    elif NETWORK_SOURCE == 'Uniprot':
         return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
     else:
         if species == 'MM':
@@ -27,6 +37,14 @@ NUM_MATCHING_NODES = int(sys.argv[6]) if len(sys.argv) >= 7 else k - 2 # negativ
 PATCH_PROX_INC = int(sys.argv[7]) if len(sys.argv) >= 8 else 1
 NETWORK_SOURCE = sys.argv[8] if len(sys.argv) >= 9 else 'Uniprot'
 DEBUG = bool(eval(sys.argv[9])) if len(sys.argv) >= 10 else True
+
+# constants
+MISSING_ALLOWED = 0
+
+if NETWORK_SOURCE == 'Hairball':
+    ORTHO_FILE = None
+else:
+    ORTHO_FILE = open(f'/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.{NETWORK_SOURCE}.tsv', 'r')
 
 # setup
 def debug_print(*args, **kwargs):
@@ -272,11 +290,18 @@ def get_patched_indexes(matching_poses_adj_list, index_list, adj_set):
 
     return patched_indexes
 
+def get_core_to_core(adj_set):
+    core_to_core = dict()
+
+    for node in adj_set:
+        if node[0:4] == 'core':
+            core_to_core[node] = node
+
+    return core_to_core
+
 def get_si_to_sj(speciesi, speciesj):
-    ortho_file = open(f'/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.{NETWORK_SOURCE}.tsv', 'r')
-    # ortho_file = open('/extra/wayne1/src/bionets/SANA.github/Jurisica/Migor/IID/IID-mouse-rat-perfect-s3.tsv', 'r')
     SPECIES_TO_INDEX = dict()
-    species_line = ortho_file.readline().strip()
+    species_line = ORTHO_FILE.readline().strip()
     species_order = re.split('[\s\t]+', species_line)
 
     for i, species in enumerate(species_order):
@@ -286,7 +311,7 @@ def get_si_to_sj(speciesi, speciesj):
     si_pos = SPECIES_TO_INDEX[speciesi]
     sj_pos = SPECIES_TO_INDEX[speciesj]
 
-    for line in ortho_file:
+    for line in ORTHO_FILE:
         line_split = line.strip().split()
 
         if line_split[si_pos] == speciesi: # first line
@@ -353,10 +378,9 @@ def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_s
         index1 = base_index
         index2 = comp_index_list[0]
         assert len(index1) == len(index2)
-
-        for i in range(len(index1)):
-            print(f'{index1[i]} {index2[i]}')
-
+        print()
+        print(' '.join(index1))
+        print(' '.join(index2))
         pairs_processed += 1
 
     debug_print(f'on settings NUM_MATCHING_NODES={NUM_MATCHING_NODES} PATCH_PROX_INC={PATCH_PROX_INC}, there are {len(orthologs_list)} {MISSING_ALLOWED}|miss orthologs out of {pairs_processed} processed patched pairs, representing {len(orthologs_list) * 100 / pairs_processed}%')
@@ -433,7 +457,11 @@ def main():
     # print_sorted_sparsegraphs([s1_patched_indexes, s2_patched_indexes], [s1_adj_set, s2_adj_set])
 
     # calculate ortholog percentage
-    s1_to_s2 = get_si_to_sj(species1, species2)
+    if NETWORK_SOURCE == 'Hairball':
+        s1_to_s2 = get_core_to_core(s1_adj_set)
+    else:
+        s1_to_s2 = get_si_to_sj(species1, species2)
+
     orthologs_list = get_orthologs_list(s1_patched_indexes, [s2_patched_indexes], [s1_to_s2], [s1_adj_set, s2_adj_set])
     
     for ortholog in orthologs_list:

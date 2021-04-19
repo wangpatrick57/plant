@@ -5,21 +5,22 @@ from collections import defaultdict, deque
 import json
 import copy
 import degree_distr
-import networkx as nx
 
 
 # SETTINGS
 CORE_INITIAL_SIZE = 550
-FOLLICLE_COUNT = 9900
+FOLLICLE_COUNT = 4000
 FOLLICLE_PRINT_STEP = 300
-HAIR_COUNT = FOLLICLE_COUNT * 1.5
-BARABASI_WEIGHT = 1
+NUM_NODES = 15000
+NUM_EDGES = 50000
 
 
 # ARGS
 if len(sys.argv) == 1:
     left_path = None
     right_path = None
+elif len(sys.argv) == 2:
+    NUM_EDGES = int(sys.argv[1])
 elif len(sys.argv) == 3:
     left_path = sys.argv[1]
     right_path = sys.argv[2]
@@ -39,10 +40,36 @@ def write_el(graph, fname):
         for adj_node in adj:
             min_node = min(node, adj_node)
             max_node = max(node, adj_node)
-            el.add((min_node, max_node))
+
+            if min_node != max_node:
+                el.add((min_node, max_node))
 
     for node1, node2 in el:
         f.write(f'{node1} {node2}\n')
+
+def assert_same_distr(distr1, distr2):
+    for key in distr1:
+        assert key in distr2
+
+    for key in distr2:
+        assert key in distr1
+
+    for key in distr1:
+        assert distr1[key] == distr2[key]
+
+def add_distr(distr1, distr2):
+    new_distr = dict()
+
+    for key in distr1:
+        new_distr[key] = distr1[key]
+
+    for key in distr2:
+        if key not in new_distr:
+            new_distr[key] = distr2[key]
+        else:
+            new_distr[key] += distr2[key]
+
+    return new_distr
 
 def get_induced_subgraph(graph, nodes):
     induced_subgraph = dict()
@@ -184,6 +211,9 @@ def make_core():
 def fol_name(i):
     return f'follicle{i}'
 
+def core_name(i):
+    return f'core{i}'
+
 def grow_erdos_renyi(core_graph):
     out_graph = copy.deepcopy(core_graph)
     core_size = len(core_graph)
@@ -212,23 +242,135 @@ def grow_erdos_renyi(core_graph):
 
     return find_largest_connected_component(out_graph)
 
-def gen_mst(size):
+def gen_random_node_order(size, name_func=fol_name):
+    node_order = list()
+
+    for i in range(size):
+        node_order.append(name_func(i))
+
+    random.shuffle(node_order)
+    return node_order
+
+def gen_connected_graph(size):
+    node_order = gen_random_node_order(size)
     out_graph = defaultdict(list)
 
-def grow_barabasi_albert(core_graph, total_size):
-    out_graph = gen_mst(total_size)
+    for i in range(1, len(node_order)):
+        node1 = node_order[i]
+        node2 = node_order[random.randrange(i)]
+        out_graph[node1].append(node2)
+        out_graph[node2].append(node1)
 
-    return find_largest_connected_component(out_graph)
+    connected_graph = find_largest_connected_component(out_graph)
+
+    print(f'out_graph is {len(out_graph)} and connected graph is {len(connected_graph)}')
+    return out_graph
+
+def gen_barabasi_albert(num_nodes, num_edges, name_func=fol_name):
+    node_order = gen_random_node_order(num_nodes, name_func)
+    node_pool = [node_order[0]]
+    out_graph = defaultdict(list)
+    percent_to_print = 0
+
+    for i in range(1, num_edges):
+        node1 = node_pool[random.randrange(len(node_pool))]
+
+        if i < len(node_order):
+            node2 = node_order[i]
+        else:
+            node2 = node_pool[random.randrange(len(node_pool))]
+
+        out_graph[node1].append(node2)
+        out_graph[node2].append(node1)
+
+        node_pool.append(node1)
+        node_pool.append(node2)
+
+        if i * 100 / num_edges > percent_to_print:
+            print(f'{percent_to_print}% done')
+            percent_to_print += 1
+
+    largest_connected = find_largest_connected_component(out_graph)
+    print(f'out_graph is {len(out_graph)} and largest connected is {len(largest_connected)}')
+    return largest_connected
+
+def overlay_graph(base_graph, overlay_graph):
+    assert len(overlay_graph) <= len(base_graph), 'base graph is smaller than overlay graph'
+    base_nodes = list(base_graph.keys())
+    random.shuffle(base_nodes)
+    replace_nodes = base_nodes[:len(overlay_graph)]
+    random.shuffle(replace_nodes)
+    remaining_nodes = base_nodes[len(overlay_graph):]
+
+    replace_start_distr = degree_distr.get_sub_degree_distr(base_graph, replace_nodes)
+    remaining_start_distr = degree_distr.get_sub_degree_distr(base_graph, remaining_nodes)
+    base_start_distr = degree_distr.get_degree_distr(base_graph)
+    assert_same_distr(add_distr(replace_start_distr, remaining_start_distr), base_start_distr)
+
+    overlay_nodes = list(overlay_graph.keys())
+    random.shuffle(overlay_nodes)
+    assert len(overlay_nodes) == len(replace_nodes)
+    replace_to_overlay = {replace: overlay for replace, overlay in zip(replace_nodes, overlay_nodes)}
+    overlay_to_replace = {overlay: replace for replace, overlay in zip(replace_nodes, overlay_nodes)}
+    out_graph = dict()
+
+    # replace all appearances of a replace_node with its overlay_node
+    for node, adj in base_graph.items():
+        if node in replace_to_overlay:
+            out_node = replace_to_overlay[node]
+        else:
+            out_node = node
+
+        out_graph[out_node] = list()
+
+        for adj_node in adj:
+            if adj_node in replace_to_overlay:
+                out_adj_node = replace_to_overlay[adj_node]
+            else:
+                out_adj_node = adj_node
+
+            out_graph[out_node].append(out_adj_node)
+
+    for node in remaining_nodes:
+        assert node in out_graph
+
+    for node in replace_nodes:
+        assert node not in out_graph
+
+    for node in overlay_nodes:
+        assert node in out_graph
+
+    remaining_end_distr = degree_distr.get_sub_degree_distr(out_graph, remaining_nodes)
+    overlay_end_distr = degree_distr.get_sub_degree_distr(out_graph, overlay_nodes)
+    assert_same_distr(remaining_start_distr, remaining_end_distr)
+    assert_same_distr(replace_start_distr, overlay_end_distr)
+
+    # turn overlay distr in out_graph into the actual overlay distr
+    for overlay_node in overlay_nodes:
+        new_adj = list()
+
+        for adj_node in out_graph[overlay_node]:
+            if adj_node not in overlay_nodes:
+                new_adj.append(adj_node)
+
+        new_adj.extend(overlay_graph[overlay_node])
+        out_graph[overlay_node] = new_adj
+
+    remaining_end_distr = degree_distr.get_sub_degree_distr(out_graph, remaining_nodes)
+    assert_same_distr(remaining_start_distr, remaining_end_distr)
+    overlay_induced_distr = degree_distr.get_degree_distr(get_induced_subgraph(out_graph, overlay_nodes))
+    overlay_og_distr = degree_distr.get_degree_distr(overlay_graph)
+    assert_same_distr(overlay_induced_distr, overlay_og_distr)
+
+    return out_graph
 
 def main():
-    core_graph = make_core()
-    degree_distr.print_degree_distr(core_graph)
-    left_graph = grow_barabasi_albert(core_graph)
-
-    degree_distr.print_degree_distr(left_graph)
-    print(f'Size of left: {len(left_graph)}')
-
-    right_graph = grow_barabasi_albert(core_graph)
+    # core_graph = gen_barabasi_albert(NUM_NODES // 100 * 5, NUM_EDGES // 100 * 7, name_func=core_name)
+    core_graph = read_in_graph('../networks/hairball/barabasi_core.el')
+    left_graph = read_in_graph('../networks/hairball/barabasi_Onl.el')
+    right_graph = read_in_graph('../networks/hairball/barabasi_Onr.el')
+    left_graph = overlay_graph(left_graph, core_graph)
+    right_graph = overlay_graph(right_graph, core_graph)
 
     if left_path != None:
         assert right_path != None
@@ -238,6 +380,7 @@ def main():
         assert right_path == None
 
     print(f'Size of core: {len(core_graph)}')
+    print(f'Size of left: {len(left_graph)}')
     print(f'Size of right: {len(right_graph)}')
 
 if __name__ == '__main__':
