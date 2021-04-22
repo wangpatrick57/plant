@@ -12,20 +12,20 @@ CORE_INITIAL_SIZE = 550
 FOLLICLE_COUNT = 4000
 FOLLICLE_PRINT_STEP = 300
 NUM_NODES = 15000
-NUM_EDGES = 50000
+NUM_EDGES = 300000
+left_path = '/home/wangph1/plant/networks/hairball/barabasi_Onl_wcore.el'
+right_path = '/home/wangph1/plant/networks/hairball/barabasi_Onr_wcore.el'
 
 
 # ARGS
 if len(sys.argv) == 1:
-    left_path = None
-    right_path = None
-elif len(sys.argv) == 2:
-    NUM_EDGES = int(sys.argv[1])
+    CORE_NODES = 1500
+    CORE_EDGES = 5000
 elif len(sys.argv) == 3:
-    left_path = sys.argv[1]
-    right_path = sys.argv[2]
+    CORE_NODES = int(sys.argv[1])
+    CORE_EDGES = int(sys.argv[2])
 else:
-    print('Usage: either no args or one arg for left and right')
+    print('Usage: num args incorrect')
 
 
 # FUNCTIONS
@@ -365,10 +365,15 @@ def overlay_graph(base_graph, overlay_graph):
     return out_graph
 
 def main():
-    # core_graph = gen_barabasi_albert(NUM_NODES // 100 * 5, NUM_EDGES // 100 * 7, name_func=core_name)
-    core_graph = read_in_graph('../networks/hairball/barabasi_core.el')
-    left_graph = read_in_graph('../networks/hairball/barabasi_Onl.el')
-    right_graph = read_in_graph('../networks/hairball/barabasi_Onr.el')
+    left_graph = gen_barabasi_albert(15000, 300000)
+    write_el(left_graph, '/home/wangph1/plant/networks/hairball/barabasi_300k.el')
+
+    if left_graph != None:
+        return
+
+    core_graph = gen_barabasi_albert(CORE_NODES, CORE_EDGES, name_func=core_name)
+    left_graph = read_in_graph('/home/wangph1/plant/networks/hairball/barabasi_Onl.el')
+    right_graph = read_in_graph('/home/wangph1/plant/networks/hairball/barabasi_Onr.el')
     left_graph = overlay_graph(left_graph, core_graph)
     right_graph = overlay_graph(right_graph, core_graph)
 

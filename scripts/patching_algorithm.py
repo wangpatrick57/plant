@@ -383,12 +383,17 @@ def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_s
         print(' '.join(index2))
         pairs_processed += 1
 
-    debug_print(f'on settings NUM_MATCHING_NODES={NUM_MATCHING_NODES} PATCH_PROX_INC={PATCH_PROX_INC}, there are {len(orthologs_list)} {MISSING_ALLOWED}|miss orthologs out of {pairs_processed} processed patched pairs, representing {len(orthologs_list) * 100 / pairs_processed}%')
+    if pairs_processed == 0:
+        ortholog_percent = -1
+    else:
+        ortholog_percent = len(orthologs_list) * 100 / pairs_processed
+
+    debug_print(f'on settings NUM_MATCHING_NODES={NUM_MATCHING_NODES} PATCH_PROX_INC={PATCH_PROX_INC}, there are {len(orthologs_list)} {MISSING_ALLOWED}|miss orthologs out of {pairs_processed} processed patched pairs, representing {ortholog_percent}%')
     return orthologs_list
 
 def get_modified_patched_indexes(patched_indexes):
-    nauty_output_file = open('../data/why_patch_works/ids_mouse_rat_61.txt', 'r')
-    patchids_file = open('../data/why_patch_works/patchids_mouse_rat_61.txt', 'r')
+    nauty_output_file = open('/home/wangph1/plant/data/why_patch_works/ids_mouse_rat_61.txt', 'r')
+    patchids_file = open('/home/wangph1/plant/data/why_patch_works/patchids_mouse_rat_61.txt', 'r')
     nauty_converter = dict()
 
     for patchid_line, output_line in zip(patchids_file, nauty_output_file):
