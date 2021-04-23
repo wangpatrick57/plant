@@ -5,6 +5,7 @@ from collections import defaultdict, deque
 import json
 import copy
 import degree_distr
+from graph_helpers import write_el
 
 
 # SETTINGS
@@ -31,21 +32,6 @@ else:
 # FUNCTIONS
 def debug_print(*args, **kwargs):
     print(*args, file = sys.stderr, **kwargs)
-
-def write_el(graph, fname):
-    f = open(fname, 'w')
-    el = set()
-
-    for node, adj in graph.items():
-        for adj_node in adj:
-            min_node = min(node, adj_node)
-            max_node = max(node, adj_node)
-
-            if min_node != max_node:
-                el.add((min_node, max_node))
-
-    for node1, node2 in el:
-        f.write(f'{node1} {node2}\n')
 
 def assert_same_distr(distr1, distr2):
     for key in distr1:
