@@ -1,0 +1,6 @@
+START
+
+PERTURB COUNT: 1000
+for 6 matching nodes, there are 5816 out of 49050 matches, or 11.857288481141692%
+for 6 matching nodes, there are 7986 out of 58323 matches, or 13.692711280283936%
+on settings NUM_MATCHING_NODES=6 PATCH_PROX_INC=1, there are 335 0|miss orthologs out of 585 processed patched pairs, representing 57.26495726495727%

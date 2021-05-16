@@ -4,7 +4,7 @@ import random
 from collections import defaultdict
 
 el_file = open(sys.argv[1], 'r')
-perturb_percent = float(sys.argv[2])
+perturb_count = int(sys.argv[2])
 all_edges = set()
 all_nodes = set()
 
@@ -23,7 +23,7 @@ node_list = list(all_nodes)
 random.shuffle(edge_list)
 random.shuffle(node_list)
 num_edges = len(edge_list)
-perturb_count = int(perturb_percent / 100 * num_edges)
+# perturb_count = int(perturb_percent / 100 * num_edges)
 
 # remove perturb_count many edges
 edge_list = edge_list[:-perturb_count]

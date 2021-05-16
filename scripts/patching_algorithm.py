@@ -2,6 +2,8 @@ import sys
 import json
 import re
 import random
+from graph_helpers import *
+from collections import defaultdict
 
 # command line input
 times_called = 0
@@ -173,7 +175,7 @@ class PatchedIndex:
 
         extra_edges_str = '-'.join([f'{key}:' + f'{",".join(str(pos) for pos in value)}' for key, value in sorted(list(self._extra_edges.items()))])
         matching_poses_str = ','.join([f'{g1_pos}:{g2_pos}' for g1_pos, g2_pos in self._matching_poses])
-        self._key = f'{left_index.get_graphlet_id()};{right_index.get_graphlet_id()};{matching_poses_str};{extra_edges_str}'
+        self._key = f'{left_index.get_graphlet_id()}-{right_index.get_graphlet_id()};{matching_poses_str};{extra_edges_str}'
 
     def get_node_arr(self):
         return self._patched_node_arr
@@ -212,23 +214,24 @@ def read_index_file(index_file):
 
 def get_matching_poses_adj_list(index_list):
     matching_poses_adj_list = []
-    total_to_check = len(index_list) * PATCH_PROX_INC
+    total_to_check = len(index_list)
     num_checked = 0
 
     for i in range(0, len(index_list)):
         matching_poses_adj_list.append([])
         outer_index = index_list[i]
 
-        for j in range(i + 1, i + 1 + PATCH_PROX_INC):
+        for j in range(i + PATCH_PROX_INC, i + PATCH_PROX_INC + 1):
             if j >= len(index_list):
                 continue
 
             inner_index = index_list[j]
+            num_matching = outer_index.get_num_matching(inner_index)
 
             if NUM_MATCHING_NODES < 0:
-                do_append = outer_index.get_num_matching(inner_index) >= -1 * NUM_MATCHING_NODES
+                do_append = num_matching >= -1 * NUM_MATCHING_NODES
             else:
-                do_append = outer_index.get_num_matching(inner_index) == NUM_MATCHING_NODES
+                do_append = num_matching == NUM_MATCHING_NODES
 
             if do_append:
                 matching_poses_adj_list[i].append(j)
@@ -299,32 +302,21 @@ def get_core_to_core(adj_set):
 
     return core_to_core
 
-def get_si_to_sj(speciesi, speciesj):
-    SPECIES_TO_INDEX = dict()
-    species_line = ORTHO_FILE.readline().strip()
-    species_order = re.split('[\s\t]+', species_line)
+def get_num_missing(base_index, comp_index_list, base_to_comp_list):
+    assert len(comp_index_list) == len(base_to_comp_list)
+    missing_nodes_list = [0] * len(comp_index_list)
 
-    for i, species in enumerate(species_order):
-        SPECIES_TO_INDEX[species] = i
+    for m in range(len(base_index)):
+        base_node = base_index[m]
 
-    si_to_sj = dict()
-    si_pos = SPECIES_TO_INDEX[speciesi]
-    sj_pos = SPECIES_TO_INDEX[speciesj]
+        for i in range(len(comp_index_list)):
+            comp_node = comp_index_list[i][m]
+            base_to_comp = base_to_comp_list[i]
 
-    for line in ORTHO_FILE:
-        line_split = line.strip().split()
+            if base_node not in base_to_comp or base_to_comp[base_node] != comp_node:
+                missing_nodes_list[i] += 1
 
-        if line_split[si_pos] == speciesi: # first line
-            assert line_split[sj_pos] == speciesj
-        else: # other lines
-            si_node = line_split[si_pos]
-            sj_node = line_split[sj_pos]
-
-            if si_node != '0' and sj_node != '0':
-                si_to_sj[si_node] = sj_node
-
-    debug_print(f'there are {len(si_to_sj.values())} orthologs and {len(set(si_to_sj.values()))} unique orthologs')
-    return si_to_sj
+    return missing_nodes_list
 
 def check_if_ortholog(base_index, comp_index_list, base_to_comp_list):
     assert len(comp_index_list) == len(base_to_comp_list)
@@ -347,6 +339,7 @@ def check_if_ortholog(base_index, comp_index_list, base_to_comp_list):
 
 def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_set_list):
     orthologs_list = []
+    full_match_distr = defaultdict(int)
     pairs_processed = 0
     comp_patched_indexes_list = [None] * len(comp_indexes_list)
 
@@ -370,25 +363,25 @@ def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_s
         comp_index_list = [comp_patched_indexes[0].get_node_arr() for comp_patched_indexes in comp_patched_indexes_list]
         assert len(base_index) > k and all(len(base_index) == len(comp_index) for comp_index in comp_index_list), f'lengths not good'
 
-        if check_if_ortholog(base_index, comp_index_list, base_to_comp_list):# True:
-            new_seed = [patched_id, base_index]
-            new_seed.extend(comp_index_list)
-            orthologs_list.append(new_seed)
+        is_ortho = check_if_ortholog(base_index, comp_index_list, base_to_comp_list)
+        new_seed = [patched_id, base_index]
+        new_seed.extend(comp_index_list)
+        orthologs_list.append((new_seed, is_ortho))
         
+        num_missing = get_num_missing(base_index, comp_index_list, base_to_comp_list)
         index1 = base_index
         index2 = comp_index_list[0]
         assert len(index1) == len(index2)
-        print()
-        print(' '.join(index1))
-        print(' '.join(index2))
         pairs_processed += 1
+
+    num_orthologs = sum(1 if is_ortho else 0 for _, is_ortho in orthologs_list)
 
     if pairs_processed == 0:
         ortholog_percent = -1
     else:
-        ortholog_percent = len(orthologs_list) * 100 / pairs_processed
+        ortholog_percent = num_orthologs * 100 / pairs_processed
 
-    debug_print(f'on settings NUM_MATCHING_NODES={NUM_MATCHING_NODES} PATCH_PROX_INC={PATCH_PROX_INC}, there are {len(orthologs_list)} {MISSING_ALLOWED}|miss orthologs out of {pairs_processed} processed patched pairs, representing {ortholog_percent}%')
+    debug_print(f'on settings NUM_MATCHING_NODES={NUM_MATCHING_NODES} PATCH_PROX_INC={PATCH_PROX_INC}, there are {num_orthologs} {MISSING_ALLOWED}|miss orthologs out of {pairs_processed} processed patched pairs, representing {ortholog_percent}%')
     return orthologs_list
 
 def get_modified_patched_indexes(patched_indexes):
@@ -465,13 +458,13 @@ def main():
     if NETWORK_SOURCE == 'Hairball':
         s1_to_s2 = get_core_to_core(s1_adj_set)
     else:
-        s1_to_s2 = get_si_to_sj(species1, species2)
+        s1_to_s2 = get_si_to_sj(species1, species2, ORTHO_FILE)
 
     orthologs_list = get_orthologs_list(s1_patched_indexes, [s2_patched_indexes], [s1_to_s2], [s1_adj_set, s2_adj_set])
     
-    for ortholog in orthologs_list:
-        # print(seed_to_str(*ortholog))
-        pass
+    for seed, is_ortho in orthologs_list:
+        if is_ortho:
+            print(seed_to_str(*seed))
 
 
 if __name__ == '__main__':
