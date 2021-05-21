@@ -38,7 +38,7 @@ s2_index_file = open(sys.argv[5], 'r')
 NUM_MATCHING_NODES = int(sys.argv[6]) if len(sys.argv) >= 7 else k - 2 # negative for <=, positive for ==
 PATCH_PROX_INC = int(sys.argv[7]) if len(sys.argv) >= 8 else 1
 NETWORK_SOURCE = sys.argv[8] if len(sys.argv) >= 9 else 'Uniprot'
-DEBUG = bool(eval(sys.argv[9])) if len(sys.argv) >= 10 else True
+DEBUG = bool(eval(sys.argv[9])) if len(sys.argv) >= 10 else False
 
 # constants
 MISSING_ALLOWED = 0
@@ -463,8 +463,7 @@ def main():
     orthologs_list = get_orthologs_list(s1_patched_indexes, [s2_patched_indexes], [s1_to_s2], [s1_adj_set, s2_adj_set])
     
     for seed, is_ortho in orthologs_list:
-        if is_ortho:
-            print(seed_to_str(*seed))
+        print(seed_to_str(*seed))
 
 
 if __name__ == '__main__':

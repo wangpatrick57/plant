@@ -9,14 +9,10 @@ s2_og_file="/home/sana/Jurisica/IID/networks/IID${s2_name}.el"
 
 perturb_count=$1
 trial=$2
-s1_pr_file="$HOME/plant/networks/perturb/${s1_name}_${perturb_count}_${trial}.el"
-s2_pr_file="$HOME/plant/networks/perturb/${s2_name}_${perturb_count}_${trial}.el"
+s1_pr_file="$HOME/plant/networks/zhi/perturb/${s1_name}_${perturb_count}_${trial}.el"
+s2_pr_file="$HOME/plant/networks/zhi/perturb/${s2_name}_${perturb_count}_${trial}.el"
 s1_data_file="$HOME/plant/data/zhi/perturb/${s1_name}_${perturb_count}_${trial}.txt"
 s2_data_file="$HOME/plant/data/zhi/perturb/${s2_name}_${perturb_count}_${trial}.txt"
-
-echo $s1_pr_file $s2_pr_file
-echo $s1_data_file $s2_data_file
-exit 0
 
 python3 $PERTURB_SCRIPT $s1_og_file $perturb_count >$s1_pr_file
 echo "$s1_name done perturbing for $perturb_count"
@@ -26,10 +22,9 @@ echo "$s2_name done perturbing for $perturb_count"
 cd $BLANT_DIR
 ulimit -s unlimited
 ./blant -k8 -lDEG2 -mi -sINDEX $s1_pr_file >$s1_data_file
+~/plant/scripts/dedup.sh $s1_data_file
 echo "$s1_name done blanting for $perturb_count"
 ./blant -k8 -lDEG2 -mi -sINDEX $s2_pr_file >$s2_data_file
+~/plant/scripts/dedup.sh $s2_data_file
 echo "$s2_name done blanting for $perturb_count"
 cd -
-
-~/plant/scripts/dedup.sh $s1_data_file
-~/plant/scripts/dedup.sh $s2_data_file
