@@ -23,7 +23,7 @@ for line in open(orthoseeds_file, 'r'):
 
 sorted_graphlet_distr = sorted(list(graphlet_distr.items()), key = (lambda item : item[1]))
 print(f'graphlet distribution', file=sys.stderr)
-# print('\n'.join(f'{id} {count}' for id, count in sorted_graphlet_distr), file=sys.stderr)
+print('\n'.join(f'{id} {count}' for id, count in sorted_graphlet_distr), file=sys.stderr)
 print(f'species1 covers {len(s1_nodes)} nodes', file=sys.stderr)
 print(f'species2 covers {len(s2_nodes)} nodes', file=sys.stderr)
 print('\n'.join(s1_nodes))
