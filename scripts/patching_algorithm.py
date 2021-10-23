@@ -38,7 +38,7 @@ s2_index_file = open(sys.argv[5], 'r')
 NUM_MATCHING_NODES = int(sys.argv[6]) if len(sys.argv) >= 7 else k - 2 # negative for <=, positive for ==
 PATCH_PROX_INC = int(sys.argv[7]) if len(sys.argv) >= 8 else 1
 NETWORK_SOURCE = sys.argv[8] if len(sys.argv) >= 9 else 'Uniprot'
-DEBUG = bool(eval(sys.argv[9])) if len(sys.argv) >= 10 else False
+DEBUG = bool(eval(sys.argv[9])) if len(sys.argv) >= 10 else True
 
 # constants
 MISSING_ALLOWED = 0
@@ -183,24 +183,6 @@ class PatchedIndex:
     def __str__(self):
         return self._key
 
-
-def read_graph_file(graph_file):
-    adj_set = dict()
-
-    for edge_str in graph_file:
-        node1, node2 = re.split('[\s\t]', edge_str.strip())
-
-        if node1 not in adj_set:
-            adj_set[node1] = set()
-
-        if node2 not in adj_set:
-            adj_set[node2] = set()
-
-        adj_set[node1].add(node2)
-        adj_set[node2].add(node1)
-
-    return adj_set
-
 def read_index_file(index_file):
     index_list = []
 
@@ -341,7 +323,18 @@ def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_s
     orthologs_list = []
     full_match_distr = defaultdict(int)
     pairs_processed = 0
+    percent_to_print = 0
+    pairs_to_process = 0
+    debug_print('about to calculate pairs_to_process')
+
+    for patched_id in base_indexes:
+        for comp_indexes in comp_indexes_list:
+            if patched_id in comp_indexes and len(base_indexes[patched_id]) == 1 and len(comp_indexes[patched_id]) == 1:
+                pairs_to_process += 1
+
     comp_patched_indexes_list = [None] * len(comp_indexes_list)
+
+    debug_print('done calculating pairs_to_process')
 
     for patched_id, base_patched_indexes in base_indexes.items():
         do_continue = False
@@ -367,12 +360,11 @@ def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_s
         new_seed = [patched_id, base_index]
         new_seed.extend(comp_index_list)
         orthologs_list.append((new_seed, is_ortho))
-        
-        num_missing = get_num_missing(base_index, comp_index_list, base_to_comp_list)
-        index1 = base_index
-        index2 = comp_index_list[0]
-        assert len(index1) == len(index2)
         pairs_processed += 1
+
+        if pairs_processed * 100 / pairs_to_process > percent_to_print:
+            debug_print(f'{pairs_processed * 100 / pairs_to_process}% done')
+            percent_to_print += 1
 
     num_orthologs = sum(1 if is_ortho else 0 for _, is_ortho in orthologs_list)
 
@@ -435,11 +427,15 @@ def print_sorted_sparsegraphs(dict_list, adj_set_list): # sorted by key
         print(key_to_sparsegraph[key])
 
 def main():
+    debug_print('algorithm starting')
+
     # read in index files
-    s1_adj_set = read_graph_file(s1_graph_file)
+    s1_adj_set = read_adj_set(s1_graph_file)
     s1_index_list = read_index_file(s1_index_file)
-    s2_adj_set = read_graph_file(s2_graph_file)
+    s2_adj_set = read_adj_set(s2_graph_file)
     s2_index_list = read_index_file(s2_index_file)
+
+    debug_print('done reading files')
 
     # find pairs with enough nodes matching
     s1_matching_poses_adj_list = get_matching_poses_adj_list(s1_index_list)
@@ -448,6 +444,8 @@ def main():
     # patch indexes
     s1_patched_indexes = get_patched_indexes(s1_matching_poses_adj_list, s1_index_list, s1_adj_set)
     s2_patched_indexes = get_patched_indexes(s2_matching_poses_adj_list, s2_index_list, s2_adj_set)
+
+    debug_print('done patching indexes')
 
     ## CHANGE MODE
     # s1_patched_indexes = get_modified_patched_indexes(s1_patched_indexes)
@@ -463,7 +461,8 @@ def main():
     orthologs_list = get_orthologs_list(s1_patched_indexes, [s2_patched_indexes], [s1_to_s2], [s1_adj_set, s2_adj_set])
     
     for seed, is_ortho in orthologs_list:
-        print(seed_to_str(*seed))
+        if is_ortho:
+            print(seed_to_str(*seed))
 
 
 if __name__ == '__main__':
