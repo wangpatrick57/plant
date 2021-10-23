@@ -3,7 +3,8 @@ import sys
 import re
 
 # settings
-MISSING_ALLOWED = 1
+MISSING_ALLOWED = 0
+MAX_INDEXES_FOR_GRAPHLET_ID_ALLOWED = 3
 
 # input
 k = int(sys.argv[1])
@@ -73,47 +74,54 @@ total_pairs_to_process = int(total_graphlet_pairs / (speedup ** 2))
 print(f'total_graphlet_pairs: {total_graphlet_pairs}', file=sys.stderr)
 print(f'total_pairs_to_process: {total_pairs_to_process}', file=sys.stderr)
 
-# calc orthoseeds
-orthoseeds_list = []
+# loop through all indexes and add seeds to all_seeds_list
 all_seeds_list = []
 percent_printed = 0
 
 for graphlet_id, s1_graphlet_indexes in s1_indexes.items():
-    if len(s1_graphlet_indexes) > 3:
+    if len(s1_graphlet_indexes) > MAX_INDEXES_FOR_GRAPHLET_ID_ALLOWED:
         continue
 
-    if graphlet_id in s2_indexes:
-        if len(s2_indexes[graphlet_id]) > 3:
-            continue
+    if graphlet_id not in s2_indexes:
+        continue
 
-        for i in range(0, len(s1_graphlet_indexes), speedup):
-            s1_index = s1_graphlet_indexes[i]
+    s2_graphlet_indexes = s2_indexes[graphlet_id]
 
-            for j in range(0, len(s2_indexes[graphlet_id]), speedup):
-                s2_index = s2_indexes[graphlet_id][j]
-                missing_nodes = 0
-                
-                for m in range(k):
-                    s1_node = s1_index[m]
-                    s2_node = s2_index[m]
+    if len(s2_graphlet_indexes) > MAX_INDEXES_FOR_GRAPHLET_ID_ALLOWED:
+        continue
 
-                    if s1_node not in s1_to_s2 or s1_to_s2[s1_node] != s2_node:
-                        missing_nodes += 1
+    for i in range(0, len(s1_graphlet_indexes), speedup):
+        s1_index = s1_graphlet_indexes[i]
 
-                        if missing_nodes > MISSING_ALLOWED:
-                            break
-                        
-                if missing_nodes <= MISSING_ALLOWED:
-                    orthoseeds_list.append((graphlet_id, s1_index, s2_index))
+        for j in range(0, len(s2_graphlet_indexes), speedup):
+            s2_index = s2_graphlet_indexes[j]
+            missing_nodes = 0
 
-                all_seeds_list.append((graphlet_id, s1_index, s2_index))
+            # determine if we want to make it a seed
+            all_seeds_list.append((graphlet_id, s1_index, s2_index))
 
-                # print
-                pairs_processed = len(all_seeds_list)
-                
-                if pairs_processed / total_pairs_to_process * 100 > percent_printed:
-                    print(f'{percent_printed}% done', file=sys.stderr)
-                    percent_printed += 1
+            # print
+            pairs_processed = len(all_seeds_list)
+
+            if pairs_processed / total_pairs_to_process * 100 > percent_printed:
+                print(f'{percent_printed}% done', file=sys.stderr)
+                percent_printed += 1
+
+# check if it's an orthoseed, according to the amount of MISSING_ALLOWED
+orthoseeds_list = []
+
+for graphlet_id, s1_index, s2_index in all_seeds_list:
+    missing_nodes = 0
+
+    for m in range(k):
+        s1_node = s1_index[m]
+        s2_node = s2_index[m]
+
+        if s1_node not in s1_to_s2 or s1_to_s2[s1_node] != s2_node:
+            missing_nodes += 1
+
+    if missing_nodes <= MISSING_ALLOWED:
+        orthoseeds_list.append((graphlet_id, s1_index, s2_index))
 
 # spit out value and percent
 pairs_processed = len(all_seeds_list)
