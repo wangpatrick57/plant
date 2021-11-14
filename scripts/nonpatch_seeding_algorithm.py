@@ -6,8 +6,8 @@ from statistics import mean
 
 # settings
 MISSING_ALLOWED = 0
-MAX_INDEXES_FOR_GRAPHLET_ID_ALLOWED = 7
-SIMS_MEAN_THRESHOLD = 0.55
+MAX_INDEXES_FOR_GRAPHLET_ID_ALLOWED = 1
+SIMS_MEAN_THRESHOLD = 0
 
 # input
 k = int(sys.argv[1])
@@ -15,8 +15,10 @@ species1 = sys.argv[2]
 species2 = sys.argv[3]
 s1_index_file = open(sys.argv[4])
 s2_index_file = open(sys.argv[5])
-s1_odv_dir = ODVDirectory(sys.argv[6])
-s2_odv_dir = ODVDirectory(sys.argv[7])
+s1_odv_dir_path = sys.argv[6] if len(sys.argv) > 6 else get_odv_dir_path(species1)
+s2_odv_dir_path = sys.argv[7] if len(sys.argv) > 7 else get_odv_dir_path(species2)
+s1_odv_dir = ODVDirectory(s1_odv_dir_path)
+s2_odv_dir = ODVDirectory(s2_odv_dir_path)
 speedup = int(sys.argv[8]) if len(sys.argv) > 8 else 1
 which_to_print = sys.argv[9] if len(sys.argv) > 9 else "ORTHO"
 
