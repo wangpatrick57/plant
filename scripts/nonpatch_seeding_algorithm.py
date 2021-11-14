@@ -6,8 +6,8 @@ from statistics import mean
 
 # settings
 MISSING_ALLOWED = 0
-MAX_INDEXES_FOR_GRAPHLET_ID_ALLOWED = 1
-SIMS_MEAN_THRESHOLD = 0
+MAX_INDEXES_FOR_GRAPHLET_ID_ALLOWED = 15
+SIMS_MEAN_THRESHOLD = 0.79
 
 # input
 k = int(sys.argv[1])
@@ -15,12 +15,12 @@ species1 = sys.argv[2]
 species2 = sys.argv[3]
 s1_index_file = open(sys.argv[4])
 s2_index_file = open(sys.argv[5])
-s1_odv_dir_path = sys.argv[6] if len(sys.argv) > 6 else get_odv_dir_path(species1)
-s2_odv_dir_path = sys.argv[7] if len(sys.argv) > 7 else get_odv_dir_path(species2)
+which_to_print = sys.argv[6] if len(sys.argv) > 6 else "ORTHO"
+s1_odv_dir_path = sys.argv[7] if len(sys.argv) > 7 else get_odv_dir_path(species1)
+s2_odv_dir_path = sys.argv[8] if len(sys.argv) > 8 else get_odv_dir_path(species2)
 s1_odv_dir = ODVDirectory(s1_odv_dir_path)
 s2_odv_dir = ODVDirectory(s2_odv_dir_path)
-speedup = int(sys.argv[8]) if len(sys.argv) > 8 else 1
-which_to_print = sys.argv[9] if len(sys.argv) > 9 else "ORTHO"
+speedup = int(sys.argv[9]) if len(sys.argv) > 9 else 1
 
 # ortho stuff
 ortho_file = open('/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.Uniprot.tsv', 'r')
@@ -99,43 +99,42 @@ all_seeds_list = []
 percent_printed = 0
 candidate_seeds_processed = 0 # this won't be equal to len(all_seeds_list) because we don't add all candidate seeds
 
-for s1_graphlet_id, s1_graphlet_indexes in s1_indexes.items():
+for graphlet_id, s1_graphlet_indexes in s1_indexes.items():
+    if graphlet_id not in s2_indexes:
+        continue
+    
+    s2_graphlet_indexes = s2_indexes[graphlet_id]
+
     if len(s1_graphlet_indexes) > MAX_INDEXES_FOR_GRAPHLET_ID_ALLOWED:
         continue
 
-    # if graphlet_id not in s2_indexes:
-    #     continue
-    # 
-    # s2_graphlet_indexes = s2_indexes[graphlet_id]
+    if len(s2_graphlet_indexes) > MAX_INDEXES_FOR_GRAPHLET_ID_ALLOWED:
+        continue
 
-    for s2_graphlet_id, s2_graphlet_indexes in s2_indexes.items():
-        if len(s2_graphlet_indexes) > MAX_INDEXES_FOR_GRAPHLET_ID_ALLOWED:
-            continue
+    for i in range(0, len(s1_graphlet_indexes), speedup):
+        s1_index = s1_graphlet_indexes[i]
 
-        for i in range(0, len(s1_graphlet_indexes), speedup):
-            s1_index = s1_graphlet_indexes[i]
+        for j in range(0, len(s2_graphlet_indexes), speedup):
+            s2_index = s2_graphlet_indexes[j]
+            missing_nodes = 0
 
-            for j in range(0, len(s2_graphlet_indexes), speedup):
-                s2_index = s2_graphlet_indexes[j]
-                missing_nodes = 0
+            # determine if we want to make it a seed
+            if should_be_seed(s1_index, s2_index):
+                all_seeds_list.append((graphlet_id, s1_index, s2_index))
 
-                # determine if we want to make it a seed
-                if should_be_seed(s1_index, s2_index):
-                    all_seeds_list.append((s1_graphlet_id, s2_graphlet_id, s1_index, s2_index))
+            # print
+            candidate_seeds_processed += 1
 
-                # print
-                candidate_seeds_processed += 1
-
-                if candidate_seeds_processed / total_pairs_to_process * 100 > percent_printed:
-                    print(f'{percent_printed}% done', file=sys.stderr)
-                    percent_printed += 1
+            if candidate_seeds_processed / total_pairs_to_process * 100 > percent_printed:
+                print(f'{percent_printed}% done', file=sys.stderr)
+                percent_printed += 1
 
 print('done with finding seeds, now calculating orthoseeds', file=sys.stderr)
 
 # check if it's an orthoseed, according to the amount of MISSING_ALLOWED
 orthoseeds_list = []
 
-for s1_graphlet_id, s2_graphlet_id, s1_index, s2_index in all_seeds_list:
+for graphlet_id, s1_index, s2_index in all_seeds_list:
     missing_nodes = 0
 
     for m in range(k):
@@ -146,12 +145,12 @@ for s1_graphlet_id, s2_graphlet_id, s1_index, s2_index in all_seeds_list:
             missing_nodes += 1
 
     if missing_nodes <= MISSING_ALLOWED:
-        orthoseeds_list.append((s1_graphlet_id, s2_graphlet_id, s1_index, s2_index))
+        orthoseeds_list.append((graphlet_id, s1_index, s2_index))
 
 # spit out value and percent
 pairs_processed = len(all_seeds_list)
 list_to_print = orthoseeds_list if which_to_print == "ORTHO" else all_seeds_list
-list_to_print_str = '\n'.join(f'{str(s1_graphlet_id)} {str(s2_graphlet_id)} {",".join(s1_seed)} {",".join(s2_seed)}' for s1_graphlet_id, s2_graphlet_id, s1_seed, s2_seed in list_to_print)
+list_to_print_str = '\n'.join(f'{str(graphlet_id)} {",".join(s1_seed)} {",".join(s2_seed)}' for graphlet_id, s1_seed, s2_seed in list_to_print)
 print(list_to_print_str)
 orthoseed_percent = 0 if pairs_processed == 0 else len(orthoseeds_list) * 100 / pairs_processed
 print(f'there are {len(orthoseeds_list)} {k - MISSING_ALLOWED}|{k} orthoseeds out of {pairs_processed} processed graphlet pairs, representing {orthoseed_percent}%', file=sys.stderr)
