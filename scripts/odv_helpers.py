@@ -1,6 +1,9 @@
 import sys
 from statistics import mean
 
+def get_odv_dir_path(species):
+    return f'/home/sana/Jurisica/IID/networks/IID{species}.el.orca4'
+
 class ODVDirectory:
     # file format: every line has node name, followed by orbit counts, separated by spaces
     # NODENAME 23 1 250 37 4 0 ...
@@ -17,6 +20,9 @@ class ODVDirectory:
     def get_odv(self, node):
         return self._directory[node]
 
+    def get_nodes(self):
+        return self._directory.keys()
+
     def __str__(self):
         return '\n'.join([f'{node}: {odv}' for node, odv in self._directory.items()])
 
@@ -27,6 +33,9 @@ class ODV:
 
     def get_similarity(self, other):
         return mean([self._get_single_orbit_similarity(m1, m2) for m1, m2 in zip(self._odv_list, other._odv_list)])
+
+    def get_odv_val(self, num):
+        return self._odv_list[num]
 
     def __str__(self):
         return ' '.join([str(n) for n in self._odv_list])
