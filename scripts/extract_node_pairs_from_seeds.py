@@ -1,3 +1,5 @@
+#!/bin/python3
+
 import sys
 from collections import defaultdict
 
@@ -32,6 +34,9 @@ def print_output_pairs():
 node_pair_voting = dict()
 
 for line in seeds_file:
+    if line.strip() == '':
+        continue
+
     graphlet_id, s1_index_str, s2_index_str = line.strip().split()
     s1_nodes = s1_index_str.split(',')
     s2_nodes = s2_index_str.split(',')
