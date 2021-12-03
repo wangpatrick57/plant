@@ -1,3 +1,5 @@
+#!/bin/python3
+
 import sys
 from graph_helpers import *
 
@@ -12,6 +14,9 @@ lines = 0
 orthos = []
 
 for line in nodes_file:
+    if line.strip() == '':
+        continue
+
     node1, node2 = line.strip().split()
 
     if node1 in s1_to_s2 and s1_to_s2[node1] == node2:

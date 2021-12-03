@@ -1,3 +1,5 @@
+#!/bin/python3
+
 from collections import defaultdict
 import sys
 import re
