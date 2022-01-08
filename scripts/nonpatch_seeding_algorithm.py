@@ -56,7 +56,7 @@ s1_indexes = defaultdict(list)
 
 for i, line in enumerate(s1_index_file):
     line_split = line.strip().split()
-    assert len(line_split) == k + 1, f'{i}: {line.strip()}'
+    assert len(line_split) == k + 1, f'{i}: {line.strip()}, files: {s1_index_file.name} and {s2_index_file.name}'
     graphlet_id = int(line_split[0])
     index = line_split[1:]
     s1_indexes[graphlet_id].append(index)
@@ -66,7 +66,7 @@ s2_indexes = defaultdict(list)
 
 for i, line in enumerate(s2_index_file):
     line_split = line.strip().split()
-    assert len(line_split) == k + 1, f'{i}: {line.strip()}'
+    assert len(line_split) == k + 1, f'{i}: {line.strip()}, files: {s1_index_file.name} and {s2_index_file.name}'
     graphlet_id = int(line_split[0])
     index = line_split[1:]
     s2_indexes[graphlet_id].append(index)
