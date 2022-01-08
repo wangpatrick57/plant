@@ -1,7 +1,7 @@
 #!/bin/bash
-top_thousandth=$1
-orbit=$2
-species=$3
+species=$1
+top_thousandth=$2
+orbit=$3
 el_file="/home/sana/Jurisica/IID/networks/IID${species}.el"
 orca4_file="${el_file}.orca4"
 out_file="${HOME}/plant/data/combine/p${top_thousandth}-o${orbit}-${species}-lDEG2.out"

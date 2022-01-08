@@ -1,7 +1,7 @@
 #!/bin/bash
 SPECIES1=$1
 SPECIES2=$2
-MAX_PERCENT=1
+MAX_PERCENT=0
 COMBINED_SEEDS_FILE=${HOME}/plant/data/combine/combined-seeds-maxp${MAX_PERCENT}-o01-${SPECIES1}-${SPECIES2}.out
 COMBINED_NODES_FILE=${HOME}/plant/data/combine/combined-nodes-maxp${MAX_PERCENT}-o01-${SPECIES1}-${SPECIES2}.out
 COMBINED_RESULTS_FILE=${HOME}/plant/data/combine/combined-results-maxp${MAX_PERCENT}-o01-${SPECIES1}-${SPECIES2}.out
