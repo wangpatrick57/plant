@@ -1,7 +1,7 @@
 import sys
 from statistics import mean
 
-def get_odv_dir_path(species):
+def get_odv_file_path(species):
     return f'/home/sana/Jurisica/IID/networks/IID{species}.el.orca4'
 
 class ODVDirectory:

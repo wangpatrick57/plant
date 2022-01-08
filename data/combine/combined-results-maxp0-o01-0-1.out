@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/wangph1/plant/scripts/evaluate_nodes.py", line 11, in <module>
+    s1_to_s2 = get_si_to_sj(species1, species2, ORTHO_FILE)
+  File "/home/wangph1/plant/scripts/graph_helpers.py", line 47, in get_si_to_sj
+    si_pos = species_to_index[speciesi]
+KeyError: '0'
