@@ -24,25 +24,13 @@ s1_odv_file_path = sys.argv[7] if len(sys.argv) > 7 else get_odv_file_path(speci
 s2_odv_file_path = sys.argv[8] if len(sys.argv) > 8 else get_odv_file_path(species2)
 speedup = int(sys.argv[9]) if len(sys.argv) > 9 else 1
 
+# find seeds
 all_seeds_list = find_seeds(k, species1, species2, s1_index_file_path, s2_index_file_path, s1_odv_file_path, s2_odv_file_path, SeedingAlgorithmSettings())
 print('done with finding seeds, now calculating orthoseeds', file=sys.stderr)
 
 # check if it's an orthoseed, according to the amount of MISSING_ALLOWED
 s1_to_s2_orthologs = get_s1_to_s2_orthologs(species1, species2)
-orthoseeds_list = []
-
-for graphlet_id, s1_index, s2_index in all_seeds_list:
-    missing_nodes = 0
-
-    for m in range(k):
-        s1_node = s1_index[m]
-        s2_node = s2_index[m]
-
-        if s1_node not in s1_to_s2_orthologs or s1_to_s2_orthologs[s1_node] != s2_node:
-            missing_nodes += 1
-
-    if missing_nodes <= MISSING_ALLOWED:
-        orthoseeds_list.append((graphlet_id, s1_index, s2_index))
+orthoseeds_list = get_orthoseeds_list(all_seeds_list, s1_to_s2_orthologs, MISSING_ALLOWED)
 
 # spit out value and percent
 pairs_processed = len(all_seeds_list)
