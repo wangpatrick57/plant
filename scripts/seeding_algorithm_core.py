@@ -8,11 +8,11 @@ class SeedingAlgorithmSettings:
         self.speedup = speedup
 
 # takes in necessary inputs and settings and returns a list of all found seeds
-def find_seeds(k, species1, species2, s1_index_file_path, s2_index_file_path, s1_odv_file_path, s2_odv_file_path, settings, print_progress=False):
-    s1_odv_dir = ODVDirectory(s1_odv_file_path)
-    s2_odv_dir = ODVDirectory(s2_odv_file_path)
-    s1_indexed_indices = get_indexed_indices(s1_index_file_path, k)
-    s2_indexed_indices = get_indexed_indices(s2_index_file_path, k)
+def find_seeds(k, species1, species2, s1_index_path, s2_index_path, s1_odv_path, s2_odv_path, settings, print_progress=False):
+    s1_odv_dir = ODVDirectory(s1_odv_path)
+    s2_odv_dir = ODVDirectory(s2_odv_path)
+    s1_indexed_indices = get_indexed_indices(s1_index_path, k)
+    s2_indexed_indices = get_indexed_indices(s2_index_path, k)
     total_pairs_to_process = estimate_total_pairs_to_process(s1_indexed_indices, s2_indexed_indices, settings)
     all_seeds_list = []
     percent_printed = 0
@@ -53,8 +53,8 @@ def find_seeds(k, species1, species2, s1_index_file_path, s2_index_file_path, s1
 
 
 # yes these are two different meanings of index
-def get_indexed_indices(index_file_path, k):
-    with open(index_file_path, 'r') as index_file:
+def get_indexed_indices(index_path, k):
+    with open(index_path, 'r') as index_file:
         indexed_indices = defaultdict(list)
 
         for i, line in enumerate(index_file):
