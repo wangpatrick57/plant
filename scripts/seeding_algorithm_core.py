@@ -39,7 +39,7 @@ def find_seeds(k, species1, species2, s1_index_path, s2_index_path, s1_odv_path,
 
                 # determine if we want to make it a seed
                 if should_be_seed(s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings.sims_threshold):
-                    all_seeds_list.append((graphlet_id, s1_index, s2_index))
+                    all_seeds_list.append((graphlet_id, tuple(s1_index), tuple(s2_index)))
 
                 candidate_seeds_processed += 1
 
@@ -51,6 +51,14 @@ def find_seeds(k, species1, species2, s1_index_path, s2_index_path, s1_odv_path,
         
     return all_seeds_list
 
+def get_combined_seeds_list(seed_lists):
+    final_set = set()
+
+    for seed_list in seed_lists:
+        for seed in seed_list:
+            final_set.add(seed)
+
+    return list(final_set)
 
 # yes these are two different meanings of index
 def get_indexed_indices(index_path, k):
