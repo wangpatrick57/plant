@@ -6,7 +6,7 @@ from ortholog_helpers import *
 from node_pair_extraction_helpers import *
 
 species_pairs = [('human', 'rat'), ('mouse', 'rat'), ('mouse', 'rabbit'), ('mouse', 'horse'), ('mouse', 'pig')]
-thresholds = []
+thresholds = [0.66, 0.67, 0.68, 0.69, 0.76, 0.77, 0.78, 0.79, 0.81, 0.82, 0.83, 0.84, 0.85]
 num_orthopairs = []
 num_total_nodes = []
 
