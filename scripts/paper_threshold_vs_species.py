@@ -5,8 +5,9 @@ from blant_cache_helpers import *
 from ortholog_helpers import *
 from node_pair_extraction_helpers import *
 
-species_pairs = [('human', 'rat'), ('mouse', 'rat'), ('mouse', 'rabbit'), ('mouse', 'horse'), ('mouse', 'pig')]
-thresholds = [0.66, 0.67, 0.68, 0.69, 0.76, 0.77, 0.78, 0.79, 0.81, 0.82, 0.83, 0.84, 0.85]
+species_pairs = [('human', 'dog'), ('duck', 'horse'), ('fly', 'chicken'), ('cat', 'rat'), ('horse', 'dog')]
+MAX_INDICES = int(sys.argv[1])
+thresholds = [e / 100 for e in range(65, 90)]
 num_orthopairs = []
 num_total_nodes = []
 
@@ -20,7 +21,7 @@ for threshold in thresholds:
         s2_index_path = get_index_path(species2, 0, 0, 2)
         s1_odv_path = get_odv_file_path(species1)
         s2_odv_path = get_odv_file_path(species2)
-        settings = SeedingAlgorithmSettings(10, threshold, 1)
+        settings = SeedingAlgorithmSettings(MAX_INDICES, threshold, 1)
         all_seeds_list = find_seeds(8, species1, species2, s1_index_path, s2_index_path, s1_odv_path, s2_odv_path, settings)
         all_node_pairs = extract_node_pairs(all_seeds_list)
         s1_to_s2_orthologs = get_s1_to_s2_orthologs(species1, species2)
