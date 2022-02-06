@@ -8,7 +8,13 @@ class SeedingAlgorithmSettings:
         self.speedup = speedup
 
 # takes in necessary inputs and settings and returns a list of all found seeds
-def find_seeds(k, species1, species2, s1_index_path, s2_index_path, s1_odv_path, s2_odv_path, settings, print_progress=False):
+def find_seeds(k, species1, species2, s1_index_path, s2_index_path, s1_odv_path=None, s2_odv_path=None, settings=SeedingAlgorithmSettings(), print_progress=False):
+    if s1_odv_path == None:
+        s1_odv_path = get_odv_file_path(species1)
+
+    if s2_odv_path == None:
+        s2_odv_path = get_odv_file_path(species2)
+    
     s1_odv_dir = ODVDirectory(s1_odv_path)
     s2_odv_dir = ODVDirectory(s2_odv_path)
     s1_indexed_indices = get_indexed_indices(s1_index_path, k)

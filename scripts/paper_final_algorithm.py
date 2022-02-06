@@ -69,17 +69,17 @@ def find_edge(species1, species2):
 
     return edge
 
-def get_final_answer(species1, species2):
+def get_final_answer_seeds(species1, species2):
     edge = find_edge(species1, species2)
     k = 8
-    orbits = [0]
+    orbits = list(range(1))
     max_indices = 50
-    num_under_edge = 6
+    num_under_edge = 3
     best_threshold = (edge - num_under_edge) / 100
-    return full_run_algorithm_basic(k, species1, species2, orbits, max_indices, best_threshold)
+    return full_run_algorithm_basic_seeds(k, species1, species2, orbits, max_indices, best_threshold)
 
 if __name__ == '__main__':
     species1 = sys.argv[1]
     species2 = sys.argv[2]
-    orthopairs, all_pairs = get_final_answer(species1, species2)
-    print(f'final answer for {species1}-{species2}: {len(orthopairs)} / {len(all_pairs)}')
+    orthoseeds, all_seeds = get_final_answer(species1, species2)
+    print(f'final answer for {species1}-{species2}: {len(orthoseeds)} / {len(all_seeds)}')

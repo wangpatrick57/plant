@@ -2,7 +2,7 @@ import re
 
 ORTHO_FILE_PATH = '/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.Uniprot.tsv'
 
-def get_orthoseeds_list(all_seeds_list, s1_to_s2_orthologs, missing_allowed):
+def get_orthoseeds_list(all_seeds_list, s1_to_s2_orthologs, missing_allowed=0):
     orthoseeds_list = []
 
     for graphlet_id, s1_index, s2_index in all_seeds_list:

@@ -1,7 +1,15 @@
 #!/bin/python3
-import sys
-from full_algorithm_helpers import *
+from seeding_algorithm_core import *
+from ortholog_helpers import *
 
-orthopairs, all_pairs = full_run_algorithm_basic(8, 'mouse', 'rat', [0], 55, 0.78, print_progress=False)
-print('\n'.join([f'{node1}\t{node2}' for node1, node2 in orthopairs]))
-print('\n'.join([f'{node1}\t{node2}' for node1, node2 in all_pairs]), file=sys.stderr)
+species1 = 'mouse'
+species2 = 'human'
+
+def get_path(species):
+    return f'/home/wangph1/plant/data/seeding_cached_data/special_blant_out/p0-o0-hayes{species}-lDEG2.out'
+    # return f'/home/wangph1/plant/data/seeding_cached_data/blant_out/p0-o0-{species}-lDEG2.out'
+
+allseeds = find_seeds(8, species1, species2, get_path(species1), get_path(species2), settings=SeedingAlgorithmSettings(max_indices=50, sims_threshold=0.8), print_progress=True)
+orthoseeds = get_orthoseeds_list(allseeds, get_s1_to_s2_orthologs(species1, species2))
+
+print(f'{len(orthoseeds)} / {len(allseeds)}')
