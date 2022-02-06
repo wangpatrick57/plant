@@ -11,7 +11,7 @@ adj_set = read_adj_set(graph_file)
 deg_distr = defaultdict(int)
 
 for line in orthoseeds_file:
-    patch_id, graphlet1, graphlet2 = line.strip().split(' ')
+    graphlet_id, graphlet1, graphlet2 = line.strip().split('\t')
 
     if one_or_two == '1':
         graphlet = graphlet1
