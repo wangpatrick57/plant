@@ -76,7 +76,7 @@ def get_final_answer_seeds(species1, species2):
     max_indices = 50
     num_under_edge = 3
     best_threshold = (edge - num_under_edge) / 100
-    return full_run_algorithm_basic_seeds(k, species1, species2, orbits, max_indices, best_threshold)
+    return full_get_seeds_results(k, species1, species2, orbits, max_indices, best_threshold)
 
 if __name__ == '__main__':
     species1 = sys.argv[1]
