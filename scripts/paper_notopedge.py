@@ -28,13 +28,16 @@ write_seeds_to_files(orthoseeds, allseeds, (lambda seed_type : f'/home/wangph1/p
 allseeds = find_seeds(k, species1, species2, s1_notopedge_index_path, s2_index_path, s1_odv_path, s2_odv_path, settings, print_progress=False)
 orthoseeds = get_orthoseeds_list(allseeds, s1_to_s2_orthologs)
 print(f'mouse notopedge: {len(orthoseeds)} / {len(allseeds)}')
+write_seeds_to_files(orthoseeds, allseeds, (lambda seed_type : f'/home/wangph1/plant/data/seeding_cached_data/paper_final/mouse_notopedge-rat-max15-thresh0.79-{seed_type}.out'))
 
 # mouse normal, rat notopedge
 allseeds = find_seeds(k, species1, species2, s1_index_path, s2_notopedge_index_path, s1_odv_path, s2_odv_path, settings, print_progress=False)
 orthoseeds = get_orthoseeds_list(allseeds, s1_to_s2_orthologs)
 print(f'rat notopedge: {len(orthoseeds)} / {len(allseeds)}')
+write_seeds_to_files(orthoseeds, allseeds, (lambda seed_type : f'/home/wangph1/plant/data/seeding_cached_data/paper_final/mouse-rat_notopedge-max15-thresh0.79-{seed_type}.out'))
 
 # both notopedge
 allseeds = find_seeds(k, species1, species2, s1_notopedge_index_path, s2_notopedge_index_path, s1_odv_path, s2_odv_path, settings, print_progress=False)
 orthoseeds = get_orthoseeds_list(allseeds, s1_to_s2_orthologs)
 print(f'both notopedge: {len(orthoseeds)} / {len(allseeds)}')
+write_seeds_to_files(orthoseeds, allseeds, (lambda seed_type : f'/home/wangph1/plant/data/seeding_cached_data/paper_final/mouse_notopedge-rat_notopedge-max15-thresh0.79-{seed_type}.out'))

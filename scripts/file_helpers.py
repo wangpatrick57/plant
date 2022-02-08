@@ -9,7 +9,7 @@ def write_to_file_helper(seeds, file_path):
     for gid, index1, index2 in seeds:
         index1_str = ','.join(index1)
         index2_str = ','.join(index2)
-        outfile.write(f'{gid}\t{index1_str}\t{index2_str}')
+        outfile.write(f'{gid}\t{index1_str}\t{index2_str}\n')
 
     outfile.close()
         
