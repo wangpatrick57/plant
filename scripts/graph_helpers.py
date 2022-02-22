@@ -23,6 +23,17 @@ def read_adj_set(graph_file):
 
     return adj_set
 
+def read_in_el(graph_fname):
+    el = []
+    graph_file = open(graph_fname, 'r')
+
+    for line in graph_file:
+        node1, node2 = line.strip().split('\t')
+        el.append((node1, node2))
+
+    graph_file.close()
+    return el
+
 def read_nodes(graph_file):
     nodes = set()
 

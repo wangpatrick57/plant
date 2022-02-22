@@ -45,8 +45,8 @@ def read_in_n2n(species, forward=True):
     f.close()
     return n2n
 
-def el_node_to_num(node_el):
-    node_to_num = read_in_n2n(node_el, forward=True)
+def el_node_to_num(species, node_el):
+    node_to_num = read_in_n2n(species, forward=True)
     num_el = []
 
     for node1, node2 in node_el:
