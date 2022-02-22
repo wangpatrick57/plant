@@ -18,7 +18,6 @@ def full_get_combined_seeds(k, species1, species2, orbits, max_indices, sims_thr
 
     return get_combined_seeds_list(all_seeds_lists)
 
-# returns (num_orthopairs, num_all_pairs)
 def full_get_seeds_results(k, species1, species2, orbits, max_indices, sims_threshold, print_progress=False):
     combined_seeds = full_get_combined_seeds(k, species1, species2, orbits, max_indices, sims_threshold, print_progress=print_progress)
     # node_pairs = extract_node_pairs(combined_seeds)
@@ -26,5 +25,3 @@ def full_get_seeds_results(k, species1, species2, orbits, max_indices, sims_thre
     # orthopairs_list = get_orthopairs_list(node_pairs, s1_to_s2_orthologs)
     orthoseeds = get_orthoseeds_list(combined_seeds, s1_to_s2_orthologs)
     return (orthoseeds, combined_seeds)
-
-# def full_run_algorithm_auto_threshold(k, species1, species2, orbits, max_indices):
