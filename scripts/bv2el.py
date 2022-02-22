@@ -1,3 +1,4 @@
+#!/bin/python3
 import sys
 
 def get_el_from_bv(size, bit_vector):

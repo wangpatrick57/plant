@@ -1,3 +1,4 @@
+#!/bin/python3
 import sys
 import bv2el
 import re
