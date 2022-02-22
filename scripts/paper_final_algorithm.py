@@ -1,6 +1,7 @@
 #!/bin/python3
 import sys
 from full_algorithm_helpers import *
+from file_helpers import *
 
 search_prev_results = dict() # points from threshold to (ortho, all)
 
@@ -69,17 +70,18 @@ def find_edge(species1, species2):
 
     return edge
 
-def get_final_answer_seeds(species1, species2):
+def get_final_answer_seeds(species1, species2, print_progress=False):
     edge = find_edge(species1, species2)
     k = 8
-    orbits = list(range(1))
-    max_indices = 15
-    num_under_edge = 10
+    orbits = list(range(15))
+    max_indices = 30
+    num_under_edge = 5
     best_threshold = (edge - num_under_edge) / 100
-    return full_get_seeds_results(k, species1, species2, orbits, max_indices, best_threshold)
+    return full_get_seeds_results(k, species1, species2, orbits, max_indices, best_threshold, print_progress)
 
 if __name__ == '__main__':
     species1 = sys.argv[1]
     species2 = sys.argv[2]
-    orthoseeds, all_seeds = get_final_answer(species1, species2)
+    orthoseeds, all_seeds = get_final_answer_seeds(species1, species2, print_progress=True)
     print(f'final answer for {species1}-{species2}: {len(orthoseeds)} / {len(all_seeds)}')
+    write_seeds_to_files(orthoseeds, all_seeds, (lambda seed_type : f'/home/wangph1/plant/data/seeding_cached_data/paper_final/{species1}-{species2}-final-allorbs-max25-under10-{seed_type}.out'))
