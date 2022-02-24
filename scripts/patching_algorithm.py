@@ -3,32 +3,14 @@ import json
 import re
 import random
 from graph_helpers import *
+from ortholog_helpers import *
 from collections import defaultdict
 
 # command line input
 times_called = 0
 
 def get_graph_path_for_species(species):
-    global times_called
-
-    if NETWORK_SOURCE == 'Hairball':
-        if times_called == 0:
-            times_called += 1
-            return '/home/wangph1/plant/networks/hairball/barabasi_Onl_wcore.el'
-        elif times_called == 1:
-            times_called += 1
-            return '/home/wangph1/plant/networks/hairball/barabasi_Onr_wcore.el'
-        else:
-            assert False, 'no more hairball networks'
-    elif NETWORK_SOURCE == 'Uniprot':
-        return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
-    else:
-        if species == 'MM':
-            species_string = 'Mus_musculus'
-        elif species == 'DM':
-            species_string = 'Drosophila_melanogaster'
-
-    return f'/home/wayne/extra1/preserve/BioGRID/networks/Entrez/3.5.185/{species_string}-3.5.185.tab2.el'
+    return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
 
 k = int(sys.argv[1])
 species1 = sys.argv[2]
@@ -37,16 +19,10 @@ s1_index_file = open(sys.argv[4], 'r')
 s2_index_file = open(sys.argv[5], 'r')
 NUM_MATCHING_NODES = int(sys.argv[6]) if len(sys.argv) >= 7 else k - 2 # negative for <=, positive for ==
 PATCH_PROX_INC = int(sys.argv[7]) if len(sys.argv) >= 8 else 1
-NETWORK_SOURCE = sys.argv[8] if len(sys.argv) >= 9 else 'Uniprot'
 DEBUG = bool(eval(sys.argv[9])) if len(sys.argv) >= 10 else True
 
 # constants
 MISSING_ALLOWED = 0
-
-if NETWORK_SOURCE == 'Hairball':
-    ORTHO_FILE = None
-else:
-    ORTHO_FILE = open(f'/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.{NETWORK_SOURCE}.tsv', 'r')
 
 # setup
 def debug_print(*args, **kwargs):
@@ -453,10 +429,7 @@ def main():
     # print_sorted_sparsegraphs([s1_patched_indexes, s2_patched_indexes], [s1_adj_set, s2_adj_set])
 
     # calculate ortholog percentage
-    if NETWORK_SOURCE == 'Hairball':
-        s1_to_s2 = get_core_to_core(s1_adj_set)
-    else:
-        s1_to_s2 = get_si_to_sj(species1, species2, ORTHO_FILE)
+    s1_to_s2 = get_s1_to_s2_orthologs(species1, species2)
 
     orthologs_list = get_orthologs_list(s1_patched_indexes, [s2_patched_indexes], [s1_to_s2], [s1_adj_set, s2_adj_set])
     
