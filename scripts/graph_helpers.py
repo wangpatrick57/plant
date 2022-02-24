@@ -34,12 +34,14 @@ def read_in_el(graph_fname):
     graph_file.close()
     return el
 
-def read_nodes(graph_file):
+def read_nodes(graph_fname):
     nodes = set()
+    graph_file = open(graph_fname, 'r')
 
     for edge_str in graph_file:
         node1, node2 = re.split('[\s\t]', edge_str.strip())
         nodes.add(node1)
         nodes.add(node2)
 
+    graph_file.close()
     return nodes
