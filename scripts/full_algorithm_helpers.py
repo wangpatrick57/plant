@@ -2,7 +2,7 @@
 # this file runs the entire algorithm from start to finish, hiding all the internal detailns
 from seeding_algorithm_core import *
 from node_pair_extraction_helpers import *
-from blant_cache_helpers import *
+from index_helpers import *
 from odv_helpers import *
 from ortholog_helpers import *
 
@@ -27,12 +27,12 @@ def full_get_seeds_results(k, species1, species2, orbits, max_indices, sims_thre
     return (orthoseeds, combined_seeds)
 
 if __name__ == '__main__':
-    k = int(sys.argv[1])
-    species1 = sys.argv[2]
-    species2 = sys.argv[3]
-    orbits = [int(n) for n in sys.argv[4].split(',')]
-    max_indices = int(sys.argv[5])
-    sims_threshold = float(sys.argv[6])
+    k = int(sys.argv[1]) if len(sys.argv) > 1 else 8
+    species1 = sys.argv[2] if len(sys.argv) > 2 else 'mouse'
+    species2 = sys.argv[3] if len(sys.argv) > 3 else 'rat'
+    orbits = [int(n) for n in sys.argv[4].split(',')] if len(sys.argv) > 4 else [0]
+    max_indices = int(sys.argv[5]) if len(sys.argv) > 5 else 3
+    sims_threshold = float(sys.argv[6]) if len(sys.argv) > 6 else 0.79
     print_progress = sys.argv[7] if len(sys.argv) > 7 else False
     orthoseeds, all_seeds = full_get_seeds_results(k, species1, species2, orbits, max_indices, sims_threshold, print_progress=print_progress)
     print(f'{len(orthoseeds)} / {len(all_seeds)}')

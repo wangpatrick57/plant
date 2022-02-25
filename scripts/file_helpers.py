@@ -14,4 +14,4 @@ def write_to_file_helper(seeds, file_path):
     outfile.close()
         
 if __name__ == '__main__':
-    write_to_file_helper([(('1', '2'), ('3', '4')), (('1', '5'), ('7', '3'))], 'temp.txt')
+    write_to_file_helper([(10, ('1', '2'), ('3', '4')), (30, ('1', '5'), ('7', '3'))], 'temp.txt')
