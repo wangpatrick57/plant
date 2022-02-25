@@ -1,4 +1,5 @@
 import re
+from graph_helpers import *
 
 ORTHO_FILE_PATH = '/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.Uniprot.tsv'
 
@@ -33,6 +34,17 @@ def get_orthopairs_list(node_pairs, s1_to_s2_orthologs):
 
 
 def get_s1_to_s2_orthologs(species1, species2):
+    if 'syeast' in species1 or 'syeast' in species2:
+        assert 'syeast' in species1 and 'syeast' in species2, 'syeast must be in both or neither'
+        s1_to_s2 = dict()
+        syeast0_fname = get_graph_fname_from_species('syeast0')
+        nodes = read_nodes(syeast0_fname)
+
+        for node in nodes:
+            s1_to_s2[node] = node
+
+        return s1_to_s2
+
     with open(ORTHO_FILE_PATH, 'r') as ortho_file:
         species_to_index = dict()
         species_line = ortho_file.readline().strip()
