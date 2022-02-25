@@ -31,56 +31,7 @@ s1_graph_file = open(get_graph_fname_from_species(species1), 'r')
 s2_graph_file = open(get_graph_fname_from_species(species2), 'r')
 
 # main code
-class Index:
-    def __init__(self, index_str):
-        splitted_str = index_str.split(' ')
-        self._graphlet_id = int(splitted_str[0])
-        self._node_arr = splitted_str[1:]
-        self._index_of = dict()
 
-        for i, node in enumerate(self._node_arr):
-            self._index_of[node] = i
-
-        self._node_set = set(splitted_str[1:])
-
-    def get_graphlet_id(self):
-        return self._graphlet_id
-
-    def get_node_arr(self):
-        return self._node_arr
-
-    def node_in(self, node):
-        return node in self._node_set
-
-    def index_of(self, node):
-        if node in self._index_of:
-            return self._index_of[node]
-        else:
-            return -1
-
-    def get_num_matching(self, other_index):
-        num_matching = 0
-
-        for node in self._node_arr:
-            if node in other_index._node_set:
-                num_matching += 1
-
-        return num_matching
-
-    def get_matching_list(self, other_index):
-        matching_list = []
-
-        for i, node in enumerate(self._node_arr):
-            if node in other_index._node_set:
-                matching_list.append(i)
-
-        return matching_list
-
-    def __str__(self):
-        return ' '.join(self._node_arr)
-
-    def __len__(self):
-        return len(self._node_arr)
 
 
 class CanonicalIndex:
