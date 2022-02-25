@@ -1,7 +1,7 @@
 #!/bin/python3
 from collections import defaultdict
 from odv_helpers import *
-from blant_cache_helpers import *
+from index_helpers import *
 
 class SeedingAlgorithmSettings:
     def __init__(self, max_indices=15, sims_threshold=0.79, speedup=1):
@@ -112,7 +112,7 @@ def should_be_seed(s1_index, s2_index, s1_odv_dir, s2_odv_dir, threshold):
     return mean(sims) >= threshold
 
 if __name__ == '__main__':
-    seeds = find_seeds(8, 'mouse', 'rat')
-    target = 475
+    seeds = find_seeds(8, 'mouse', 'rat', settings=SeedingAlgorithmSettings(max_indices=3))
+    target = 59
     assert len(seeds) == target, f'len(seeds) is not {target}'
     print(f'success, len(seeds) = {target}')
