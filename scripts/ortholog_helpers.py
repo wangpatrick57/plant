@@ -37,8 +37,8 @@ def get_s1_to_s2_orthologs(species1, species2):
     if 'syeast' in species1 or 'syeast' in species2:
         assert 'syeast' in species1 and 'syeast' in species2, 'syeast must be in both or neither'
         s1_to_s2 = dict()
-        syeast0_fname = get_graph_fname_from_species('syeast0')
-        nodes = read_nodes(syeast0_fname)
+        syeast0_path = get_graph_path('syeast0')
+        nodes = read_nodes(syeast0_path)
 
         for node in nodes:
             s1_to_s2[node] = node
