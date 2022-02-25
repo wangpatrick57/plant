@@ -89,6 +89,18 @@ def read_in_index(index_path, k):
 
         return index
 
+def read_in_entry_list(index_path, k):
+    with open(index_path, 'r') as index_file:
+        entry_list = []
+
+        for curr_entry_str in index_file:
+            curr_entry_str = curr_entry_str.strip()
+            assert len(curr_entry_str.split(' ')) == k + 1, f'the line {curr_index_str} is not of size k{k}'
+            curr_entry = IndexEntry(curr_entry_str)
+            entry_list.append(curr_entry)
+
+        return entry_list
+
 if __name__ == '__main__':
     index = read_in_index(get_index_path('mouse'), 8)
     assert_with_prints(len(index), 564, 'len(index)')

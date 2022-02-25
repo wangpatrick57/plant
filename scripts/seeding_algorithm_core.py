@@ -11,12 +11,14 @@ class SeedingAlgorithmSettings:
         self.speedup = speedup
 
 # takes in necessary inputs and settings and returns a list of all found seeds
-def find_seeds(k, species1, species2, s1_index_path=None, s2_index_path=None, s1_odv_path=None, s2_odv_path=None, settings=SeedingAlgorithmSettings(), print_progress=False):
-    if s1_index_path == None:
+def find_seeds(k, species1, species2, s1_index=None, s2_index=None, s1_odv_path=None, s2_odv_path=None, settings=SeedingAlgorithmSettings(), print_progress=False):
+    if s1_index == None:
         s1_index_path = get_index_path(species1)
+        s1_index = read_in_index(s1_index_path, k)
 
-    if s2_index_path == None:
+    if s2_index == None:
         s2_index_path = get_index_path(species2)
+        s2_index = read_in_index(s2_index_path, k)
 
     if s1_odv_path == None:
         s1_odv_path = get_odv_file_path(species1)
@@ -26,8 +28,6 @@ def find_seeds(k, species1, species2, s1_index_path=None, s2_index_path=None, s1
     
     s1_odv_dir = ODVDirectory(s1_odv_path)
     s2_odv_dir = ODVDirectory(s2_odv_path)
-    s1_index = read_in_index(s1_index_path, k)
-    s2_index = read_in_index(s2_index_path, k)
     total_pairs_to_process = estimate_total_pairs_to_process(s1_index, s2_index, settings)
     all_seeds_list = []
     percent_printed = 0
