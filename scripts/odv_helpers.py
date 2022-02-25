@@ -1,8 +1,9 @@
 import sys
 from statistics import mean
+from graph_helpers import *
 
 def get_odv_file_path(species):
-    return f'/home/sana/Jurisica/IID/networks/IID{species}.el.orca4'
+    return f'{get_graph_fname_from_species(species)}.orca4'
 
 class ODVDirectory:
     # file format: every line has node name, followed by orbit counts, separated by spaces

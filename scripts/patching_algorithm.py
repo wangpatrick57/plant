@@ -9,16 +9,14 @@ from collections import defaultdict
 # command line input
 times_called = 0
 
-def get_graph_path_for_species(species):
-    return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
-
 k = int(sys.argv[1])
 species1 = sys.argv[2]
 species2 = sys.argv[3]
 s1_index_file = open(sys.argv[4], 'r')
 s2_index_file = open(sys.argv[5], 'r')
-NUM_MATCHING_NODES = int(sys.argv[6]) if len(sys.argv) >= 7 else k - 2 # negative for <=, positive for ==
-PATCH_PROX_INC = int(sys.argv[7]) if len(sys.argv) >= 8 else 1
+max_indices = int(sys.argv[6])
+NUM_MATCHING_NODES = int(sys.argv[7]) if len(sys.argv) >= 8 else k - 2 # negative for <=, positive for ==
+PATCH_PROX_INC = int(sys.argv[8]) if len(sys.argv) >= 9 else 1
 DEBUG = bool(eval(sys.argv[9])) if len(sys.argv) >= 10 else True
 
 # constants
@@ -29,8 +27,8 @@ def debug_print(*args, **kwargs):
     if DEBUG:
         print(*args, file = sys.stderr, **kwargs)
 
-s1_graph_file = open(get_graph_path_for_species(species1), 'r')
-s2_graph_file = open(get_graph_path_for_species(species2), 'r')
+s1_graph_file = open(get_graph_fname_from_species(species1), 'r')
+s2_graph_file = open(get_graph_fname_from_species(species2), 'r')
 
 # main code
 class Index:
@@ -159,17 +157,6 @@ class PatchedIndex:
     def __str__(self):
         return self._key
 
-def read_index_file(index_file):
-    index_list = []
-
-    for curr_index_str in index_file:
-        curr_index_str = curr_index_str.strip()
-        assert len(curr_index_str.split(' ')) == k + 1, f'the line {curr_index_str} is not of size k{k}'
-        curr_index = Index(curr_index_str)
-        index_list.append(curr_index)
-
-    return index_list
-
 def get_matching_poses_adj_list(index_list):
     matching_poses_adj_list = []
     total_to_check = len(index_list)
@@ -276,25 +263,6 @@ def get_num_missing(base_index, comp_index_list, base_to_comp_list):
 
     return missing_nodes_list
 
-def check_if_ortholog(base_index, comp_index_list, base_to_comp_list):
-    assert len(comp_index_list) == len(base_to_comp_list)
-    missing_nodes_list = [0] * len(comp_index_list)
-
-    for m in range(len(base_index)):
-        base_node = base_index[m]
-
-        for i in range(len(comp_index_list)):
-            comp_node = comp_index_list[i][m]
-            base_to_comp = base_to_comp_list[i]
-
-            if base_node not in base_to_comp or base_to_comp[base_node] != comp_node:
-                missing_nodes_list[i] += 1
-
-                if missing_nodes_list[i] > MISSING_ALLOWED:
-                    return False
-
-    return True
-
 def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_set_list):
     orthologs_list = []
     full_match_distr = defaultdict(int)
@@ -305,8 +273,8 @@ def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_s
 
     for patched_id in base_indexes:
         for comp_indexes in comp_indexes_list:
-            if patched_id in comp_indexes and len(base_indexes[patched_id]) == 1 and len(comp_indexes[patched_id]) == 1:
-                pairs_to_process += 1
+            if patched_id in comp_indexes and len(base_indexes[patched_id]) <= max_indices and len(comp_indexes[patched_id]) <= max_indices:
+                pairs_to_process += len(base_indexes[patched_id]) * len(comp_indexes[patched_id])
 
     comp_patched_indexes_list = [None] * len(comp_indexes_list)
 
@@ -324,13 +292,17 @@ def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_s
         if do_continue:
             continue
 
-        if len(base_patched_indexes) != 1 or any([len(comp_patched_indexes) != 1 for comp_patched_indexes in comp_patched_indexes_list]):
+        if len(base_patched_indexes) > max_indices or any([len(comp_patched_indexes) > max_indices for comp_patched_indexes in comp_patched_indexes_list]):
             continue
 
-        # we can just get the 0th index since we know their length is 1
-        base_index = base_patched_indexes[0].get_node_arr()
-        comp_index_list = [comp_patched_indexes[0].get_node_arr() for comp_patched_indexes in comp_patched_indexes_list]
-        assert len(base_index) > k and all(len(base_index) == len(comp_index) for comp_index in comp_index_list), f'lengths not good'
+        for base_index in base_patched_indexes:
+            base_index = base_index.get_node_arr()
+
+            for comp_index in comp_index_list[0]:
+                comp_index = comp_index.get_node_arr()
+                assert len(base_index) > k and len(base_index) == len(comp_index), f'lengths not good'
+                # NOTE: wrote up to here, next, need to check if it's an ortholog match and if it is, create a new_seed.
+                # next, fix this so we take in comp_index instead of comp_index_list
 
         is_ortho = check_if_ortholog(base_index, comp_index_list, base_to_comp_list)
         new_seed = [patched_id, base_index]
@@ -430,7 +402,6 @@ def main():
 
     # calculate ortholog percentage
     s1_to_s2 = get_s1_to_s2_orthologs(species1, species2)
-
     orthologs_list = get_orthologs_list(s1_patched_indexes, [s2_patched_indexes], [s1_to_s2], [s1_adj_set, s2_adj_set])
     
     for seed, is_ortho in orthologs_list:

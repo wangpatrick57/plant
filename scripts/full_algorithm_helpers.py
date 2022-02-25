@@ -25,3 +25,14 @@ def full_get_seeds_results(k, species1, species2, orbits, max_indices, sims_thre
     # orthopairs_list = get_orthopairs_list(node_pairs, s1_to_s2_orthologs)
     orthoseeds = get_orthoseeds_list(combined_seeds, s1_to_s2_orthologs)
     return (orthoseeds, combined_seeds)
+
+if __name__ == '__main__':
+    k = int(sys.argv[1])
+    species1 = sys.argv[2]
+    species2 = sys.argv[3]
+    orbits = [int(n) for n in sys.argv[4].split(',')]
+    max_indices = int(sys.argv[5])
+    sims_threshold = float(sys.argv[6])
+    print_progress = sys.argv[7] if len(sys.argv) > 7 else False
+    orthoseeds, all_seeds = full_get_seeds_results(k, species1, species2, orbits, max_indices, sims_threshold, print_progress=print_progress)
+    print(f'{len(orthoseeds)} / {len(all_seeds)}')

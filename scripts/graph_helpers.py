@@ -4,7 +4,10 @@ def all_species():
     return ['cat', 'chicken', 'cow', 'dog', 'duck', 'guinea_pig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep', 'turkey']
 
 def get_graph_fname_from_species(species):
-    return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
+    if 'syeast' in species:
+        return f'/home/wangph1/BLANT/networks/{species}/{species}.el'
+    else:
+        return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
 
 def read_adj_set(graph_file):
     adj_set = dict()

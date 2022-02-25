@@ -1,5 +1,7 @@
+#!/bin/python3
 from collections import defaultdict
 from odv_helpers import *
+from blant_cache_helpers import *
 
 class SeedingAlgorithmSettings:
     def __init__(self, max_indices=15, sims_threshold=0.79, speedup=1):
@@ -8,7 +10,13 @@ class SeedingAlgorithmSettings:
         self.speedup = speedup
 
 # takes in necessary inputs and settings and returns a list of all found seeds
-def find_seeds(k, species1, species2, s1_index_path, s2_index_path, s1_odv_path=None, s2_odv_path=None, settings=SeedingAlgorithmSettings(), print_progress=False):
+def find_seeds(k, species1, species2, s1_index_path=None, s2_index_path=None, s1_odv_path=None, s2_odv_path=None, settings=SeedingAlgorithmSettings(), print_progress=False):
+    if s1_index_path == None:
+        s1_index_path = get_index_path(species1)
+
+    if s2_index_path == None:
+        s2_index_path = get_index_path(species2)
+
     if s1_odv_path == None:
         s1_odv_path = get_odv_file_path(species1)
 
@@ -71,9 +79,9 @@ def get_indexed_indices(index_path, k):
     with open(index_path, 'r') as index_file:
         indexed_indices = defaultdict(list)
 
-        for i, line in enumerate(index_file):
+        for line in index_file:
             line_split = line.strip().split()
-            assert len(line_split) == k + 1, f'{i}: {line.strip()}, files: {index_file.name} and {s2_index_file.name}'
+            assert len(line_split) == k + 1, f'{i}: {line.strip()}, {index_path} has line whose length is not k + 1 ({k + 1})'
             graphlet_id = int(line_split[0])
             index = line_split[1:]
             indexed_indices[graphlet_id].append(index)
@@ -102,3 +110,9 @@ def should_be_seed(s1_index, s2_index, s1_odv_dir, s2_odv_dir, threshold):
         sims.append(s1_odv.get_similarity(s2_odv))
 
     return mean(sims) >= threshold
+
+if __name__ == '__main__':
+    seeds = find_seeds(8, 'mouse', 'rat')
+    target = 475
+    assert len(seeds) == target, f'len(seeds) is not {target}'
+    print(f'success, len(seeds) = {target}')
