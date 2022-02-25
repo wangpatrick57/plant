@@ -3,28 +3,29 @@ import re
 def all_species():
     return ['cat', 'chicken', 'cow', 'dog', 'duck', 'guinea_pig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep', 'turkey']
 
-def get_graph_fname_from_species(species):
+def get_graph_path(species):
     if 'syeast' in species:
         return f'/home/wangph1/BLANT/networks/{species}/{species}.el'
     else:
         return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
 
-def read_adj_set(graph_file):
-    adj_set = dict()
+def read_in_adj_set(graph_path):
+    with open(graph_path, 'r') as graph_file:
+        adj_set = dict()
 
-    for edge_str in graph_file:
-        node1, node2 = re.split('[\s\t]', edge_str.strip())
+        for edge_str in graph_file:
+            node1, node2 = re.split('[\s\t]', edge_str.strip())
 
-        if node1 not in adj_set:
-            adj_set[node1] = set()
+            if node1 not in adj_set:
+                adj_set[node1] = set()
 
-        if node2 not in adj_set:
-            adj_set[node2] = set()
+            if node2 not in adj_set:
+                adj_set[node2] = set()
 
-        adj_set[node1].add(node2)
-        adj_set[node2].add(node1)
+            adj_set[node1].add(node2)
+            adj_set[node2].add(node1)
 
-    return adj_set
+        return adj_set
 
 def read_in_el(graph_fname):
     el = []

@@ -10,7 +10,7 @@ def full_get_combined_seeds(k, species1, species2, orbits, max_indices, sims_thr
     all_seeds_lists = []
 
     for orbit in orbits:
-        all_seeds_list = find_seeds(k, species1, species2, get_index_path(species1, orbit=orbit), get_index_path(species2, orbit=orbit), get_odv_file_path(species1), get_odv_file_path(species2), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
+        all_seeds_list = find_seeds(k, species1, species2, read_in_index(get_index_path(species1, orbit=orbit), k), read_in_index(get_index_path(species2, orbit=orbit), k), get_odv_file_path(species1), get_odv_file_path(species2), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
         all_seeds_lists.append(all_seeds_list)
 
         if print_progress:
