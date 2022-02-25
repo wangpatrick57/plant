@@ -11,7 +11,7 @@ class Index(defaultdict):
         defaultdict.__init__(self, list)
 
     def add_entry(self, entry):
-        self[entry.get_graphlet_id()].append(entry)
+        self[entry.get_key()].append(entry)
 
 
 class IndexEntry:
@@ -26,7 +26,7 @@ class IndexEntry:
 
         self._node_set = set(splitted_str[1:])
 
-    def get_graphlet_id(self):
+    def get_key(self):
         return self._graphlet_id
 
     def get_node_arr(self):
@@ -83,7 +83,7 @@ def read_in_index(index_path, k):
 
         for curr_entry_str in index_file:
             curr_entry_str = curr_entry_str.strip()
-            assert len(curr_entry_str.split(' ')) == k + 1, f'the line {curr_index_str} is not of size k{k}'
+            assert len(curr_entry_str.split(' ')) == k + 1, f'the line {curr_entry_str} is not of size k{k}'
             curr_entry = IndexEntry(curr_entry_str)
             index.add_entry(curr_entry)
 
@@ -95,7 +95,7 @@ def read_in_entry_list(index_path, k):
 
         for curr_entry_str in index_file:
             curr_entry_str = curr_entry_str.strip()
-            assert len(curr_entry_str.split(' ')) == k + 1, f'the line {curr_index_str} is not of size k{k}'
+            assert len(curr_entry_str.split(' ')) == k + 1, f'the line {curr_entry_str} is not of size k{k}'
             curr_entry = IndexEntry(curr_entry_str)
             entry_list.append(curr_entry)
 

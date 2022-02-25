@@ -15,6 +15,10 @@ index_helpers.py &>/dev/null
 if [ $? -ne 0 ]; then echo "index_helpers.py failed"; exit 1; fi
 echo "index_helpers.py succeeded"
 
+patch_helpers.py &>/dev/null
+if [ $? -ne 0 ]; then echo "patch_helpers.py failed"; exit 1; fi
+echo "patch_helpers.py succeeded"
+
 general_helpers.py &>/dev/null
 if [ $? -ne 0 ]; then echo "general_helpers.py failed"; exit 1; fi
 echo "general_helpers.py succeeded"
