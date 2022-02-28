@@ -101,10 +101,10 @@ def get_matching_poses_list(entry_list, prox, target_num_matching):
 
     return matching_poses_list
 
-def get_patched_index(k, species, prox=6, target_num_matching=6, percent=0, orbit=0):
-    entry_list = read_in_entry_list(get_index_path(species, percent=percent, orbit=orbit), k)
+def get_patched_index(k, index_path, graph_path, prox=6, target_num_matching=6):
+    entry_list = read_in_entry_list(index_path, k)
     matching_poses_list = get_matching_poses_list(entry_list, prox, target_num_matching)
-    adj_set = read_in_adj_set(get_graph_path(species))
+    adj_set = read_in_adj_set(graph_path)
     patched_index = Index()
 
     for i, matching_list in enumerate(matching_poses_list):
@@ -115,5 +115,6 @@ def get_patched_index(k, species, prox=6, target_num_matching=6, percent=0, orbi
     return patched_index
 
 if __name__ == '__main__':
-    patched_index = get_patched_index(8, 'mouse', 6, 6)
+    patched_index = get_patched_index(8, get_index_path('mouse', 8), get_graph_path('mouse'), 6, 6)
+    print(len(patched_index))
     assert_with_prints(len(patched_index), 6833, 'len(patched_index)')
