@@ -18,10 +18,10 @@ max_indices = 15
 sims_threshold = 0.74
 
 # run for all orbits
-for orbit in range(15):
+for percent in range(11):
     # run seeding
-    s1_index = get_patched_index(k, species1, orbit=orbit)
-    s2_index = get_patched_index(k, species2, orbit=orbit)
+    s1_index = get_patched_index(k, species1, percent=percent)
+    s2_index = get_patched_index(k, species2, percent=percent)
     seeding_settings = SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold)
     all_seeds = find_seeds(patch_k, species1, species2, s1_index, s2_index, settings=seeding_settings)
     all_pairs = extract_node_pairs(all_seeds)

@@ -74,8 +74,8 @@ def get_final_answer_seeds(species1, species2, print_progress=False):
     edge = find_edge(species1, species2)
     k = 8
     orbits = list(range(15))
-    max_indices = 30
-    num_under_edge = 5
+    max_indices = 25
+    num_under_edge = 10
     best_threshold = (edge - num_under_edge) / 100
     return full_get_seeds_results(k, species1, species2, orbits, max_indices, best_threshold, print_progress)
 

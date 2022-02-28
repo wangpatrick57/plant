@@ -32,15 +32,15 @@ def read_in_el(graph_fname):
     graph_file = open(graph_fname, 'r')
 
     for line in graph_file:
-        node1, node2 = line.strip().split('\t')
+        node1, node2 = re.split('[\s\t]', line.strip())
         el.append((node1, node2))
 
     graph_file.close()
     return el
 
-def read_nodes(graph_fname):
+def read_in_nodes(graph_path):
     nodes = set()
-    graph_file = open(graph_fname, 'r')
+    graph_file = open(graph_path, 'r')
 
     for edge_str in graph_file:
         node1, node2 = re.split('[\s\t]', edge_str.strip())

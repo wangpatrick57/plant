@@ -7,9 +7,7 @@ def get_mapping_str(nodes):
     return '\n'.join([f'{node}\t{i}' for i, node in enumerate(nodes)])
 
 def output_mapping_for_species(species):
-    fin = open(get_graph_fname_from_species(species))
-    nodes = read_nodes(fin)
-    fin.close()
+    nodes = read_in_nodes(get_graph_path(species))
     fout = open(get_n2n_fname_for_species(species), 'w')
     fout.write(get_mapping_str(nodes))
     fout.close()
@@ -55,4 +53,5 @@ def el_node_to_num(species, node_el):
     return num_el
 
 if __name__ == '__main__':
-    print(read_in_n2n('rat', forward=False))
+    for species in ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25']:
+        output_mapping_for_species(species)
