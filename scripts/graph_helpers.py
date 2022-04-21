@@ -30,9 +30,9 @@ def read_in_adj_set(graph_path):
 
         return adj_set
 
-def read_in_el(graph_fname):
+def read_in_el(graph_path):
     el = []
-    graph_file = open(graph_fname, 'r')
+    graph_file = open(graph_path, 'r')
 
     for line in graph_file:
         node1, node2 = re.split('[\s\t]', line.strip())
@@ -41,6 +41,20 @@ def read_in_el(graph_fname):
     graph_file.close()
     return el
 
+# start time is inclusive, end time is exclusive
+def read_in_temporal_el(graph_path, start_time, end_time):
+    with open(graph_path, 'r') as graph_file:
+        el = []
+
+        for line in graph_file:
+            node1, node2, time = re.split('[\s\t]', line.strip())
+
+            if start_time <= time < end_time:
+                el.append((node1, node2))
+
+        return el
+
+# if you need to read in nodes of a temporal graph, refactor this to call a helper function called read_in_nodes_logic which takes in an el
 def read_in_nodes(graph_path):
     nodes = set()
     graph_file = open(graph_path, 'r')
