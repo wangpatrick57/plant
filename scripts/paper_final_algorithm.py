@@ -79,9 +79,27 @@ def get_final_answer_seeds(species1, species2, print_progress=False):
     best_threshold = (edge - num_under_edge) / 100
     return full_get_seeds_results(k, species1, species2, orbits, max_indices, best_threshold, print_progress)
 
+def get_final_answer_pairs(species1, species2, print_progress=False):
+    edge = find_edge(species1, species2)
+    k = 8
+    orbits = list(range(15))
+    max_indices = 25
+    max_indices = 3
+    num_under_edge = 10
+    best_threshold = (edge - num_under_edge) / 100
+    return full_get_pairs_results(k, species1, species2, orbits, max_indices, best_threshold, print_progress)
+
+def get_final_answer_patch_pairs(species1, species2, print_progress=False):
+    edge = find_edge(species1, species2)
+    k = 8
+    orbits = list(range(15))
+    max_indices = 25
+    num_under_edge = 10
+    best_threshold = (edge - num_under_edge) / 100
+    return full_get_patch_pairs_results(k, species1, species2, orbits, max_indices, best_threshold, print_progress)
+
 if __name__ == '__main__':
     species1 = sys.argv[1]
     species2 = sys.argv[2]
-    orthoseeds, all_seeds = get_final_answer_seeds(species1, species2, print_progress=True)
+    orthoseeds, all_seeds = get_final_answer_pairs(species1, species2, print_progress=True)
     print(f'final answer for {species1}-{species2}: {len(orthoseeds)} / {len(all_seeds)}')
-    write_seeds_to_files(orthoseeds, all_seeds, (lambda seed_type : f'/home/wangph1/plant/data/seeding_cached_data/paper_final/{species1}-{species2}-final-allorbs-max25-under10-{seed_type}.out'))

@@ -9,6 +9,9 @@ def get_graph_path(species):
     else:
         return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
 
+def get_notopedge_graph_path(species):
+    return f'/home/wangph1/plant/networks/paper/IID{species}_without_top_edge.el'
+
 def read_in_adj_set(graph_path):
     with open(graph_path, 'r') as graph_file:
         adj_set = dict()

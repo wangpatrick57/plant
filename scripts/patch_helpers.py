@@ -115,6 +115,6 @@ def get_patched_index(k, index_path, graph_path, prox=6, target_num_matching=6):
     return patched_index
 
 if __name__ == '__main__':
-    patched_index = get_patched_index(8, get_index_path('mouse', 8), get_graph_path('mouse'), 6, 6)
+    patched_index = get_patched_index(8, get_index_path('mouse'), get_graph_path('mouse'), 6, 6)
     print(len(patched_index))
     assert_with_prints(len(patched_index), 6833, 'len(patched_index)')

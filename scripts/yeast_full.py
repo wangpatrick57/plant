@@ -23,16 +23,21 @@ for orbit in range(15):
     if not (validate_index_file(get_index_path(species1, orbit=orbit), 8) and validate_index_file(get_index_path(species2, orbit=orbit), 8)):
         continue
     
+    s1_index_path = get_index_path(species1, orbit=orbit)
+    s2_index_path = get_index_path(species2, orbit=orbit)
+    s1_graph_path = get_graph_path(species1)
+    s2_graph_path = get_graph_path(species2)
+
     if patch:
         k = 10
-        s1_index = get_patched_index(8, species1, orbit=orbit)
-        s2_index = get_patched_index(8, species2, orbit=orbit)
+        s1_index = get_patched_index(8, s1_index_path, s1_graph_path)
+        s2_index = get_patched_index(8, s2_index_path, s2_graph_path)
     else:
         k = 8
         s1_index = read_in_index(get_index_path(species1, orbit=orbit), k)
         s2_index = read_in_index(get_index_path(species2, orbit=orbit), k)
 
-    all_seeds = find_seeds(k, species1, species2, s1_index, s2_index, settings=SeedingAlgorithmSettings(max_indices=25, sims_threshold=threshold))
+    all_seeds = find_seeds(k, species1, species2, s1_index, s2_index, settings=SeedingAlgorithmSettings(max_indices=8, sims_threshold=threshold))
     all_seeds_list.append(all_seeds)
     print(f'done with orbit {orbit}')
 
