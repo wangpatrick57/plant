@@ -17,6 +17,7 @@ for line in seeds:
 
     if (seen.__contains__(nodes[0]) or seen.__contains__(nodes[1])):
         print(f"INVALID: node {nodes[0]} or {nodes[1]} seen multiple times")
+        continue
         # quit()
 
     seen.append(nodes[0])

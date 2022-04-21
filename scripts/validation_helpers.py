@@ -1,5 +1,6 @@
 #!/bin/python3
 from index_helpers import *
+from species_helpers import *
 
 def validate_index_file(index_path, k):
     try:
@@ -10,6 +11,7 @@ def validate_index_file(index_path, k):
         
             return True
     except FileNotFoundError:
+        print(f'file {index_path} not found')
         return False
     except:
         raise
@@ -24,4 +26,4 @@ def validate_range(k, species_list, percent_list=[0], orbit_list=[0]):
                     print(f'{species} p{percent} o{orbit} is not valid')
 
 if __name__ == '__main__':
-    validate_range(8, ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25'], [0], list(range(15)))
+    validate_range(8, get_all_species(), [0], list(range(15)))
