@@ -17,6 +17,8 @@ def read_in_temporal_el(graph_path):
 
 # start time is inclusive, end time is exclusive
 def read_in_el_in_interval(graph_path, start_time, end_time):
+    print(start_time - 1217567877, end_time - start_time)
+
     with open(graph_path, 'r') as graph_file:
         el = []
 
