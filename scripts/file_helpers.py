@@ -12,6 +12,14 @@ def write_to_file_helper(seeds, file_path):
         outfile.write(f'{gid}\t{index1_str}\t{index2_str}\n')
 
     outfile.close()
+
+def write_el_to_file(el, file_path):
+    outfile = open(file_path, 'w')
+
+    for node1, node2 in el:
+        outfile.write(f'{node1}\t{node2}\n')
+
+    outfile.close()
         
 if __name__ == '__main__':
     write_to_file_helper([(10, ('1', '2'), ('3', '4')), (30, ('1', '5'), ('7', '3'))], 'temp.txt')

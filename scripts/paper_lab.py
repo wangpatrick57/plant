@@ -2,5 +2,5 @@
 from graph_helpers import *
 from temporal_graph_helpers import *
 
-tel = read_in_temporal_el(get_snap_graph_path('sx-stackoverflow.tel'))
-map_density_over_time(tel)
+graph_path = get_snap_graph_path('sx-stackoverflow.tel')
+get_edge_limit_node_edge_ratios(graph_path, 1217567877, 5000000, 10, 300000)
