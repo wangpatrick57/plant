@@ -1,4 +1,6 @@
 #!/bin/python3
+from graph_helpers import *
+
 def write_seeds_to_files(orthoseeds, allseeds, file_path_func):
     write_to_file_helper(orthoseeds, file_path_func('orthoseeds'))
     write_to_file_helper(allseeds, file_path_func('allseeds'))
@@ -14,6 +16,7 @@ def write_to_file_helper(seeds, file_path):
     outfile.close()
 
 def write_el_to_file(el, file_path):
+    el = clean_el(el)
     outfile = open(file_path, 'w')
 
     for node1, node2 in el:

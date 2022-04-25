@@ -89,6 +89,10 @@ def estimate_total_pairs_to_process(s1_index, s2_index, settings):
     return total_pairs_to_process
 
 def should_be_seed(s1_entry_nodes, s2_entry_nodes, s1_odv_dir, s2_odv_dir, threshold):
+    # speedup for special cases
+    if threshold == 0:
+        return True
+
     sims = []
 
     for s1_node, s2_node in zip(s1_entry_nodes, s2_entry_nodes):
