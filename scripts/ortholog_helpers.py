@@ -3,6 +3,14 @@ from graph_helpers import *
 
 ORTHO_FILE_PATH = '/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.Uniprot.tsv'
 
+class SelfOrthos(dict):
+    def __setitem__(self, key):
+        raise AssertionError
+
+    def __getitem__(self, key):
+        return key
+
+
 def get_orthoseeds_list(all_seeds_list, s1_to_s2_orthologs, missing_allowed=0):
     orthoseeds_list = []
 
@@ -15,7 +23,7 @@ def get_orthoseeds_list(all_seeds_list, s1_to_s2_orthologs, missing_allowed=0):
             s1_node = s1_index[m]
             s2_node = s2_index[m]
 
-            if s1_node not in s1_to_s2_orthologs or s1_to_s2_orthologs[s1_node] != s2_node:
+            if not is_ortholog(node1, node2, s1_to_s2_orthologs):
                 missing_nodes += 1
 
         if missing_nodes <= missing_allowed:
@@ -27,11 +35,16 @@ def get_orthopairs_list(node_pairs, s1_to_s2_orthologs):
     orthopairs_list = []
 
     for node1, node2 in node_pairs:
-        if node1 in s1_to_s2_orthologs and s1_to_s2_orthologs[node1] == node2:
+        if is_ortholog(node1, node2, s1_to_s2_orthologs):
             orthopairs_list.append((node1, node2))
 
     return orthopairs_list
 
+def is_ortholog(node1, node2, s1_to_s2_orthologs):
+    if type(s1_to_s2_orthologs) is SelfOrthos:
+        return node1 == node2
+    
+    return node1 in s1_to_s2_orthologs and s1_to_s2_orthologs[node1] == node2
 
 def get_s1_to_s2_orthologs(species1, species2):
     if 'syeast' in species1 or 'syeast' in species2:

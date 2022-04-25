@@ -78,6 +78,8 @@ def get_matching_poses_list(entry_list, prox, target_num_matching):
     total_to_check = len(entry_list)
     num_checked = 0
 
+    print(len(entry_list))
+
     for i in range(0, len(entry_list)):
         matching_poses_list.append([])
         outer_entry = entry_list[i]
@@ -107,7 +109,15 @@ def get_patched_index(k, index_path, graph_path, prox=6, target_num_matching=6):
     adj_set = read_in_adj_set(graph_path)
     patched_index = Index()
 
+    last_percent_printed = 0
+
+    print(len(matching_poses_list))
+
     for i, matching_list in enumerate(matching_poses_list):
+        if i > last_percent_printed * len(matching_poses_list) / 100:
+            last_percent_printed += 1
+            print(f'{last_percent_printed}% done')
+
         for j in matching_list:
             patched_entry = PatchedIndexEntry(entry_list[i], entry_list[j], adj_set)
             patched_index.add_entry(patched_entry)
