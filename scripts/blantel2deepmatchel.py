@@ -1,6 +1,5 @@
 #!/bin/python3
 import sys
-from graph_helpers import *
 from general_helpers import *
 from node_to_num_mapping import *
 
@@ -22,10 +21,16 @@ def directify(el):
 
     return out_el
 
-def bel2dmel(el_fname):
-    print(el_fname)
-    node_el = read_in_el(el_fname)
-    num_el = el_node_to_num(species, node_el)
+def bel2dmel_with_n2n(el):
+    # TODO
+    num_el = el_node_to_num(species, el)
+    no_self_loops_el = remove_self_loops(num_el)
+    directed_el = directify(no_self_loops_el)
+    deduped_el = list(set(directed_el))
+    sorted_el = sorted(deduped_el)
+    return sorted_el
+
+def bel2dmel(num_el):
     no_self_loops_el = remove_self_loops(num_el)
     directed_el = directify(no_self_loops_el)
     deduped_el = list(set(directed_el))
