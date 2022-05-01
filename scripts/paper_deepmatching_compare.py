@@ -26,9 +26,6 @@ def calc_acc_and_vol(node_pairs):
 
     return (match_vol / len(node_pairs), match_vol)
 
-def find_seeds(k, species1, species2, s1_index_path, s2_index_path, s1_odv_path=None, s2_odv_path=None, settings=SeedingAlgorithmSettings(), print_progress=False):
-    pass
-
 if __name__ == '__main__':
     all_nodes = set()
 

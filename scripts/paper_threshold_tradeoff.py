@@ -28,7 +28,7 @@ for sims_threshold in sims_thresholds:
     all_pairs_results = []
 
     for max_indices in max_indiceses:
-        all_seeds_list = find_seeds(patch_k, species1, species2, s1_index, s2_index, get_odv_file_path(species1), get_odv_file_path(species2), SeedingAlgorithmSettings(sims_threshold=sims_threshold, max_indices=max_indices), print_progress=False)
+        all_seeds_list = find_seeds(patch_k, s1_index, s2_index, ODVDirectory(get_odv_file_path(species1)), ODVDirectory(get_odv_file_path(species2)), SeedingAlgorithmSettings(sims_threshold=sims_threshold, max_indices=max_indices), print_progress=False)
         node_pairs = extract_node_pairs(all_seeds_list)
         s1_to_s2_orthologs = get_s1_to_s2_orthologs(species1, species2)
         orthopairs_list = get_orthopairs_list(node_pairs, s1_to_s2_orthologs)
