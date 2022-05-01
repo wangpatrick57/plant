@@ -23,4 +23,8 @@ general_helpers.py &>/dev/null
 if [ $? -ne 0 ]; then echo "general_helpers.py failed"; exit 1; fi
 echo "general_helpers.py succeeded"
 
+selector_helpers.py &>/dev/null
+if [ $? -ne 0 ]; then echo "selector_helpers.py failed"; exit 1; fi
+echo "selector_helpers.py succeeded"
+
 echo "ALL SUCCEEDED"
