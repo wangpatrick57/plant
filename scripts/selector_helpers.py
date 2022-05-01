@@ -1,4 +1,6 @@
 #!/bin/python3
+from index_helpers import *
+
 class IndexSelector:
     CACHE_BASE_DIR = '/home/wangph1/plant/data/seeding_cached_data'
 
@@ -26,6 +28,9 @@ class IndexSelector:
 
     def get_path(self):
         return self._path
+
+    def read_index(self):
+        return read_in_index(self._path, 8)
 
     @staticmethod
     def get_default_ldeg(species):

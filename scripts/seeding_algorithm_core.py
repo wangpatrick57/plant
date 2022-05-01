@@ -3,6 +3,7 @@ from collections import defaultdict
 from odv_helpers import *
 from index_helpers import *
 from general_helpers import *
+from selector_helpers import *
 
 class SeedingAlgorithmSettings:
     def __init__(self, max_indices=15, sims_threshold=0.79, speedup=1):
@@ -11,23 +12,7 @@ class SeedingAlgorithmSettings:
         self.speedup = speedup
 
 # takes in necessary inputs and settings and returns a list of all found seeds
-def find_seeds(k, species1, species2, s1_index=None, s2_index=None, s1_odv_path=None, s2_odv_path=None, settings=SeedingAlgorithmSettings(), print_progress=False):
-    if s1_index == None:
-        s1_index_path = get_index_path(species1)
-        s1_index = read_in_index(s1_index_path, k)
-
-    if s2_index == None:
-        s2_index_path = get_index_path(species2)
-        s2_index = read_in_index(s2_index_path, k)
-
-    if s1_odv_path == None:
-        s1_odv_path = get_odv_file_path(species1)
-
-    if s2_odv_path == None:
-        s2_odv_path = get_odv_file_path(species2)
-    
-    s1_odv_dir = ODVDirectory(s1_odv_path)
-    s2_odv_dir = ODVDirectory(s2_odv_path)
+def find_seeds(k, s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAlgorithmSettings(), print_progress=False):
     total_pairs_to_process = estimate_total_pairs_to_process(s1_index, s2_index, settings)
     all_seeds_list = []
     percent_printed = 0
@@ -103,5 +88,15 @@ def should_be_seed(s1_entry_nodes, s2_entry_nodes, s1_odv_dir, s2_odv_dir, thres
     return mean(sims) >= threshold
 
 if __name__ == '__main__':
-    seeds = find_seeds(8, 'mouse', 'rat', settings=SeedingAlgorithmSettings(max_indices=3))
-    assert_with_prints(len(seeds), 59, 'len(seeds)')
+    species1 = 'mouse'
+    species2 = 'rat'
+    s1_index_sel = IndexSelector(by_blant_settings={"species": species1})
+    s2_index_sel = IndexSelector(by_blant_settings={"species": species2})
+    s1_index = s1_index_sel.read_index()
+    s2_index = s2_index_sel.read_index()
+    s1_odv_dir = ODVDirectory(get_odv_file_path(species1))
+    s2_odv_dir = ODVDirectory(get_odv_file_path(species2))
+    seeds = find_seeds(8, s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAlgorithmSettings(max_indices=3))
+    print(len(seeds))
+
+

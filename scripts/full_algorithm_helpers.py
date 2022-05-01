@@ -19,7 +19,7 @@ def full_get_combined_seeds(k, species1, species2, orbits, max_indices, sims_thr
             print('skipped {species1}-{species2} o{orbit}')
             continue
 
-        all_seeds_list = find_seeds(k, species1, species2, read_in_index(s1_index_path, k), read_in_index(s2_index_path, k), get_odv_file_path(species1), get_odv_file_path(species2), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
+        all_seeds_list = find_seeds(k, read_in_index(s1_index_path, k), read_in_index(s2_index_path, k), ODVDirectory(get_odv_file_path(species1)), ODVDirectory(get_odv_file_path(species2)), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
         all_seeds_lists.append(all_seeds_list)
 
         if print_progress:
@@ -42,7 +42,7 @@ def full_get_patch_combined_seeds(k, species1, species2, orbits, max_indices, si
         s2_graph_path = get_graph_path(species2)
         s1_index = get_patched_index(k, s1_index_path, s1_graph_path)
         s2_index = get_patched_index(k, s2_index_path, s2_graph_path)
-        all_seeds_list = find_seeds(10, species1, species2, s1_index, s2_index, get_odv_file_path(species1), get_odv_file_path(species2), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
+        all_seeds_list = find_seeds(10, s1_index, s2_index, ODVDirectory(get_odv_file_path(species1)), ODVDirectory(get_odv_file_path(species2)), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
         all_seeds_lists.append(all_seeds_list)
 
         if print_progress:
@@ -77,8 +77,8 @@ def low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2
     k = 8
     s1_index = get_patched_index(k, s1_index_path, s1_graph_path)
     s2_index = get_patched_index(k, s2_index_path, s2_graph_path)
-    # TODO: fix find_seeds
-    all_seeds = find_seeds(10, 'random', 'random', s1_index, s2_index, get_odv_file_path('mouse'), get_odv_file_path('rat'), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
+    # TODO: fix odv stuff
+    all_seeds = find_seeds(10, s1_index, s2_index, ODVDirectory(get_odv_file_path('mouse')), ODVDirectory(get_odv_file_path('rat')), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
     node_pairs = extract_node_pairs(all_seeds)
     orthopairs = get_orthopairs_list(node_pairs, s1_to_s2_orthologs)
     return (orthopairs, node_pairs)
