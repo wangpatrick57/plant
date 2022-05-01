@@ -1,7 +1,7 @@
 import sys
 sys.path.insert(1, "/home/wangph1/plant/scripts")
 from node_to_num_mapping import *
-from ortholog_helpers import get_orthopairs_list, get_s1_to_s2_orthologs
+from ortholog_helpers import *
 
 f = sys.argv[1]
 species1 = sys.argv[2]
@@ -25,7 +25,6 @@ for line in seeds:
     nodepairs.append((convert1[nodes[0]], convert2[nodes[1]]))
 
 
-#print(nodepairs)
 orthos = get_orthopairs_list(nodepairs, get_s1_to_s2_orthologs(species1, species2))
 acc = "%.3f"%(round(len(orthos)/len(nodepairs), 3))
 volume = len(orthos)

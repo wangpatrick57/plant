@@ -75,27 +75,21 @@ def full_get_patch_pairs_results(k, species1, species2, orbits, max_indices, sim
 # low param means T=0, M=1, p=0, o=0 with two index and graph files
 def low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs):
     k = 8
-    print('z')
     s1_index = get_patched_index(k, s1_index_path, s1_graph_path)
-    print('a')
     s2_index = get_patched_index(k, s2_index_path, s2_graph_path)
-    print('b')
     # TODO: fix find_seeds
-    all_seeds = find_seeds(10, 'random', 'random', s1_index, s2_index, get_odv_file_path('mouse'), get_odv_file_path('rat'), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=True)
-    print('c')
+    all_seeds = find_seeds(10, 'random', 'random', s1_index, s2_index, get_odv_file_path('mouse'), get_odv_file_path('rat'), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
     node_pairs = extract_node_pairs(all_seeds)
-    print('d')
     orthopairs = get_orthopairs_list(node_pairs, s1_to_s2_orthologs)
-    print('e')
     return (orthopairs, node_pairs)
 
 if __name__ == '__main__':
     k = int(sys.argv[1]) if len(sys.argv) > 1 else 8
     species1 = sys.argv[2] if len(sys.argv) > 2 else 'mouse'
     species2 = sys.argv[3] if len(sys.argv) > 3 else 'rat'
-    orbits = [int(n) for n in sys.argv[4].split(',')] if len(sys.argv) > 4 else range(2)
-    max_indices = int(sys.argv[5]) if len(sys.argv) > 5 else 15
-    sims_threshold = float(sys.argv[6]) if len(sys.argv) > 6 else 0.74
+    orbits = [int(n) for n in sys.argv[4].split(',')] if len(sys.argv) > 4 else [0]
+    max_indices = int(sys.argv[5]) if len(sys.argv) > 5 else 1
+    sims_threshold = float(sys.argv[6]) if len(sys.argv) > 6 else 0
     print_progress = sys.argv[7] if len(sys.argv) > 7 else True
     orthoresults, all_results = full_get_patch_pairs_results(k, species1, species2, orbits, max_indices, sims_threshold, print_progress=print_progress)
     print(f'{len(orthoresults)} / {len(all_results)}')
