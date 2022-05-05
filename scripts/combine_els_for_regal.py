@@ -7,7 +7,7 @@ from graph_helpers import *
 def get_same_graph_name2num(el_path):
     nodes = list(read_in_nodes(el_path))
     random.shuffle(nodes)
-    return {name : num for num, name in enumerate(nodes, 1)}
+    return {name : num for num, name in enumerate(nodes)}
 
 def get_cross_graph_num2num(el1_name2num, el2_name2num):
     el1_keys = set(el1_name2num.keys())
@@ -74,6 +74,7 @@ def output_combined_edges(combined_edges, fname):
 if __name__ == '__main__':
     el1_path = sys.argv[1]
     el2_path = sys.argv[2]
+    base_out = sys.argv[3]
     mapping, combined_edges = get_all_outputs(el1_path, el2_path)
-    output_mapping(mapping, 'mapping.txt')
-    output_combined_edges(combined_edges, 'combined_edges.txt')
+    output_mapping(mapping, f'{base_out}_edges-mapping-permutation.txt')
+    output_combined_edges(combined_edges, f'{base_out}_combined_edges.txt')
