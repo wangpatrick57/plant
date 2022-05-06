@@ -1,11 +1,14 @@
 #!/bin/python3
-from node_to_num_mapping import *
-from file_helpers import *
+from full_algorithm_helpers import *
+from selector_helpers import *
 from graph_helpers import *
 
-graph_path = '/home/wangph1/plant/networks/temporal_slices/sxso_start+0_inter15000000.dmel'
-mapping_path = '/home/wangph1/plant/data/static/sxso_start+0_i15M.n2n'
+s1_index_path = IndexSelector(by_blant_settings={'species': 'mouse'}).get_path()
+s2_index_path = IndexSelector(by_blant_settings={'species': 'rat'}).get_path()
+s1_graph_path = get_graph_path('mouse')
+s2_graph_path = get_graph_path('rat')
+s1_to_s2_orthologs = get_s1_to_s2_orthologs('mouse', 'rat')
+orthopairs, node_pairs = low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs)
 
-node_el = read_in_el('/home/wangph1/plant/networks/deepmatching/syeast0.dmel')
-num_el = el_node_to_num('syeast0_shuf', node_el)
-write_el_to_file(num_el, '/home/wangph1/plant/networks/deepmatching/syeast0_shuf.dmel')
+print(f'{len(orthopairs)} / {len(node_pairs)}')
+print(orthopairs)
