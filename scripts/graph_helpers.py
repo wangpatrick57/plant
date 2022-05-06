@@ -57,6 +57,16 @@ def read_in_nodes(graph_path):
     graph_file.close()
     return nodes
 
+def read_in_seeds(seeds_path):
+    seeds = set()
+    seeds_file = open(seeds_path, 'r')
+
+    for line in seeds_file:
+        node1, node2 = re.split('[\s\t]', line.strip())
+        seeds.add((node1, node2))
+
+    return list(seeds)
+
 def graph_stats(el, name='graph'):
     nodes = set()
     edges = set()
