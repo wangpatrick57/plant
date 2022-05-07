@@ -10,12 +10,21 @@ def get_same_graph_name2num(el_path):
     return {name : num for num, name in enumerate(nodes)}
 
 def get_cross_graph_num2num(el1_name2num, el2_name2num):
-    el1_keys = set(el1_name2num.keys())
-    el2_keys = set(el1_name2num.keys())
-    assert all([k in el2_keys for k in el1_keys])
-    assert all([k in el1_keys for k in el2_keys])
+    el1_names = set(el1_name2num.keys())
+    el2_names = set(el2_name2num.keys())
+    all_names = el1_names.union(el2_names)
+    max_len = max(len(el1_names), len(el2_names))
+    num2num = dict()
 
-    return {el1_name2num[name] : el2_name2num[name] for name in el1_name2num}
+    for name in all_names:
+        if name in el1_name2num and name in el2_name2num:
+            num2num[el1_name2num[name]] = el2_name2num[name]
+
+    for i in range(max_len):
+        if i not in num2num:
+            num2num[i] = max_len
+
+    return num2num
 
 def get_name2globnum(el1_name2num, el2_name2num):
     num_el1_keys = len(el1_name2num.keys())
@@ -76,5 +85,5 @@ if __name__ == '__main__':
     el2_path = sys.argv[2]
     base_out = sys.argv[3]
     mapping, combined_edges = get_all_outputs(el1_path, el2_path)
-    output_mapping(mapping, f'{base_out}_edges-mapping-permutation.txt')
-    output_combined_edges(combined_edges, f'{base_out}_combined_edges.txt')
+    output_mapping(mapping, f'../data/regal/{base_out}_edges-mapping-permutation.txt')
+    output_combined_edges(combined_edges, f'../data/regal/{base_out}_combined_edges.txt')
