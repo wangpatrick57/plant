@@ -1,4 +1,5 @@
 import re
+import networkx as nx
 
 def all_species():
     return ['cat', 'chicken', 'cow', 'dog', 'duck', 'guinea_pig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep', 'turkey']
@@ -92,3 +93,28 @@ def clean_el(el):
 
     el = list(edges)
     return el
+
+def el_remove_node(el, node):
+    new_el = []
+
+    for node1, node2 in el:
+        if node1 != node and node2 != node:
+            new_el.append((node1, node2))
+    
+    return new_el
+
+def print_adj_set_sorted(adj_set):
+    lengths = [(node, len(neighs)) for node, neighs in adj_set.items()]
+    lengths.sort(key=(lambda e : e[1]))
+    print('\n'.join(f'{node}: {length}' for node, length in lengths))
+
+def el_to_nxg(el):
+    nxg = nx.Graph()
+
+    for node1, node2 in el:
+        nxg.add_edge(node1, node2)
+
+    return nxg
+
+def get_ccs_list(nxg):
+    return nx.connected_components(nxg)
