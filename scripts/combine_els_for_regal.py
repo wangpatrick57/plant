@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
 import sys
 import random
 import pickle
@@ -85,5 +85,9 @@ if __name__ == '__main__':
     el2_path = sys.argv[2]
     base_out = sys.argv[3]
     mapping, combined_edges = get_all_outputs(el1_path, el2_path)
-    output_mapping(mapping, f'../data/regal/{base_out}_edges-mapping-permutation.txt')
-    output_combined_edges(combined_edges, f'../data/regal/{base_out}_combined_edges.txt')
+    mapping_path = f'/home/wangph1/plant/data/regal/{base_out}_edges-mapping-permutation.txt'
+    output_mapping(mapping, mapping_path)
+    combined_edges_path = f'/home/wangph1/plant/data/regal/{base_out}_combined_edges.txt'
+    output_combined_edges(combined_edges, combined_edges_path)
+    print(f'scp wangph1@openlab.ics.uci.edu:{mapping_path} .;')
+    print(f'scp wangph1@openlab.ics.uci.edu:{combined_edges_path} .')
