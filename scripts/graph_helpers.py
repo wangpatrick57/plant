@@ -1,6 +1,9 @@
 #!/pkg/python/3.7.4/bin/python3
 import re
+import random
 import networkx as nx
+import sys
+from file_helpers import *
 
 def all_species():
     return ['cat', 'chicken', 'cow', 'dog', 'duck', 'guinea_pig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep', 'turkey']
@@ -126,5 +129,25 @@ def el_to_nxg(el):
 def get_ccs_list(nxg):
     return nx.connected_components(nxg)
 
+def soften_el(el, r):
+    soft_el = []
+
+    for edge in el:
+        if random.random() >= r:
+            soft_el.append(edge)
+
+    return soft_el
+
 if __name__ == '__main__':
-    print_adj_set_sorted(read_in_adj_set(get_snap_graph_path('btcotc.el')))
+    base = sys.argv[1]
+    el = read_in_el(get_snap_graph_path(f'{base}.el'))
+    soft5v1_el = soften_el(el, 0.05)
+    soft5v2_el = soften_el(el, 0.05)
+    soft10v1_el = soften_el(el, 0.1)
+    soft10v2_el = soften_el(el, 0.1)
+    els = [soft5v1_el, soft5v2_el, soft10v1_el, soft10v2_el]
+    adds = ['5v1', '5v2', '10v1', '10v2']
+
+    for this_el, this_add in zip(els, adds):
+        graph_stats(this_el, f'{base}_{this_add}')
+        write_el_to_file(this_el, get_snap_graph_path(f'{base}_{this_add}.el'))
