@@ -1,9 +1,11 @@
 #!/pkg/python/3.7.4/bin/python3
-import sys
+from temporal_graph_helpers import *
 from graph_helpers import *
 from file_helpers import *
 
-graph_path = sys.argv[1]
-el = read_in_el(graph_path)
-nxg = el_to_nxg(el)
-print([len(ccs) for ccs in get_ccs_list(nxg)])
+tel = read_in_temporal_el('../networks/snap/otc.tel')
+els = get_tel_std_sections(tel)
+
+for i, el in enumerate(els):
+    write_el_to_file(el, f'../networks/snap/otc{i}.el')
+    graph_stats(el, f'otc{i}')

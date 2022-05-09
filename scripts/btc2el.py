@@ -2,13 +2,20 @@
 import sys
 from graph_helpers import *
 
+is_tel = True
 path = sys.argv[1]
 
 with open(path, 'r') as btc_file:
-    el = []
+    xel = []
 
     for line in btc_file:
         source, target, rating, time = line.strip().split(',')
-        el.append((source, target))
+        edge = [source, target]
 
-    print_el(el)
+        if is_tel:
+            edge.append(str(int(float(time))))
+
+        edge = tuple(edge)
+        xel.append(edge)
+
+    print_xel(xel)
