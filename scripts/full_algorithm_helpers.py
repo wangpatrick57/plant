@@ -85,27 +85,12 @@ def low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2
     return (orthopairs, node_pairs)
 
 if __name__ == '__main__':
-    s1_index_path = get_index_path('rat')
-    s1_graph_path = get_graph_path('rat')
-    s2_index_path = get_index_path('mouse')
-    s2_graph_path = get_graph_path('mouse')
-    s1_to_s2_orthologs = get_s1_to_s2_orthologs('rat', 'mouse')
-
-    orth = []
-    total = []
-
-    for target_num_matching in range(6, 8):
-        orth.append([])
-        total.append([])
-
-        for prox in range(6, 8):
-            orthopairs, node_pairs = low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=prox, target_num_matching=target_num_matching)
-            orth[-1].append(len(orthopairs))
-            total[-1].append(len(node_pairs))
-            print(f'done with t{target_num_matching} p{prox}')
-
-    print('orth')
-    print('\n'.join(['\t'.join([f'{num}' for num in row]) for row in orth]))
-    print()
-    print('total')
-    print('\n'.join(['\t'.join([f'{num}' for num in row]) for row in total]))
+    snap1 = sys.argv[1]
+    snap2 = sys.argv[2]
+    s1_index_path = get_index_path(snap1)
+    s1_graph_path = get_snap_graph_path(f'{snap1}.el')
+    s2_index_path = get_index_path(snap2)
+    s2_graph_path = get_snap_graph_path(f'{snap2}.el')
+    s1_to_s2_orthologs = SelfOrthos()
+    orthopairs, node_pairs = low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs)
+    print(f'{len(orthopairs)} / {len(node_pairs)}')

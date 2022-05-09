@@ -5,13 +5,13 @@ from index_helpers import *
 from graph_helpers import *
 from ortholog_helpers import *
 
-species1 = sys.argv[1]
-species2 = sys.argv[2]
-s1_index_path = get_index_path(species1)
-s1_graph_path = get_graph_path(species1)
-s2_index_path = get_index_path(species2)
-s2_graph_path = get_graph_path(species2)
-s1_to_s2_orthologs = get_s1_to_s2_orthologs(species1, species2)
+snap1 = sys.argv[1]
+snap2 = sys.argv[2]
+s1_index_path = get_index_path(snap1)
+s1_graph_path = get_snap_graph_path(snap1)
+s2_index_path = get_index_path(snap2)
+s2_graph_path = get_snap_graph_path(snap2)
+s1_to_s2_orthologs = SelfOrthos()
 
 orth = []
 total = []
