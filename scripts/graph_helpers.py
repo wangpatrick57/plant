@@ -1,3 +1,4 @@
+#!/pkg/python/3.7.4/bin/python3
 import re
 import networkx as nx
 
@@ -106,7 +107,10 @@ def el_remove_node(el, node):
 def print_adj_set_sorted(adj_set):
     lengths = [(node, len(neighs)) for node, neighs in adj_set.items()]
     lengths.sort(key=(lambda e : e[1]))
-    print('\n'.join(f'{node}: {length}' for node, length in lengths))
+    print('\n'.join(f'{node} has degree {length}' for node, length in lengths))
+
+def print_el(el):
+    print('\n'.join(f'{node1}\t{node2}' for node1, node2 in el))
 
 def el_to_nxg(el):
     nxg = nx.Graph()
@@ -118,3 +122,6 @@ def el_to_nxg(el):
 
 def get_ccs_list(nxg):
     return nx.connected_components(nxg)
+
+if __name__ == '__main__':
+    print_adj_set_sorted(read_in_adj_set(get_snap_graph_path('btcotc.el')))

@@ -66,11 +66,12 @@ class IndexEntry:
         return len(self._node_arr)
 
 
-def get_index_path(species, percent=0, orbit=0):
-    if 'syeast' in species:
-        lDEG = 3
-    else:
-        lDEG = 2
+def get_index_path(species, percent=0, orbit=0, lDEG=None):
+    if lDEG == None:
+        if 'syeast' in species:
+            lDEG = 3
+        else:
+            lDEG = 2
 
     return f'{CACHE_BASE_DIR}/blant_out/p{percent}-o{orbit}-{species}-lDEG{lDEG}.out'
 
