@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
 # this file runs the entire algorithm from start to finish, hiding all the internal detailns
 from seeding_algorithm_core import *
 from node_pair_extraction_helpers import *
@@ -7,6 +7,7 @@ from odv_helpers import *
 from ortholog_helpers import *
 from patch_helpers import *
 from validation_helpers import *
+from graph_helpers import *
 
 def full_get_combined_seeds(k, species1, species2, orbits, max_indices, sims_threshold, print_progress=False):
     all_seeds_lists = []
@@ -73,10 +74,10 @@ def full_get_patch_pairs_results(k, species1, species2, orbits, max_indices, sim
     return (orthopairs, node_pairs)
 
 # low param means T=0, M=1, p=0, o=0 with two index and graph files
-def low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs):
+def low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=6, target_num_matching=6):
     k = 8
-    s1_index = get_patched_index(k, s1_index_path, s1_graph_path)
-    s2_index = get_patched_index(k, s2_index_path, s2_graph_path)
+    s1_index = get_patched_index(k, s1_index_path, s1_graph_path, prox=prox, target_num_matching=target_num_matching)
+    s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=prox, target_num_matching=target_num_matching)
     # TODO: fix odv stuff
     all_seeds = find_seeds(10, s1_index, s2_index, ODVDirectory(get_odv_file_path('mouse')), ODVDirectory(get_odv_file_path('rat')), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
     node_pairs = extract_node_pairs(all_seeds)
@@ -84,12 +85,27 @@ def low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2
     return (orthopairs, node_pairs)
 
 if __name__ == '__main__':
-    k = int(sys.argv[1]) if len(sys.argv) > 1 else 8
-    species1 = sys.argv[2] if len(sys.argv) > 2 else 'mouse'
-    species2 = sys.argv[3] if len(sys.argv) > 3 else 'rat'
-    orbits = [int(n) for n in sys.argv[4].split(',')] if len(sys.argv) > 4 else [0]
-    max_indices = int(sys.argv[5]) if len(sys.argv) > 5 else 1
-    sims_threshold = float(sys.argv[6]) if len(sys.argv) > 6 else 0
-    print_progress = sys.argv[7] if len(sys.argv) > 7 else True
-    orthoresults, all_results = full_get_patch_pairs_results(k, species1, species2, orbits, max_indices, sims_threshold, print_progress=print_progress)
-    print(f'{len(orthoresults)} / {len(all_results)}')
+    s1_index_path = get_index_path('rat')
+    s1_graph_path = get_graph_path('rat')
+    s2_index_path = get_index_path('mouse')
+    s2_graph_path = get_graph_path('mouse')
+    s1_to_s2_orthologs = get_s1_to_s2_orthologs('rat', 'mouse')
+
+    orth = []
+    total = []
+
+    for target_num_matching in range(6, 8):
+        orth.append([])
+        total.append([])
+
+        for prox in range(6, 8):
+            orthopairs, node_pairs = low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=prox, target_num_matching=target_num_matching)
+            orth[-1].append(len(orthopairs))
+            total[-1].append(len(node_pairs))
+            print(f'done with t{target_num_matching} p{prox}')
+
+    print('orth')
+    print('\n'.join(['\t'.join([f'{num}' for num in row]) for row in orth]))
+    print()
+    print('total')
+    print('\n'.join(['\t'.join([f'{num}' for num in row]) for row in total]))
