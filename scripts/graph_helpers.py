@@ -112,6 +112,9 @@ def print_adj_set_sorted(adj_set):
 def print_el(el):
     print('\n'.join(f'{node1}\t{node2}' for node1, node2 in el))
 
+def print_xel(xel):
+    print('\n'.join('\t'.join([e for e in edge]) for edge in xel))
+
 def el_to_nxg(el):
     nxg = nx.Graph()
 

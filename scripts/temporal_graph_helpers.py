@@ -10,15 +10,35 @@ def read_in_temporal_el(graph_path):
             time = int(time)
             tel.append((node1, node2, time))
 
-            if i % 600000 == 0: # simple print progress for stack overflow
-                print(i)
-
         return tel
+
+# standard sections are splitting the graph in half by time and then shifting 10% for a total of 10 graphs (ignoring the one with no overlap)
+def get_tel_std_sections(tel):
+    times = [time for node1, node2, time in tel]
+    min_time = min(times)
+    max_time = max(times)
+    length = (max_time - min_time) / 2
+    els = []
+
+    for i in range(10):
+        start_time = min_time + i * length / 10
+        end_time = start_time + length
+        el = get_el_in_interval(tel, start_time, end_time)
+        els.append(el)
+
+    return els
+
+def get_el_in_interval(tel, start_time, end_time):
+    el = []
+
+    for node1, node2, time in tel:
+        if start_time <= time < end_time:
+            el.append((node1, node2))
+
+    return el
 
 # start time is inclusive, end time is exclusive
 def read_in_el_in_interval(graph_path, start_time, end_time):
-    print(start_time - 1217567877, end_time - start_time)
-
     with open(graph_path, 'r') as graph_file:
         el = []
 
