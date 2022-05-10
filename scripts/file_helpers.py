@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
 from graph_helpers import *
 
 def write_seeds_to_files(orthoseeds, allseeds, file_path_func):

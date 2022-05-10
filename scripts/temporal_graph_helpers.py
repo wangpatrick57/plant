@@ -1,5 +1,9 @@
+#!/pkg/python/3.7.4/bin/python3
 import re
 import math
+import sys
+from file_helpers import *
+from graph_helpers import *
 
 def read_in_temporal_el(graph_path):
     with open(graph_path, 'r') as graph_file:
@@ -118,3 +122,12 @@ def get_node_limit_node_edge_ratios(graph_path, start_time, interval, count, nod
         nodes, edges, interval = read_in_nodges_until_nodge_limit(graph_path, time, node_limit=node_limit)
         print(f'{time}\t{len(edges)}\t{interval}')
         time += interval
+
+if __name__ == '__main__':
+    base = sys.argv[1]
+    tel = read_in_temporal_el(f'../networks/snap/{base}.tel')
+    els = get_tel_std_sections(tel)
+
+    for i, el in enumerate(els):
+        write_el_to_file(el, f'../networks/snap/{base}{i}.el')
+        graph_stats(el, f'{base}{i}')

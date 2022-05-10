@@ -72,7 +72,7 @@ def read_in_seeds(seeds_path):
 
     return list(seeds)
 
-def graph_stats(el, name='graph'):
+def graph_stats(el, name='graph', verbose=False):
     nodes = set()
     edges = set()
 
@@ -81,10 +81,13 @@ def graph_stats(el, name='graph'):
         nodes.add(node2)
         edges.add((node1, node2))
 
-    print()
-    print(f'=== {name} ===')
-    print(f'NUM NODES: {len(nodes)}')
-    print(f'NUM EDGES: {len(edges)}')
+    if verbose:
+        print()
+        print(f'=== {name} ===')
+        print(f'NUM NODES: {len(nodes)}')
+        print(f'NUM EDGES: {len(edges)}')
+    else:
+        print(f'{name}: {len(nodes)}n - {len(edges)}e')
 
 def clean_el(el):
     edges = set()
