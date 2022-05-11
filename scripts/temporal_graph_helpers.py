@@ -22,10 +22,14 @@ def get_tel_std_sections(tel):
     min_time = min(times)
     max_time = max(times)
     length = (max_time - min_time) / 2
+
+    return get_tel_custom_length_sections(tel, length):
+
+def get_tel_custom_length_sections(tel, length):
     els = []
 
     for i in range(10):
-        start_time = min_time + i * length / 10
+        start_time = min_time + i * length / 20
         end_time = start_time + length
         el = get_el_in_interval(tel, start_time, end_time)
         els.append(el)
@@ -42,9 +46,9 @@ def get_el_in_interval(tel, start_time, end_time):
     return el
 
 # start time is inclusive, end time is exclusive
-def read_in_el_in_interval(graph_path, start_time, end_time):
+def read_in_xel_in_interval(graph_path, start_time, end_time, is_tel=True):
     with open(graph_path, 'r') as graph_file:
-        el = []
+        xel = []
 
         for line in graph_file:
             node1, node2, time = re.split('[\s\t]', line.strip())
@@ -54,9 +58,15 @@ def read_in_el_in_interval(graph_path, start_time, end_time):
                 break
 
             if time >= start_time:
-                el.append((node1, node2))
+                edge = [source, target]
 
-        return el
+                if is_tel:
+                    edge.append(str(int(float(time))))
+
+                edge = tuple(edge)
+                xel.append(edge)
+
+        return xel
 
 def read_in_el_until_edge_limit(graph_path, start_time, edge_limit):
     nodes, edges, interval = read_in_nodges_until_nodge_limit(graph_path, start_time, edge_limit=edge_limit)
@@ -123,10 +133,15 @@ def get_node_limit_node_edge_ratios(graph_path, start_time, interval, count, nod
         print(f'{time}\t{len(edges)}\t{interval}')
         time += interval
 
+# TODO: generate sxso1-10
+# TODO: regenerate all other graphs
+# TODO: update doc with new graphs
 if __name__ == '__main__':
     base = sys.argv[1]
-    tel = read_in_temporal_el(f'../networks/snap/{base}.tel')
-    els = get_tel_std_sections(tel)
+    start_time = 1217567877
+    length = 15_000_000
+    tel = read_in_xel_in_interval(f'../networks/snap/{base}.tel', start_time, start_time + length * 2)
+    els = get_tel_custom_length_std_sections(tel, length)
 
     for i, el in enumerate(els):
         write_el_to_file(el, f'../networks/snap/{base}{i}.el')

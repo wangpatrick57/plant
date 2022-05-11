@@ -17,8 +17,8 @@ def get_graph_path(species):
 def get_notopedge_graph_path(species):
     return f'/home/wangph1/plant/networks/paper/IID{species}_without_top_edge.el'
 
-def get_snap_graph_path(name):
-    return f'/home/wangph1/plant/networks/snap/{name}'
+def get_snap_graph_path(snap):
+    return f'/home/wangph1/plant/networks/snap/{snap}.el'
 
 def read_in_adj_set(graph_path):
     with open(graph_path, 'r') as graph_file:
@@ -143,14 +143,14 @@ def soften_el(el, r):
 
 if __name__ == '__main__':
     base = sys.argv[1]
-    el = read_in_el(get_snap_graph_path(f'{base}.el'))
+    el = read_in_el(get_snap_graph_path(base))
     soft5v1_el = soften_el(el, 0.05)
     soft5v2_el = soften_el(el, 0.05)
     soft10v1_el = soften_el(el, 0.1)
     soft10v2_el = soften_el(el, 0.1)
     els = [soft5v1_el, soft5v2_el, soft10v1_el, soft10v2_el]
-    adds = ['5v1', '5v2', '10v1', '10v2']
+    adds = ['_5v1', '_5v2', '_10v1', '_10v2']
 
     for this_el, this_add in zip(els, adds):
-        graph_stats(this_el, f'{base}_{this_add}')
-        write_el_to_file(this_el, get_snap_graph_path(f'{base}_{this_add}.el'))
+        graph_stats(this_el, f'{base}{this_add}')
+        write_el_to_file(this_el, get_snap_graph_path(f'{base}{this_add}'))
