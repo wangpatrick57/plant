@@ -84,13 +84,16 @@ def low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2
     orthopairs = get_orthopairs_list(node_pairs, s1_to_s2_orthologs)
     return (orthopairs, node_pairs)
 
+def get_snap_run_info(snap1, snap2):
+    s1_index_path = get_index_path(snap1)
+    s1_graph_path = get_snap_graph_path(snap1)
+    s2_index_path = get_index_path(snap2)
+    s2_graph_path = get_snap_graph_path(snap2)
+    s1_to_s2_orthologs = SelfOrthos()
+    return (s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs)
+
 if __name__ == '__main__':
     snap1 = sys.argv[1]
     snap2 = sys.argv[2]
-    s1_index_path = get_index_path(snap1)
-    s1_graph_path = get_snap_graph_path(f'{snap1}.el')
-    s2_index_path = get_index_path(snap2)
-    s2_graph_path = get_snap_graph_path(f'{snap2}.el')
-    s1_to_s2_orthologs = SelfOrthos()
-    orthopairs, node_pairs = low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs)
+    orthopairs, node_pairs = low_param_full_patch_results(*get_snap_run_info(snap1, snap2))
     print(f'{len(orthopairs)} / {len(node_pairs)}')

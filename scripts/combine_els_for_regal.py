@@ -81,13 +81,19 @@ def output_combined_edges(combined_edges, fname):
     outf.write('\n'.join([f'{num1} {num2} {{\'weight\': 1.0}}' for num1, num2 in combined_edges]))
 
 if __name__ == '__main__':
-    el1_path = sys.argv[1]
-    el2_path = sys.argv[2]
+    snap1 = sys.argv[1]
+    snap2 = sys.argv[2]
     base_out = sys.argv[3]
+    el1_path = get_snap_graph_path(snap1)
+    el2_path = get_snap_graph_path(snap2)
     mapping, combined_edges = get_all_outputs(el1_path, el2_path)
     mapping_path = f'/home/wangph1/plant/data/regal/{base_out}_edges-mapping-permutation.txt'
     output_mapping(mapping, mapping_path)
     combined_edges_path = f'/home/wangph1/plant/data/regal/{base_out}_combined_edges.txt'
     output_combined_edges(combined_edges, combined_edges_path)
-    print(f'scp wangph1@openlab.ics.uci.edu:{mapping_path} .;')
-    print(f'scp wangph1@openlab.ics.uci.edu:{combined_edges_path} .')
+
+    for openlab_path in [mapping_path, combined_edges_path]:
+        print(f'scp wangph1@openlab.ics.uci.edu:{openlab_path} /Users/patrickwang/Downloads/REGAL-master/data;')
+
+    el1_nodes = read_in_nodes(el1_path)
+    print(f'python3 regal.py --input data/{base_out}_combined_edges.txt --split {len(el1_nodes)}')
