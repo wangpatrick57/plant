@@ -13,6 +13,16 @@ class Index(defaultdict):
     def add_entry(self, entry):
         self[entry.get_key()].append(entry)
 
+    def __eq__(self, other):
+        if self.keys() != other.keys():
+            return False
+
+        for key in self:
+            if set(self[key]) != set(other[key]):
+                return False
+
+        return True
+
 
 class IndexEntry:
     def __init__(self, entry_str):
@@ -65,6 +75,12 @@ class IndexEntry:
     def __len__(self):
         return len(self._node_arr)
 
+    def __eq__(self, other):
+        return set(self._node_arr) == set(other._node_arr)
+
+    def __hash__(self):
+        return hash(frozenset(self._node_arr))
+
 
 def get_index_path(species, percent=0, orbit=0, alph=True, lDEG=None):
     if lDEG == None:
@@ -78,9 +94,9 @@ def get_index_path(species, percent=0, orbit=0, alph=True, lDEG=None):
         add_on = ''
     else:
         index_dir = 'blant_out'
-        add_on = '_alph' if alph else '_rev'
+        add_on = '-alph' if alph else '-rev'
 
-    return f'{CACHE_BASE_DIR}/{index_dir}/p{percent}-o{orbit}-{species}{add_on}-lDEG{lDEG}.out'
+    return f'{CACHE_BASE_DIR}/{index_dir}/p{percent}-o{orbit}-{species}-lDEG{lDEG}{add_on}.out'
 
 def get_notopedge_index_path(species, percent=0, orbit=0, lDEG=2):
     return f'{CACHE_BASE_DIR}/special_blant_out/p{percent}-o{orbit}-{species}-lDEG{lDEG}-notopedge.out'
