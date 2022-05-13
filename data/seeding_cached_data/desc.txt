@@ -1,0 +1,1 @@
+messy_blant_out is the blant indexes before blant was sorted by degree and ties were broken alphabetically/reverse-alphabetically
