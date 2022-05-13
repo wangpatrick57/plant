@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
 from collections import defaultdict
 from general_helpers import *
 
@@ -66,14 +66,21 @@ class IndexEntry:
         return len(self._node_arr)
 
 
-def get_index_path(species, percent=0, orbit=0, lDEG=None):
+def get_index_path(species, percent=0, orbit=0, alph=True, lDEG=None):
     if lDEG == None:
         if 'syeast' in species:
             lDEG = 3
         else:
             lDEG = 2
 
-    return f'{CACHE_BASE_DIR}/blant_out/p{percent}-o{orbit}-{species}-lDEG{lDEG}.out'
+    if alph == None: # if alph is none, use old indexn
+        index_dir = 'messy_blant_out'
+        add_on = ''
+    else:
+        index_dir = 'blant_out'
+        add_on = '_alph' if alph else '_rev'
+
+    return f'{CACHE_BASE_DIR}/{index_dir}/p{percent}-o{orbit}-{species}{add_on}-lDEG{lDEG}.out'
 
 def get_notopedge_index_path(species, percent=0, orbit=0, lDEG=2):
     return f'{CACHE_BASE_DIR}/special_blant_out/p{percent}-o{orbit}-{species}-lDEG{lDEG}-notopedge.out'
