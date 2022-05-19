@@ -25,8 +25,8 @@ def output_mapping_for_species(species):
     fout.write(get_mapping_str(nodes))
     fout.close()
 
-def output_mapping_for_all_species():
-    for species in all_species():
+def output_mapping_for_all_iid_mammals():
+    for species in get_all_iid_mammals():
         output_mapping_for_species(species)
 
 def get_n2n_fname_for_species(species):

@@ -54,7 +54,10 @@ def analyze_top_nodes_similarity(species1, species2, n):
     return (num_matches, num_total)
 
 if __name__ == '__main__':
-    # species_pairs = [('cow', 'human'), ('guinea_pig', 'human'), ('rat', 'human'), ('dog', 'human'), ('guinea_pig', 'horse'), ('horse', 'rat'), ('horse', 'dog'), ('cat', 'horse'), ('cow', 'mouse'), ('guinea_pig', 'mouse'), ('cat', 'mouse'), ('guinea_pig', 'rat'), ('guinea_pig', 'dog'), ('guinea_pig', 'cat'), ('guinea_pig', 'cow'), ('cow', 'rat'), ('dog', 'cow'), ('cat', 'cow'), ('dog', 'rat'), ('cat', 'rat'), ('cat', 'dog')]
+    syeasts = ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25']
+    n = 10
 
-    el = get_top_nodes_el('guinea_pig', 6)
-    print_el(el)
+    for species1 in syeasts:
+        for species2 in syeasts:
+            a = analyze_top_nodes_similarity(species1, species2, n)
+            print(a)

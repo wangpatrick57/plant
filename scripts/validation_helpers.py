@@ -1,6 +1,6 @@
 #!/bin/python3
 from index_helpers import *
-from species_helpers import *
+from graph_helpers import *
 
 def validate_index_file(index_path, k):
     try:
@@ -26,4 +26,4 @@ def validate_range(k, species_list, percent_list=[0], orbit_list=[0]):
                     print(f'{species} p{percent} o{orbit} is not valid')
 
 if __name__ == '__main__':
-    validate_range(8, get_all_species(), [0], list(range(15)))
+    validate_range(8, get_all_iid_mammals(), [0], list(range(15)))

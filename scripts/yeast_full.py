@@ -39,7 +39,7 @@ for orbit in range(15):
 
     s1_odv_dir = ODVDirectory(get_odv_dir_path(species1))
     s2_odv_dir = ODVDirectory(get_odv_dir_path(species2))
-    all_seeds = find_seeds(k, s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAlgorithmSettings(max_indices=8, sims_threshold=threshold))
+    all_seeds = find_seeds(s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAlgorithmSettings(max_indices=8, sims_threshold=threshold))
     all_seeds_list.append(all_seeds)
     print(f'done with orbit {orbit}')
 

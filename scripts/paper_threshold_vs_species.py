@@ -27,7 +27,7 @@ for threshold in thresholds:
         s1_odv_path = ODVDirectory(get_odv_file_path(species1))
         s2_odv_path = ODVDirectory(get_odv_file_path(species2))
         settings = SeedingAlgorithmSettings(MAX_INDICES, threshold, 1)
-        all_seeds_list = find_seeds(10, s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings)
+        all_seeds_list = find_seeds(s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings)
         all_node_pairs = extract_node_pairs(all_seeds_list)
         s1_to_s2_orthologs = get_s1_to_s2_orthologs(species1, species2)
         orthopairs = get_orthopairs_list(all_node_pairs, s1_to_s2_orthologs)

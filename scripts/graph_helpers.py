@@ -5,8 +5,17 @@ import networkx as nx
 import sys
 from file_helpers import *
 
-def all_species():
-    return ['cat', 'chicken', 'cow', 'dog', 'duck', 'guinea_pig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep', 'turkey']
+def get_all_iid_mammals():
+    return ['cat', 'cow', 'dog', 'guinea_pig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep']
+
+def is_species(gtag):
+    return gtag in get_all_iid_mammals() or 'syeast' in gtag
+
+def get_gtag_graph_path(gtag):
+    if is_species(gtag):
+        return get_graph_path(gtag)
+    else:
+        return get_snap_graph_path(gtag)
 
 def get_graph_path(species):
     if 'syeast' in species:
