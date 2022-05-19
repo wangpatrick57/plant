@@ -12,7 +12,7 @@ class SeedingAlgorithmSettings:
         self.speedup = speedup
 
 # takes in necessary inputs and settings and returns a list of all found seeds
-def find_seeds(k, s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAlgorithmSettings(), print_progress=False):
+def find_seeds(s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAlgorithmSettings(), print_progress=False):
     total_pairs_to_process = estimate_total_pairs_to_process(s1_index, s2_index, settings)
     all_seeds_list = []
     percent_printed = 0
@@ -48,8 +48,11 @@ def find_seeds(k, s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAl
                     if candidate_seeds_processed / total_pairs_to_process * 100 > percent_printed:
                         print(f'{percent_printed}% done', file=sys.stderr)
                         percent_printed += 1
-        
-    return all_seeds_list
+
+    return clean_seeds(all_seeds_list)
+
+def clean_seeds(seeds):
+    return list(set(seeds))
 
 def get_combined_seeds_list(seed_lists):
     final_set = set()
@@ -96,7 +99,7 @@ if __name__ == '__main__':
     s2_index = s2_index_sel.read_index()
     s1_odv_dir = ODVDirectory(get_odv_file_path(species1))
     s2_odv_dir = ODVDirectory(get_odv_file_path(species2))
-    seeds = find_seeds(8, s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAlgorithmSettings(max_indices=3))
+    seeds = find_seeds(s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAlgorithmSettings(max_indices=3))
     print(len(seeds))
 
 

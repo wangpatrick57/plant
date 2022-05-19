@@ -82,7 +82,7 @@ def get_matching_poses_list(entry_list, prox, target_num_matching):
         matching_poses_list.append([])
         outer_entry = entry_list[i]
 
-        for j in range(i + prox, i + prox + 1):
+        for j in range(i + 1, i + prox + 1):
             if j >= len(entry_list):
                 continue
 
@@ -90,9 +90,9 @@ def get_matching_poses_list(entry_list, prox, target_num_matching):
             curr_num_matching = outer_entry.get_num_matching(inner_entry)
 
             if target_num_matching < 0:
-                do_append = curr_num_matching >= -1 * target_num_matching
+                do_append = curr_num_matching == -1 * target_num_matching
             else:
-                do_append = curr_num_matching == target_num_matching
+                do_append = curr_num_matching >= target_num_matching
 
             if do_append:
                 matching_poses_list[i].append(j)
@@ -101,7 +101,7 @@ def get_matching_poses_list(entry_list, prox, target_num_matching):
 
     return matching_poses_list
 
-def get_patched_index(k, index_path, graph_path, prox=6, target_num_matching=6):
+def get_patched_index(k, index_path, graph_path, prox=3, target_num_matching=4):
     entry_list = read_in_entry_list(index_path, k)
     matching_poses_list = get_matching_poses_list(entry_list, prox, target_num_matching)
     adj_set = read_in_adj_set(graph_path)

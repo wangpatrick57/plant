@@ -20,7 +20,7 @@ def full_get_combined_seeds(k, species1, species2, orbits, max_indices, sims_thr
             print('skipped {species1}-{species2} o{orbit}')
             continue
 
-        all_seeds_list = find_seeds(k, read_in_index(s1_index_path, k), read_in_index(s2_index_path, k), ODVDirectory(get_odv_file_path(species1)), ODVDirectory(get_odv_file_path(species2)), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
+        all_seeds_list = find_seeds(read_in_index(s1_index_path, k), read_in_index(s2_index_path, k), ODVDirectory(get_odv_file_path(species1)), ODVDirectory(get_odv_file_path(species2)), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
         all_seeds_lists.append(all_seeds_list)
 
         if print_progress:
@@ -43,7 +43,7 @@ def full_get_patch_combined_seeds(k, species1, species2, orbits, max_indices, si
         s2_graph_path = get_graph_path(species2)
         s1_index = get_patched_index(k, s1_index_path, s1_graph_path)
         s2_index = get_patched_index(k, s2_index_path, s2_graph_path)
-        all_seeds_list = find_seeds(10, s1_index, s2_index, ODVDirectory(get_odv_file_path(species1)), ODVDirectory(get_odv_file_path(species2)), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
+        all_seeds_list = find_seeds(s1_index, s2_index, ODVDirectory(get_odv_file_path(species1)), ODVDirectory(get_odv_file_path(species2)), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
         all_seeds_lists.append(all_seeds_list)
 
         if print_progress:
@@ -66,34 +66,54 @@ def full_get_pairs_results(k, species1, species2, orbits, max_indices, sims_thre
     orthopairs = get_orthopairs_list(node_pairs, s1_to_s2_orthologs)
     return (orthopairs, node_pairs)
 
-def full_get_patch_pairs_results(k, species1, species2, orbits, max_indices, sims_threshold, print_progress=False):
-    combined_seeds = full_get_patch_combined_seeds(k, species1, species2, orbits, max_indices, sims_threshold, print_progress=print_progress)
-    node_pairs = extract_node_pairs(combined_seeds)
-    s1_to_s2_orthologs = get_s1_to_s2_orthologs(species1, species2)
-    orthopairs = get_orthopairs_list(node_pairs, s1_to_s2_orthologs)
-    return (orthopairs, node_pairs)
-
 # low param means T=0, M=1, p=0, o=0 with two index and graph files
-def low_param_full_patch_results(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=6, target_num_matching=6):
+def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=3, target_num_matching=4):
     k = 8
     s1_index = get_patched_index(k, s1_index_path, s1_graph_path, prox=prox, target_num_matching=target_num_matching)
     s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=prox, target_num_matching=target_num_matching)
     # TODO: fix odv stuff
-    all_seeds = find_seeds(10, s1_index, s2_index, ODVDirectory(get_odv_file_path('mouse')), ODVDirectory(get_odv_file_path('rat')), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
-    node_pairs = extract_node_pairs(all_seeds)
-    orthopairs = get_orthopairs_list(node_pairs, s1_to_s2_orthologs)
-    return (orthopairs, node_pairs)
+    all_seeds = find_seeds(s1_index, s2_index, ODVDirectory(get_odv_file_path('mouse')), ODVDirectory(get_odv_file_path('rat')), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
+    avg_nc = get_avg_node_correctness(all_seeds, s1_to_s2_orthologs)
+    orthocov = get_ortho_coverage(all_seeds, s1_to_s2_orthologs)
+    return (all_seeds, avg_nc, orthocov)
 
-def get_snap_run_info(snap1, snap2):
-    s1_index_path = get_index_path(snap1)
-    s1_graph_path = get_snap_graph_path(snap1)
-    s2_index_path = get_index_path(snap2)
-    s2_graph_path = get_snap_graph_path(snap2)
-    s1_to_s2_orthologs = SelfOrthos()
+def get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True):
+    s1_index_path = get_index_path(gtag1, alph=s1_alph)
+    s2_index_path = get_index_path(gtag2, alph=s2_alph)
+    s1_graph_path = get_gtag_graph_path(gtag1)
+    s2_graph_path = get_gtag_graph_path(gtag2)
+    s1_to_s2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
     return (s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs)
 
+def get_alphrev_gtag_run_infos(gtag1, gtag2):
+    infos = []
+    
+    for s1_alph in [True, False]:
+        for s2_alph in [True, False]:
+            infos.append(get_gtag_run_info(gtag1, gtag2, s1_alph=s1_alph, s2_alph=s2_alph))
+
+    return infos
+
+def get_alphrev_strs():
+    strs = []
+    
+    for s1_alph in [True, False]:
+        for s2_alph in [True, False]:
+            str_tup = ('alph' if s1_alph else 'rev', 'alph' if s2_alph else 'rev')
+            strs.append(''.join(str_tup))
+
+    return strs
+
+def investigate_alphrev_effect(gtag1, gtag2):
+    for alphrev_str, run_info in zip(get_alphrev_strs(), get_alphrev_gtag_run_infos(gtag1, gtag2)):
+        seeds, avg_nc, cov = low_param_one_run(*run_info)
+        print(f'{gtag1}-{gtag2} ({alphrev_str}): {len(seeds)}s, {avg_nc}, {cov}n')
+
+def results_with_alphrev(gtag1, gtag2):
+    pass
+
 if __name__ == '__main__':
-    snap1 = sys.argv[1]
-    snap2 = sys.argv[2]
-    orthopairs, node_pairs = low_param_full_patch_results(*get_snap_run_info(snap1, snap2))
-    print(f'{len(orthopairs)} / {len(node_pairs)}')
+    gtag1 = sys.argv[1]
+    gtag2 = sys.argv[2]
+    seeds, avg_nc, cov = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, s1_alph=None, s2_alph=None))
+    print(len(seeds), avg_nc, cov)

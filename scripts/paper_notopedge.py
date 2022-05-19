@@ -30,25 +30,25 @@ settings = SeedingAlgorithmSettings(max_indices=15, sims_threshold=0.74, speedup
 s1_to_s2_orthologs = get_s1_to_s2_orthologs(species1, species2)
 
 # both normal
-allseeds = find_seeds(k, s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings, print_progress=False)
+allseeds = find_seeds(s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings, print_progress=False)
 allpairs = extract_node_pairs(allseeds)
 orthopairs = get_orthopairs_list(allpairs, s1_to_s2_orthologs)
 print(f'both normal: {len(orthopairs)} / {len(allpairs)}')
 
 # mouse notopedge, rat normal
-allseeds = find_seeds(k, s1_notopedge_index, s2_index, s1_odv_dir, s2_odv_dir, settings, print_progress=False)
+allseeds = find_seeds(s1_notopedge_index, s2_index, s1_odv_dir, s2_odv_dir, settings, print_progress=False)
 allpairs = extract_node_pairs(allseeds)
 orthopairs = get_orthopairs_list(allpairs, s1_to_s2_orthologs)
 print(f'both normal: {len(orthopairs)} / {len(allpairs)}')
 
 # mouse normal, rat notopedge
-allseeds = find_seeds(k, s1_index, s2_notopedge_index, s1_odv_dir, s2_odv_dir, settings, print_progress=False)
+allseeds = find_seeds(s1_index, s2_notopedge_index, s1_odv_dir, s2_odv_dir, settings, print_progress=False)
 allpairs = extract_node_pairs(allseeds)
 orthopairs = get_orthopairs_list(allpairs, s1_to_s2_orthologs)
 print(f'both normal: {len(orthopairs)} / {len(allpairs)}')
 
 # both notopedge
-allseeds = find_seeds(k, s1_notopedge_index, s2_notopedge_index, s1_odv_dir, s2_odv_dir, settings, print_progress=False)
+allseeds = find_seeds(s1_notopedge_index, s2_notopedge_index, s1_odv_dir, s2_odv_dir, settings, print_progress=False)
 allpairs = extract_node_pairs(allseeds)
 orthopairs = get_orthopairs_list(allpairs, s1_to_s2_orthologs)
 print(f'both normal: {len(orthopairs)} / {len(allpairs)}')

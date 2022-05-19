@@ -10,7 +10,6 @@ from patch_helpers import *
 
 # test constants
 k = 8
-patch_k = 10
 species1 = "mouse"
 species2 = "rat"
 percent = 0
@@ -25,7 +24,7 @@ for percent in range(11):
     s1_odv_dir = ODVDirectory(get_odv_dir_path(species1))
     s2_odv_dir = ODVDirectory(get_odv_dir_path(species2))
     seeding_settings = SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold)
-    all_seeds = find_seeds(patch_k, s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=seeding_settings)
+    all_seeds = find_seeds(s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=seeding_settings)
     all_pairs = extract_node_pairs(all_seeds)
     s1_to_s2 = get_s1_to_s2_orthologs(species1, species2)
     orthopairs = get_orthopairs_list(all_pairs, s1_to_s2)

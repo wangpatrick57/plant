@@ -23,7 +23,7 @@ for orbit in range(15):
     s1_index = get_patched_index(k, species1, orbit=orbit)
     s2_index = get_patched_index(k, species2, orbit=orbit)
     seeding_settings = SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold)
-    all_seeds = find_seeds(patch_k, species1, species2, s1_index, s2_index, settings=seeding_settings)
+    all_seeds = find_seeds(species1, species2, s1_index, s2_index, settings=seeding_settings)
     all_pairs = extract_node_pairs(all_seeds)
     s1_to_s2 = get_s1_to_s2_orthologs(species1, species2)
     orthopairs = get_orthopairs_list(all_pairs, s1_to_s2)

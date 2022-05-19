@@ -2,16 +2,16 @@
 from time import time
 from paper_final_algorithm import *
 import sys
-from species_helpers import *
+from graph_helpers import *
 from validation_helpers import *
 
 species1 = sys.argv[1]
 
 results = []
 
-print(get_all_species())
+print(get_all_iid_mammals())
 
-for species2 in get_all_species():
+for species2 in get_all_iid_mammals():
     if species1 != species2:
         start_time = time()
         orthopairs, allpairs = get_final_answer_patch_pairs(species1, species2, print_progress=False)
