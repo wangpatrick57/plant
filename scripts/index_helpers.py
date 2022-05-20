@@ -125,6 +125,17 @@ def read_in_entry_list(index_path, k):
 
         return entry_list
 
+def get_node_distr(index):
+    distr = defaultdict(int)
+
+    for entry_list in index.values():
+        for entry in entry_list:
+            for node in entry.get_node_arr():
+                distr[node] += 1
+
+    return distr
+
 if __name__ == '__main__':
-    index = read_in_index(get_index_path('mouse'), 8)
-    assert_with_prints(len(index), 564, 'len(index)')
+    index = read_in_index(get_index_path('syeast0', lDEG=2), 8)
+    node_distr = get_node_distr(index)
+    print_dict(node_distr)
