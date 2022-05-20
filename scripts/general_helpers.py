@@ -15,5 +15,8 @@ def calc_f1(orth, found, n):
     fn = n - orth
     return tp / (tp + 0.5 * (fp + fn))
 
+def print_dict(d):
+    print('\n'.join([f'{k}\t{v}' for k, v in d.items()]))
+
 if __name__ == '__main__':
     assert_with_prints(5, 5, 'foo')
