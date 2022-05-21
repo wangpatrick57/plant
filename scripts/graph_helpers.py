@@ -150,6 +150,16 @@ def soften_el(el, r):
 
     return soft_el
 
+def induced_subgraph(el, nodes):
+    sg = []
+    nodes_set = set(nodes)
+
+    for node1, node2 in el:
+        if node1 in nodes_set and node2 in nodes_set:
+            sg.append((node1, node2))
+
+    return clean_el(sg)
+
 if __name__ == '__main__':
     base = sys.argv[1]
     el = read_in_el(get_snap_graph_path(base))
