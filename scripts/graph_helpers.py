@@ -30,22 +30,7 @@ def get_snap_graph_path(snap):
     return f'/home/wangph1/plant/networks/snap/{snap}.el'
 
 def read_in_adj_set(graph_path):
-    with open(graph_path, 'r') as graph_file:
-        adj_set = dict()
-
-        for edge_str in graph_file:
-            node1, node2 = re.split('[\s\t]', edge_str.strip())
-
-            if node1 not in adj_set:
-                adj_set[node1] = set()
-
-            if node2 not in adj_set:
-                adj_set[node2] = set()
-
-            adj_set[node1].add(node2)
-            adj_set[node2].add(node1)
-
-        return adj_set
+    return adj_set_of_el(read_in_el(graph_path))
 
 def read_in_el(graph_path):
     el = []
@@ -60,16 +45,31 @@ def read_in_el(graph_path):
 
 # if you need to read in nodes of a temporal graph, refactor this to call a helper function called read_in_nodes_logic which takes in an el
 def read_in_nodes(graph_path):
-    nodes = set()
-    graph_file = open(graph_path, 'r')
+    return nodes_of_el(read_in_el(graph_path))
 
-    for edge_str in graph_file:
-        node1, node2 = re.split('[\s\t]', edge_str.strip())
+def nodes_of_el(el):
+    nodes = set()
+
+    for node1, node2 in el:
         nodes.add(node1)
         nodes.add(node2)
 
-    graph_file.close()
     return nodes
+
+def adj_set_of_el(el):
+    adj_set = dict()
+
+    for node1, node2 in el:
+        if node1 not in adj_set:
+            adj_set[node1] = set()
+
+        if node2 not in adj_set:
+            adj_set[node2] = set()
+
+        adj_set[node1].add(node2)
+        adj_set[node2].add(node1)
+
+    return adj_set
 
 def read_in_seeds(seeds_path):
     seeds = set()
