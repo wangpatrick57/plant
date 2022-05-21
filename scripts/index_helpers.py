@@ -82,9 +82,9 @@ class IndexEntry:
         return hash(frozenset(self._node_arr))
 
 
-def get_index_path(species, percent=0, orbit=0, alph=True, lDEG=None):
+def get_index_path(gtag, percent=0, orbit=0, alph=True, lDEG=None):
     if lDEG == None:
-        if 'syeast' in species:
+        if 'syeast' in gtag:
             lDEG = 3
         else:
             lDEG = 2
@@ -96,10 +96,10 @@ def get_index_path(species, percent=0, orbit=0, alph=True, lDEG=None):
         index_dir = 'blant_out'
         add_on = '-alph' if alph else '-rev'
 
-    return f'{CACHE_BASE_DIR}/{index_dir}/p{percent}-o{orbit}-{species}-lDEG{lDEG}{add_on}.out'
+    return f'{CACHE_BASE_DIR}/{index_dir}/p{percent}-o{orbit}-{gtag}-lDEG{lDEG}{add_on}.out'
 
-def get_notopedge_index_path(species, percent=0, orbit=0, lDEG=2):
-    return f'{CACHE_BASE_DIR}/special_blant_out/p{percent}-o{orbit}-{species}-lDEG{lDEG}-notopedge.out'
+def get_notopedge_index_path(gtag, percent=0, orbit=0, lDEG=2):
+    return f'{CACHE_BASE_DIR}/special_blant_out/p{percent}-o{orbit}-{gtag}-lDEG{lDEG}-notopedge.out'
 
 def read_in_index(index_path, k):
     with open(index_path, 'r') as index_file:
