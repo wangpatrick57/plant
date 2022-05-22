@@ -98,9 +98,12 @@ def gen_and_store_seed_report(full_report, index_paths, gtag1, gtag2):
     graph1_path = get_gtag_graph_path(gtag1)
     graph2_path = get_gtag_graph_path(gtag2)
     g1_to_g2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
-    all_seeds, avg_nc, node_cov = low_param_one_run(index1_path, graph1_path, index2_path, graph2_path, g1_to_g2_orthologs)
-    seed_vol = len(all_seeds)
-    full_report.add_seed_metrics(gtag1, gtag2, (seed_vol, avg_nc, node_cov, 0, 0, 0))
+    all_seeds, seed_metrics, extr_metrics = low_param_one_run(index1_path, graph1_path, index2_path, graph2_path, g1_to_g2_orthologs)
+    all_metrics = [len(all_seeds)]
+    all_metrics.extend(seed_metrics)
+    all_metrics.extend(extr_metrics)
+    all_metrics = tuple(all_metrics)
+    full_report.add_seed_metrics(gtag1, gtag2, all_metrics)
 
 def gen_and_store_all_seed_reports(full_report, index_paths):
     for gtag1, gtag2 in BASE_PAIRS:
