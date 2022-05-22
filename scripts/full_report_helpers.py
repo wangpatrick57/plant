@@ -19,19 +19,43 @@ ALL_GTAGS = get_all_gtags()
 class FullReport:
     def __init__(self, algo):
         self._algo = algo
-        self._idx_vols = dict()
-        self._idx_times = dict()
-        self._seed_metrics = dict()
+        self._idx_metrics = ['idx_vol', 'idx_time']
+        self._seed_metrics = ['seed_vol', 'avg_nc', 'node_cov', 'perf_seed_vol', 'extr_vol', 'extr_nc']
+        self._all_idx_metrics = dict()
+        self._all_seed_metrics = dict()
 
-    def add_index_metrics(self, idx_fname, idx_vol, idx_time):
-        self._idx_vols[idx_fname] = idx_vol
-        self._idx_times[idx_fname] = idx_time
+        for metric in self._idx_metrics:
+            self._all_idx_metrics[metric] = dict()
+
+        for metric in self._seed_metrics:
+            self._all_seed_metrics[metric] = dict()
+
+    def add_index_metrics(self, idx_fname, metrics):
+        for metric_name, metric_val in zip(self._idx_metrics, metrics):
+            self._all_idx_metrics[metric_name][idx_fname] = metric_val
 
     def add_seed_metrics(self, gtag1, gtag2, metrics):
-        self._seed_metrics[(gtag1, gtag2)] = metrics
+        key = (gtag1, gtag2)
+
+        for metric_name, metric_val in zip(self._seed_metrics, metrics):
+            self._all_seed_metrics[metric_name][key] = metric_val
 
     def __str__(self):
-        return f'{self._algo}\n{self._idx_vols}\n{self._idx_times}\n{self._seed_metrics}'
+        s = f'{self._algo}\n'
+        s += '\nINDEX\n'
+        
+        for metric_name, metric_dict in self._all_idx_metrics.items():
+            s += f'{metric_name}: {metric_dict}\n'
+
+        s += '\nSEED\n'
+
+        for metric_name, metric_dict in self._all_seed_metrics.items():
+            s += f'{metric_name}: {metric_dict}\n'
+
+        return s
+
+    def sheets_str(self):
+        pass
 
 def gen_all_indexes(algo):
     ps = []
@@ -62,7 +86,7 @@ def extract_index_metrics(index_path):
 
 def store_index_report(full_report, index_path):
     idx_vol, idx_time = extract_index_metrics(index_path)
-    full_report.add_index_metrics(os.path.basename(index_path), idx_vol, idx_time)
+    full_report.add_index_metrics(os.path.basename(index_path), (idx_vol, idx_time))
 
 def store_all_index_reports(full_report, index_paths):
     for index_path in index_paths.values():
@@ -76,7 +100,7 @@ def gen_and_store_seed_report(full_report, index_paths, gtag1, gtag2):
     g1_to_g2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
     all_seeds, avg_nc, node_cov = low_param_one_run(index1_path, graph1_path, index2_path, graph2_path, g1_to_g2_orthologs)
     seed_vol = len(all_seeds)
-    full_report.add_seed_metrics(gtag1, gtag2, (seed_vol, avg_nc, node_cov))
+    full_report.add_seed_metrics(gtag1, gtag2, (seed_vol, avg_nc, node_cov, 0, 0, 0))
 
 def gen_and_store_all_seed_reports(full_report, index_paths):
     for gtag1, gtag2 in BASE_PAIRS:
@@ -87,7 +111,7 @@ def gen_full_report(algo):
     index_paths = gen_all_indexes(algo)
     store_all_index_reports(full_report, index_paths)
     gen_and_store_all_seed_reports(full_report, index_paths)
-    # run with P=1 C=5, storing seed_vol, avg_nc, node_cov, seed_perf, extr_vol, extr_nc
+    # run with P=1 C=5, storing seed_vol, avg_nc, node_cov, perf_seed_vol, extr_vol, extr_nc
     return full_report
 
 if __name__ == '__main__':

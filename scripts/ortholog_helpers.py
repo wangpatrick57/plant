@@ -53,8 +53,8 @@ def get_orthoseeds_list(all_seeds_list, s1_to_s2_orthologs, missing_allowed=0):
         assert len(s1_index) == len(s2_index), 's1_index length != s2_index length'
 
         for m in range(len(s1_index)):
-            s1_node = s1_index[m]
-            s2_node = s2_index[m]
+            node1 = s1_index[m]
+            node2 = s2_index[m]
 
             if not is_ortholog(node1, node2, s1_to_s2_orthologs):
                 missing_nodes += 1
