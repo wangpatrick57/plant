@@ -74,8 +74,20 @@ def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path
     # TODO: fix odv stuff
     all_seeds = find_seeds(s1_index, s2_index, ODVDirectory(get_odv_file_path('mouse')), ODVDirectory(get_odv_file_path('rat')), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
     avg_nc = get_avg_node_correctness(all_seeds, s1_to_s2_orthologs)
-    orthocov = get_ortho_coverage(all_seeds, s1_to_s2_orthologs)
-    return (all_seeds, avg_nc, orthocov)
+    node_cov = get_node_coverage(all_seeds)
+    return (all_seeds, avg_nc, node_cov)
+
+def get_node_coverage(all_seeds):
+    nodes = set()
+
+    for _, align1, align2 in all_seeds:
+        for node in align1:
+            nodes.add(node)
+
+        for node in align2:
+            nodes.add(node)
+
+    return len(nodes)
 
 def get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True):
     s1_index_path = get_index_path(gtag1, alph=s1_alph)
@@ -115,5 +127,5 @@ def results_with_alphrev(gtag1, gtag2):
 if __name__ == '__main__':
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
-    seeds, avg_nc, cov = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, s1_alph=None, s2_alph=None))
-    print(len(seeds), avg_nc, cov)
+    seeds, avg_nc, node_cov = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, s1_alph=None, s2_alph=None))
+    print(len(seeds), avg_nc, node_cov)
