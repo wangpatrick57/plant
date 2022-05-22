@@ -82,21 +82,27 @@ class IndexEntry:
         return hash(frozenset(self._node_arr))
 
 
-def get_index_path(gtag, percent=0, orbit=0, alph=True, lDEG=None):
+# algo None refers to the original algorithm (Henry's)
+def get_index_path(gtag, algo=None, percent=0, orbit=0, alph=True, lDEG=None):
     if lDEG == None:
         if 'syeast' in gtag:
             lDEG = 3
         else:
             lDEG = 2
 
-    if alph == None: # if alph is none, use old indexn
+    if alph == None: # if alph is none, use old index directory
         index_dir = 'messy_blant_out'
         add_on = ''
     else:
         index_dir = 'blant_out'
         add_on = '-alph' if alph else '-rev'
 
-    return f'{CACHE_BASE_DIR}/{index_dir}/p{percent}-o{orbit}-{gtag}-lDEG{lDEG}{add_on}.out'
+    if algo == None:
+        algo_str = ''
+    else:
+        algo_str = f'-{algo}'
+
+    return f'{CACHE_BASE_DIR}/{index_dir}/p{percent}-o{orbit}-{gtag}{algo_str}-lDEG{lDEG}{add_on}.out'
 
 def get_notopedge_index_path(gtag, percent=0, orbit=0, lDEG=2):
     return f'{CACHE_BASE_DIR}/special_blant_out/p{percent}-o{orbit}-{gtag}-lDEG{lDEG}-notopedge.out'
