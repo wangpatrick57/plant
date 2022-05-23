@@ -2,8 +2,8 @@
 import os
 from all_helpers import *
 
-# TRUE_BASE_PAIRS = [('mouse', 'human'), ('mouse', 'rat'), ('syeast0', 'syeast15'), ('alpha1', 'alpha2'), ('math1', 'math2'), ('email1', 'email2'), ('gnutellafour_10v1', 'gnutellafour_10v2'), ('hepph_5v1', 'hepph_5v2')]
-BASE_PAIRS = [('syeast0', 'syeast15'), ('email1', 'email2')]
+BASE_PAIRS = [('mouse', 'human'), ('mouse', 'rat'), ('syeast0', 'syeast15'), ('alpha1', 'alpha2'), ('math1', 'math2'), ('email1', 'email2'), ('gnutellafour_10v1', 'gnutellafour_10v2'), ('hepph_5v1', 'hepph_5v2')]
+# TEST_BASE_PAIRS = [('syeast0', 'syeast15'), ('email1', 'email2')]
 
 def get_all_gtags():
     all_gtags = set()
@@ -23,6 +23,8 @@ class FullReport:
         self._seed_metrics = ['seed_vol', 'avg_nc', 'node_cov', 'perf_seed_vol', 'extr_vol', 'extr_nc']
         self._all_idx_metrics = dict()
         self._all_seed_metrics = dict()
+        self._idx_fnames = []
+        self._gtag_pairs = []
 
         for metric in self._idx_metrics:
             self._all_idx_metrics[metric] = dict()
@@ -34,11 +36,15 @@ class FullReport:
         for metric_name, metric_val in zip(self._idx_metrics, metrics):
             self._all_idx_metrics[metric_name][idx_fname] = metric_val
 
+        self._idx_fnames.append(idx_fname)
+
     def add_seed_metrics(self, gtag1, gtag2, metrics):
         key = (gtag1, gtag2)
 
         for metric_name, metric_val in zip(self._seed_metrics, metrics):
             self._all_seed_metrics[metric_name][key] = metric_val
+
+        self._gtag_pairs.append(key)
 
     def __str__(self):
         s = f'{self._algo}\n'
@@ -54,8 +60,42 @@ class FullReport:
 
         return s
 
+    def get_algo(self):
+        return self._algo
+
+    def format_metric(self, n):
+        if type(n) is float:
+            return f'{n:.3f}'
+        else:
+            return str(n)
+
     def sheets_str(self):
-        pass
+        lines = ['INDEX METRICS']
+        idx_fields = ['species'] + self._idx_metrics
+        lines.append(','.join(idx_fields))
+
+        for idx_fname in self._idx_fnames:
+            data_items = [idx_fname]
+
+            for metric_dict in self._all_idx_metrics.values():
+                data_items.append(self.format_metric(metric_dict[idx_fname]))
+
+            lines.append(','.join(data_items))
+
+        lines.append('')
+        lines.append('SEEDING METRICS')
+        seed_fields = ['species_pair'] + self._seed_metrics
+        lines.append(','.join(seed_fields))
+
+        for gtag_pair in self._gtag_pairs:
+            data_items = ['-'.join(gtag_pair)]
+
+            for metric_dict in self._all_seed_metrics.values():
+                data_items.append(self.format_metric(metric_dict[gtag_pair]))
+
+            lines.append(','.join(data_items))
+
+        return '\n'.join(lines)
 
 def gen_all_indexes(algo):
     ps = []
@@ -118,4 +158,6 @@ def gen_full_report(algo):
     return full_report
 
 if __name__ == '__main__':
-    print(str(gen_full_report(None)))
+    full_report = gen_full_report(None)
+    print('algo:', full_report.get_algo())
+    print(full_report.sheets_str())
