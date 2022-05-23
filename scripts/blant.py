@@ -6,6 +6,7 @@ from graph_helpers import *
 # sample rates
 #  * 0.00002 for IIDmouse k=8 lDEG=2
 SAMPLE_RATE = 0.00002
+RANK_FILTER = [955, 9, 1, 2, 3, 4, 4, 5]
 sample_rate_cache = dict()
 
 def get_sample_rate(k):
@@ -80,9 +81,20 @@ def canon(nodes):
     return sorted(nodes)
 
 def blant_expand(prev_nodes, k, lDEG, alph, adj_set, heurs, results, rpt=None):
-    if random.random() >= get_sample_rate(k):
-        return
+    # check filters
+    if RANK_FILTER != None:
+        # if rank filter is one, we will just assume that an rpt is available to take the rank from
+        pos = len(prev_nodes) - 1
+        latest_node = prev_nodes[pos]
+        ignore = pos >= len(RANK_FILTER) or RANK_FILTER[pos] == None
 
+        if not ignore and RANK_FILTER[pos] != rpt.get_rank(latest_node):
+            return
+    elif SAMPLE_RATE != None:
+        if random.random() >= get_sample_rate(k):
+            return
+
+    # base case
     if len(prev_nodes) == k:
         results.add(tuple(canon(prev_nodes)))
 
@@ -100,6 +112,11 @@ def blant_expand(prev_nodes, k, lDEG, alph, adj_set, heurs, results, rpt=None):
                 all_neighs.add(neigh)
 
     all_neighs = blant_sorted(list(all_neighs), heurs, alph)
+
+    if len(prev_nodes) == 6:
+        print(prev_nodes)
+        print(prev_nodes[-1] in all_neighs)
+
     expanded_heurs = set()
 
     for neigh in all_neighs:
@@ -108,9 +125,12 @@ def blant_expand(prev_nodes, k, lDEG, alph, adj_set, heurs, results, rpt=None):
         if len(expanded_heurs) > lDEG:
             break
 
+        if len(prev_nodes) == 6:
+            print(neigh)
+
         prev_nodes.append(neigh)
         blant_expand(prev_nodes, k, lDEG, alph, adj_set, heurs, results, rpt=rpt)
-        prev_nodes = prev_nodes[:-1]
+        prev_nodes = prev_nodes[:-1] # TODO: see if we can remove this line and do prev_nodes[i] instead of append
 
 def run_blant(el, k=8, lDEG=2, alph=True, use_rpt=False):
     nodes = nodes_of_el(el)
@@ -141,5 +161,5 @@ if __name__ == '__main__':
     el = read_in_el(path)
     print('el read in')
     graphlets = run_blant(el, k=8, lDEG=2, use_rpt=True)
-    print(len(graphlets))
+    print(graphlets)
 
