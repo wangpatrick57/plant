@@ -5,6 +5,8 @@ import networkx as nx
 import sys
 from file_helpers import *
 
+NETWORKS_DIR = '/home/wangph1/plant/networks'
+
 def get_all_iid_mammals():
     return ['cat', 'cow', 'dog', 'guinea_pig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep']
 
@@ -12,7 +14,9 @@ def is_species(gtag):
     return gtag in get_all_iid_mammals() or 'syeast' in gtag
 
 def get_gtag_graph_path(gtag):
-    if is_species(gtag):
+    if gtag == 'tester':
+        return f'{NETWORKS_DIR}/tester.el'
+    elif is_species(gtag):
         return get_graph_path(gtag)
     else:
         return get_snap_graph_path(gtag)
@@ -24,10 +28,10 @@ def get_graph_path(species):
         return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
 
 def get_notopedge_graph_path(species):
-    return f'/home/wangph1/plant/networks/paper/IID{species}_without_top_edge.el'
+    return f'{NETWORKS_DIR}/paper/IID{species}_without_top_edge.el'
 
 def get_snap_graph_path(snap):
-    return f'/home/wangph1/plant/networks/snap/{snap}.el'
+    return f'{NETWORKS_DIR}/snap/{snap}.el'
 
 def read_in_adj_set(graph_path):
     return adj_set_of_el(read_in_el(graph_path))

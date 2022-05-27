@@ -1,5 +1,6 @@
 #!/pkg/python/3.7.4/bin/python3
 import os
+import sys
 from all_helpers import *
 
 BASE_PAIRS = [('mouse', 'human'), ('mouse', 'rat'), ('syeast0', 'syeast15'), ('alpha1', 'alpha2'), ('math1', 'math2'), ('email1', 'email2'), ('gnutellafour_10v1', 'gnutellafour_10v2'), ('hepph_5v1', 'hepph_5v2')]
@@ -64,6 +65,8 @@ class FullReport:
         return self._algo
 
     def format_metric(self, n):
+        if n == None:
+            return '---'
         if type(n) is float:
             return f'{n:.3f}'
         else:
@@ -102,7 +105,7 @@ def gen_all_indexes(algo):
     index_paths = dict()
 
     for gtag in ALL_GTAGS:
-        p, index_path = run_blant(gtag, algo=algo, lDEG=1)
+        p, index_path = run_blant(gtag, algo=algo, lDEG=2)
         ps.append(p)
         index_paths[gtag] = index_path
 
@@ -158,6 +161,7 @@ def gen_full_report(algo):
     return full_report
 
 if __name__ == '__main__':
-    full_report = gen_full_report(None)
+    algo = sys.argv[1] if len(sys.argv) > 1 else None
+    full_report = gen_full_report(algo)
     print('algo:', full_report.get_algo())
     print(full_report.sheets_str())
