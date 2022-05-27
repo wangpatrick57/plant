@@ -12,6 +12,9 @@ class SelfOrthos(dict):
 
 
 def get_avg_node_correctness(all_seeds, g1_to_g2_orthologs):
+    if len(all_seeds) == 0:
+        return None
+
     nc_sum = 0
 
     for gid, align1, align2 in all_seeds:
