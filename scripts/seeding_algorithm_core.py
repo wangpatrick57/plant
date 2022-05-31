@@ -86,7 +86,7 @@ def should_be_seed(s1_entry_nodes, s2_entry_nodes, s1_odv_dir, s2_odv_dir, thres
     for s1_node, s2_node in zip(s1_entry_nodes, s2_entry_nodes):
         s1_odv = s1_odv_dir.get_odv(s1_node)
         s2_odv = s2_odv_dir.get_odv(s2_node)
-        sims.append(s1_odv.get_similarity(s2_odv))
+        sims.append(s1_odv.get_mean_similarity(s2_odv))
 
     return mean(sims) >= threshold
 
