@@ -1,6 +1,21 @@
 #!/pkg/python/3.7.4/bin/python3
 from graph_helpers import *
 
+PLANT_DIR = '/home/wangph1/plant'
+
+def get_data_path(data_path):
+    return f'{PLANT_DIR}/data/{data_path}'
+
+def read_in_m2m(m2m_path):
+    m2m_pairs = []
+
+    with open(m2m_path, 'r') as f:
+        for line in f:
+            node1, node2 = line.strip().split('\t')
+            m2m_pairs.append((node1, node2))
+
+    return m2m_pairs
+
 def write_seeds_to_files(orthoseeds, allseeds, file_path_func):
     write_to_file_helper(orthoseeds, file_path_func('orthoseeds'))
     write_to_file_helper(allseeds, file_path_func('allseeds'))

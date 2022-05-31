@@ -1,9 +1,8 @@
 #!/pkg/python/3.7.4/bin/python3
 from collections import defaultdict
 from general_helpers import *
+from file_helpers import *
 
-# helps with file paths of cached blant output
-PLANT_DIR = '/home/wangph1/plant'
 CACHE_BASE_DIR = f'{PLANT_DIR}/data/seeding_cached_data'
 
 class Index(defaultdict):

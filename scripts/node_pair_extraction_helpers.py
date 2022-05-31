@@ -1,11 +1,18 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
 from collections import defaultdict
+from file_helpers import *
+from ortholog_helpers import *
 
 def extract_node_pairs(all_seeds_list):
-    node_pair_voting = create_node_pair_voting(all_seeds_list)
+    m2m_pairs = seeds_to_m2m(all_seeds_list)
+    return extract_node_pairs_from_m2m(m2m_pairs)
+
+# extracts node pairs from many2many alignments (.aln files)
+def extract_node_pairs_from_m2m(m2m_pairs):
+    node_pair_voting = create_node_pair_voting(m2m_pairs)
     node_favorite_pairs = create_node_favorite_pairs(node_pair_voting)
     output_pairs = create_output_pairs(node_favorite_pairs)
-    return output_pairs
+    return output_pairs    
 
 def aug(node, n):
     return f'{n}_{node}'
@@ -16,7 +23,7 @@ def deaug(auged_node):
 def print_output_pairs(output_pairs):
     print('\n'.join([f'{deaug(node1)} {deaug(node2)}' for node1, node2 in output_pairs]))
 
-def create_node_pair_voting(all_seeds_list):
+def create_node_pair_voting(m2m_pairs):
     def add_to_voting(node1, node2):
         if node1 not in node_pair_voting:
             node_pair_voting[node1] = defaultdict(int)
@@ -29,11 +36,20 @@ def create_node_pair_voting(all_seeds_list):
 
     node_pair_voting = dict()
 
-    for graphlet_id, s1_index, s2_index in all_seeds_list:
-        for s1_node, s2_node in zip(s1_index, s2_index):
-            add_to_voting(aug(s1_node, 1), aug(s2_node, 2))
+    for s1_node, s2_node in m2m_pairs:
+        add_to_voting(aug(s1_node, 1), aug(s2_node, 2))
 
     return node_pair_voting
+
+def seeds_to_m2m(seeds):
+    # has to be list, not set, because we want duplicates (they count towards the vote)
+    m2m_pairs = list()
+
+    for graphlet_id, s1_index, s2_index in seeds:
+        for s1_node, s2_node in zip(s1_index, s2_index):
+            m2m_pairs.append((s1_node, s2_node))
+
+    return m2m_pairs
 
 def create_node_favorite_pairs(node_pair_voting):
     node_favorite_pairs = defaultdict(set)
@@ -60,3 +76,10 @@ def create_output_pairs(node_favorite_pairs):
                     output_pairs.add((deaug(node), deaug(fav)))
 
     return output_pairs
+
+if __name__ == '__main__':
+    path = get_data_path('mcl/yeast0_yeast25_Y2H1_0.1.aln')
+    m2m_pairs = read_in_m2m(path)
+    node_pairs = extract_node_pairs_from_m2m(m2m_pairs)
+    orthopairs = get_orthopairs_list(node_pairs, SelfOrthos())
+    print(f'{len(orthopairs)} / {len(node_pairs)}')
