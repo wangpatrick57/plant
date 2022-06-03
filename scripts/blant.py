@@ -1,12 +1,21 @@
 #!/pkg/python/3.7.4/bin/python3
 import sys
+import random
+import datetime
 from collections import defaultdict
 from graph_helpers import *
 
 # sample rates
 #  * 0.00002 for IIDmouse k=8 lDEG=2
 SAMPLE_RATE = 0.00002
-RANK_FILTER = [955, 9, 1, 2, 3, 4, 4, 5]
+
+def parse_rank_str(rank_str):
+    if rank_str == None:
+        return None
+
+    return [int(r) for r in rank_str.split(' -> ')]
+RANK_FILTER = parse_rank_str('70 -> 1 -> 2 -> 3 -> 4 -> 4 -> 5 -> 7')
+
 sample_rate_cache = dict()
 
 def get_sample_rate(k):
@@ -104,31 +113,23 @@ def blant_expand(prev_nodes, k, lDEG, alph, adj_set, heurs, results, rpt=None):
         return
 
     prev_nodes_set = set(prev_nodes)
-    all_neighs = set()
+    expand_set = set()
 
     for node in prev_nodes:
         for neigh in adj_set[node]:
             if neigh not in prev_nodes_set:
-                all_neighs.add(neigh)
+                expand_set.add(neigh)
 
-    all_neighs = blant_sorted(list(all_neighs), heurs, alph)
-
-    if len(prev_nodes) == 6:
-        print(prev_nodes)
-        print(prev_nodes[-1] in all_neighs)
-
+    expand_set = blant_sorted(list(expand_set), heurs, alph)
     expanded_heurs = set()
 
-    for neigh in all_neighs:
-        expanded_heurs.add(heurs[neigh])
+    for to_expand in expand_set:
+        expanded_heurs.add(heurs[to_expand])
 
         if len(expanded_heurs) > lDEG:
             break
 
-        if len(prev_nodes) == 6:
-            print(neigh)
-
-        prev_nodes.append(neigh)
+        prev_nodes.append(to_expand)
         blant_expand(prev_nodes, k, lDEG, alph, adj_set, heurs, results, rpt=rpt)
         prev_nodes = prev_nodes[:-1] # TODO: see if we can remove this line and do prev_nodes[i] instead of append
 
@@ -156,10 +157,15 @@ def run_blant(el, k=8, lDEG=2, alph=True, use_rpt=False):
 
     return graphlets
 
+def graphlets_str(graphlets):
+    return '\n'.join([' '.join(graphlet) for graphlet in graphlets])
+
 if __name__ == '__main__':
-    path = get_gtag_graph_path('mouse')
+    seed = datetime.datetime.now()
+    print(f'using seed {seed}')
+    random.seed(seed)
+    path = get_gtag_graph_path('syeast0')
     el = read_in_el(path)
     print('el read in')
     graphlets = run_blant(el, k=8, lDEG=2, use_rpt=True)
-    print(graphlets)
-
+    # print(graphlets_str(graphlets))

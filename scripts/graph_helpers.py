@@ -26,7 +26,7 @@ def get_base_graph_path(name):
 
 def get_graph_path(species):
     if 'syeast' in species:
-        return f'/home/wangph1/BLANT/networks/{species}/{species}.el'
+        return get_base_graph_path(f'syeast/{species}')
     else:
         return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
 
@@ -168,15 +168,8 @@ def induced_subgraph(el, nodes):
     return clean_el(sg)
 
 if __name__ == '__main__':
-    base = sys.argv[1]
-    el = read_in_el(get_snap_graph_path(base))
-    soft5v1_el = soften_el(el, 0.05)
-    soft5v2_el = soften_el(el, 0.05)
-    soft10v1_el = soften_el(el, 0.1)
-    soft10v2_el = soften_el(el, 0.1)
-    els = [soft5v1_el, soft5v2_el, soft10v1_el, soft10v2_el]
-    adds = ['_5v1', '_5v2', '_10v1', '_10v2']
-
-    for this_el, this_add in zip(els, adds):
-        graph_stats(this_el, f'{base}{this_add}')
-        write_el_to_file(this_el, get_snap_graph_path(f'{base}{this_add}'))
+    path = get_base_graph_path('syeast/syeast0')
+    el = read_in_el(path)
+    nxg = el_to_nxg(el)
+    ccs_list = list(get_ccs_list(nxg))
+    print([len(c) for c in ccs_list])
