@@ -14,7 +14,7 @@ def parse_rank_str(rank_str):
         return None
 
     return [int(r) for r in rank_str.split(' -> ')]
-RANK_FILTER = parse_rank_str('70 -> 1 -> 2 -> 3 -> 4 -> 4 -> 5 -> 7')
+RANK_FILTER = parse_rank_str(None)
 
 sample_rate_cache = dict()
 
@@ -120,18 +120,21 @@ def blant_expand(prev_nodes, k, lDEG, alph, adj_set, heurs, results, rpt=None):
             if neigh not in prev_nodes_set:
                 expand_set.add(neigh)
 
-    expand_set = blant_sorted(list(expand_set), heurs, alph)
+    expand_list = blant_sorted(list(expand_set), heurs, alph)
     expanded_heurs = set()
 
-    for to_expand in expand_set:
+    append = '\t' * len(prev_nodes)
+
+    for to_expand in expand_list:
         expanded_heurs.add(heurs[to_expand])
 
         if len(expanded_heurs) > lDEG:
             break
 
         prev_nodes.append(to_expand)
+        saved_len = len(prev_nodes)
         blant_expand(prev_nodes, k, lDEG, alph, adj_set, heurs, results, rpt=rpt)
-        prev_nodes = prev_nodes[:-1] # TODO: see if we can remove this line and do prev_nodes[i] instead of append
+        prev_nodes = prev_nodes[:saved_len] # TODO: see if we can remove this line and do prev_nodes[i] instead of append
 
 def run_blant(el, k=8, lDEG=2, alph=True, use_rpt=False):
     nodes = nodes_of_el(el)
@@ -161,7 +164,7 @@ def graphlets_str(graphlets):
     return '\n'.join([' '.join(graphlet) for graphlet in graphlets])
 
 if __name__ == '__main__':
-    seed = datetime.datetime.now()
+    seed = int(datetime.datetime.now().timestamp())
     print(f'using seed {seed}')
     random.seed(seed)
     path = get_gtag_graph_path('syeast0')
