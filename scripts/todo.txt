@@ -1,2 +1,0 @@
-todo:
-run on yeast alignments and get results

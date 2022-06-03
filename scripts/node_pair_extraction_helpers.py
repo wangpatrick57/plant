@@ -78,8 +78,9 @@ def create_output_pairs(node_favorite_pairs):
     return output_pairs
 
 if __name__ == '__main__':
-    path = get_data_path('mcl/yeast0_yeast25_Y2H1_0.1.aln')
-    m2m_pairs = read_in_m2m(path)
+    path = get_data_path('mcl/alignments/syeast0-syeast25-5000.txt')
+    print(path)
+    m2m_pairs = read_in_slashes_m2m(path)
     node_pairs = extract_node_pairs_from_m2m(m2m_pairs)
-    orthopairs = get_orthopairs_list(node_pairs, SelfOrthos())
+    orthopairs = get_orthopairs_list(node_pairs, MarkedSelfOrthos())
     print(f'{len(orthopairs)} / {len(node_pairs)}')

@@ -78,20 +78,20 @@ def get_node_coverage(all_seeds):
 
     return len(nodes)
 
-def get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True):
-    s1_index_path = get_index_path(gtag1, alph=s1_alph)
-    s2_index_path = get_index_path(gtag2, alph=s2_alph)
+def get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo=None):
+    s1_index_path = get_index_path(gtag1, alph=s1_alph, algo=algo)
+    s2_index_path = get_index_path(gtag2, alph=s2_alph, algo=algo)
     s1_graph_path = get_gtag_graph_path(gtag1)
     s2_graph_path = get_gtag_graph_path(gtag2)
     s1_to_s2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
     return (s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs)
 
-def get_alphrev_gtag_run_infos(gtag1, gtag2):
+def get_alphrev_gtag_run_infos(gtag1, gtag2, algo=None):
     infos = []
     
     for s1_alph in [True, False]:
         for s2_alph in [True, False]:
-            infos.append(get_gtag_run_info(gtag1, gtag2, s1_alph=s1_alph, s2_alph=s2_alph))
+            infos.append(get_gtag_run_info(gtag1, gtag2, s1_alph=s1_alph, s2_alph=s2_alph), algo=algo)
 
     return infos
 
@@ -135,5 +135,5 @@ def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path
 if __name__ == '__main__':
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
-    seeds, seed_metrics, extr_metrics = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, s1_alph=None, s2_alph=None))
+    seeds, seed_metrics, extr_metrics = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo=None))
     print(len(seeds), seed_metrics, extr_metrics)

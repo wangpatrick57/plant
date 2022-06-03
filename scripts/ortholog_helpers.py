@@ -10,6 +10,9 @@ class SelfOrthos(dict):
     def __getitem__(self, key):
         return key
 
+class MarkedSelfOrthos:
+    pass
+
 
 def get_avg_node_correctness(all_seeds, g1_to_g2_orthologs):
     if len(all_seeds) == 0:
@@ -79,6 +82,11 @@ def get_orthopairs_list(node_pairs, s1_to_s2_orthologs):
 def is_ortholog(node1, node2, s1_to_s2_orthologs):
     if type(s1_to_s2_orthologs) is SelfOrthos:
         return node1 == node2
+
+    if type(s1_to_s2_orthologs) is MarkedSelfOrthos:
+        unmarked1 = node1.split('_')[-1]
+        unmarked2 = node2.split('_')[-1]
+        return unmarked1 == unmarked2
     
     return node1 in s1_to_s2_orthologs and s1_to_s2_orthologs[node1] == node2
 

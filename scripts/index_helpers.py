@@ -85,7 +85,8 @@ class IndexEntry:
 def get_index_path(gtag, algo=None, percent=0, orbit=0, alph=True, lDEG=None):
     if lDEG == None:
         if 'syeast' in gtag:
-            lDEG = 3
+            # lDEG = 3
+            lDEG = 2
         else:
             lDEG = 2
 

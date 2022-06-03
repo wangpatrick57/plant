@@ -19,5 +19,10 @@ def run_blant(gtag, lDEG=2, alph=True, algo=None):
     p = subprocess.Popen(cmd.split())
     return p, out_path
 
+def run_orca(k, el_path):
+    cmd = f'orca.sh {k} {el_path}'
+    p = subprocess.run(cmd.split(), capture_output=True)
+    return p
+
 if __name__ == '__main__':
     run_blant('tester', algo='a')
