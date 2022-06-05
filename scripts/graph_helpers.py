@@ -16,6 +16,8 @@ def is_species(gtag):
 def get_gtag_graph_path(gtag):
     if gtag == 'tester':
         return get_base_graph_path(gtag)
+    if gtag in {'alphabet', 'alpha10'}:
+        return get_custom_graph_path(gtag)
     elif is_species(gtag):
         return get_graph_path(gtag)
     else:
@@ -23,6 +25,9 @@ def get_gtag_graph_path(gtag):
 
 def get_base_graph_path(name):
     return f'{NETWORKS_DIR}/{name}.el'
+
+def get_custom_graph_path(name):
+    return get_base_graph_path(f'custom/{name}')
 
 def get_graph_path(species):
     if 'syeast' in species:
