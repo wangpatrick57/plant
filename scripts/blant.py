@@ -31,23 +31,28 @@ def get_sample_rate(k):
 def path_str(l):
     return ' -> '.join([str(e) for e in l])
 
+def get_ranks(sorted_nodes, heurs):
+    ranks = dict()
+    curr_rank = -1
+    last_heur = None
+
+    for i, node in enumerate(sorted_nodes, 1):
+        heur = heurs[node]
+
+        if heur != last_heur:
+            curr_rank = i
+
+        ranks[node] = curr_rank
+        last_heur = heur
+
+    return ranks
+
 class RankPathTracker:
     def __init__(self, nodes, heurs, alph):
-        self._ranks = dict()
-        self._rank_paths = []
         sorted_nodes = blant_sorted(nodes, heurs, alph)
-        curr_rank = -1
-        last_heur = None
-
-        for i, node in enumerate(sorted_nodes, 1):
-            heur = heurs[node]
-
-            if heur != last_heur:
-                curr_rank = i
-
-            self._ranks[node] = curr_rank
-            last_heur = heur
-
+        self._ranks = get_ranks(sorted_nodes, heurs)
+        self._rank_paths = []
+        
     def print_ranks(self):
         reverse_dict = defaultdict(list)
 
@@ -230,6 +235,6 @@ if __name__ == '__main__':
     print('el read in')
     sys.setrecursionlimit(100000)
     k = 6
-    graphlets = run_blant(el, k=k, lDEG=2, use_rpt=False, print_tree=False, print_progress=None, print_path_of=['NUP1', 'RPS22A', 'RRP40', 'RRP6', 'SRP1', 'STO1'])
+    graphlets = run_blant(el, k=k, lDEG=2, use_rpt=True, print_tree=False, print_progress=None, print_path_of=None)
     print(len(graphlets))
     write_to_file(graphlets_str(graphlets), f'test_py_sy0_k{k}l2.out')

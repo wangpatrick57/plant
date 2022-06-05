@@ -1,14 +1,17 @@
 #!/pkg/python/3.7.4/bin/python3
 from all_helpers import *
+from blant import *
+
+def log(*args, **kwargs):
+    print(*args, **kwargs)
 
 class GraphShell:
     def __init__(self):
-        self._understood_command = True
+        # settings
+        self._alph = True
+
+        # necessary defaults
         self._mounted_gtag = None
-        self._mounted_fpath = None
-        self._el = None
-        self._adj_set = None
-        self._nodes = None
         self._curr_node = None
 
     def mounted_gtag_str(self):
@@ -20,7 +23,7 @@ class GraphShell:
     def gsh_read(self):
         return input(f'{self.mounted_gtag_str()} {self.curr_node_str()} $ ')
 
-    def gsh_tick(self, command):
+    def tick(self, command):
         splitted = command.strip().split(' ')
         head = splitted[0]
         args = splitted[1:]
@@ -34,15 +37,16 @@ class GraphShell:
         elif head == 'cd':
             self.change_node(args)
         else:
-            print('did not understand command')
+            log('did not understand command')
 
     def mount_graph(self, mount_gtag):
         self._mounted_gtag = mount_gtag
         mount_fpath = get_gtag_graph_path(mount_gtag)
-        self._mounted_el = clean_el(read_in_el(mount_fpath))
-        self._mounted_adj_set = read_in_adj_set(mount_fpath)
-        self._mounted_nodes = read_in_nodes(mount_fpath)
-        print(f'successfully mounted {mount_gtag}')
+        self._el = clean_el(read_in_el(mount_fpath))
+        self._adj_set = read_in_adj_set(mount_fpath)
+        self._nodes = read_in_nodes(mount_fpath)
+        self._heurs = get_deg_heurs(self._nodes, self._adj_set)
+        log(f'successfully mounted {mount_gtag}')
         self.graph_info()
         self.change_node([])
 
@@ -56,21 +60,31 @@ class GraphShell:
             new_node = args[0]
 
         self._curr_node = new_node
+        self.set_neighbors()
+
+    def set_neighbors(self):
+        if self._curr_node != None:
+            self._neighs = self._adj_set[self._curr_node]
+        else:
+            self._neighs = self._nodes
+
+        self._sorted_neighs = blant_sorted(self._neighs, self._heurs, self._alph)
+        self._ranked_neighs = get_ranks(self._sorted_neighs, self._heurs)
 
     def graph_info(self):
-        num_nodes = len(self._mounted_nodes)
-        num_edges = len(self._mounted_el)
-        print(f'{self._mounted_gtag}: {num_nodes}n {num_edges}e')
+        num_nodes = len(self._nodes)
+        num_edges = len(self._el)
+        log(f'{self._mounted_gtag}: {num_nodes}n {num_edges}e')
 
     def run(self):
         while True:
             try:
                 command = self.gsh_read()
-                self.gsh_tick(command)
+                self.tick(command)
             except Exception as e:
-                print(f'failed: {e}')
+                log(f'failed: {type(e)} {e}')
 
 
 if __name__ == '__main__':
     gsh = GraphShell()
-    gsh.run()
+    gsh.tick('mount alphabet')
