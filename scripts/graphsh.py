@@ -4,13 +4,21 @@ from all_helpers import *
 class GraphShell:
     def __init__(self):
         self._understood_command = True
+        self._mounted_gtag = None
         self._mounted_fpath = None
         self._el = None
         self._adj_set = None
         self._nodes = None
+        self._curr_node = None
+
+    def mounted_gtag_str(self):
+        return '(' + ('' if self._mounted_gtag == None else self._mounted_gtag) + ')'
+
+    def curr_node_str(self):
+        return '-' if self._curr_node == None else self._curr_node
 
     def gsh_read(self):
-        return input('gsh $ ')
+        return input(f'{self.mounted_gtag_str()} {self.curr_node_str()} $ ')
 
     def gsh_tick(self, command):
         splitted = command.strip().split(' ')
@@ -23,6 +31,8 @@ class GraphShell:
             self.mount_graph(args[0])
         elif head == 'info':
             self.graph_info()
+        elif head == 'cd':
+            self.change_node(args)
         else:
             print('did not understand command')
 
@@ -34,6 +44,18 @@ class GraphShell:
         self._mounted_nodes = read_in_nodes(mount_fpath)
         print(f'successfully mounted {mount_gtag}')
         self.graph_info()
+        self.change_node([])
+
+    def get_home_node(self):
+        return None
+
+    def change_node(self, args):
+        if len(args) == 0:
+            new_node = self.get_home_node()
+        else:
+            new_node = args[0]
+
+        self._curr_node = new_node
 
     def graph_info(self):
         num_nodes = len(self._mounted_nodes)
