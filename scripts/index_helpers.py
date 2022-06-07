@@ -26,7 +26,7 @@ class Index(defaultdict):
 class IndexEntry:
     def __init__(self, entry_str):
         splitted_str = entry_str.split(' ')
-        self._graphlet_id = int(splitted_str[0])
+        self._graphlet_id = splitted_str[0] # not an int because we might augment it with bno (base node orbit)
         self._node_arr = splitted_str[1:]
         self._index_of = dict()
 
