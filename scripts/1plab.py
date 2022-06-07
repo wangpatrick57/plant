@@ -1,37 +1,22 @@
 #!/pkg/python/3.7.4/bin/python3
-from collections import defaultdict
-from all_helpers import *
+old_path = '/home/wangph1/BLANT/old'
+new_path = '/home/wangph1/BLANT/new'
+old_graphlets_without_id = []
+new_graphlets_without_id = []
 
-k = 6
-spec = 'sy0'
-cname = f'test_c_{spec}_k{k}l2.out'
-pyname = f'test_py_{spec}_k{k}l2.out'
-
-cgraphlets = set()
-pygraphlets = set()
-
-with open(cname, 'r') as cf:
-    for line in cf:
+with open(old_path, 'r') as old_f:
+    for line in old_f:
         splitted = line.strip().split()
-        nodes = tuple(sorted(splitted[1:]))
-        cgraphlets.add(nodes)
+        old_graphlets_without_id.append(tuple(splitted[1:]))
 
-with open(pyname, 'r') as pyf:
-    for line in pyf:
+with open(new_path, 'r') as new_f:
+    for line in new_f:
         splitted = line.strip().split()
-        nodes = tuple(sorted(splitted))
-        pygraphlets.add(nodes)
+        new_graphlets_without_id.append(tuple(splitted[1:]))
 
-in_c_not_py = 0
-in_py_not_c = 0
-
-for cgraphlet in list(cgraphlets):
-    if cgraphlet not in pygraphlets:
-        in_c_not_py += 1
-
-for pygraphlet in list(pygraphlets):
-    if pygraphlet not in cgraphlets:
-        in_py_not_c += 1
-        print(pygraphlet)
-
-print(in_c_not_py, in_py_not_c)
+print(old_graphlets_without_id)
+print(new_graphlets_without_id)
+print('all old', len(old_graphlets_without_id))
+print('all new', len(new_graphlets_without_id))
+print('uniq old', len(set(old_graphlets_without_id)))
+print('uniq new', len(set(new_graphlets_without_id)))
