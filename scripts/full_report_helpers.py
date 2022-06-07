@@ -3,13 +3,16 @@ import os
 import sys
 from all_helpers import *
 
-BASE_PAIRS = [('mouse', 'human'), ('mouse', 'rat'), ('syeast0', 'syeast15'), ('alpha1', 'alpha2'), ('math1', 'math2'), ('email1', 'email2'), ('gnutellafour_10v1', 'gnutellafour_10v2'), ('hepph_5v1', 'hepph_5v2')]
-# TEST_BASE_PAIRS = [('syeast0', 'syeast15'), ('email1', 'email2')]
+IS_FAST = True
+COMPLETE_PAIRS = [('mouse', 'human'), ('mouse', 'rat'), ('syeast0', 'syeast25'), ('alpha1', 'alpha2'), ('math1', 'math2'), ('email1', 'email2'), ('gnutellafour_10v1', 'gnutellafour_10v2'), ('hepph_10v1', 'hepph_10v2')]
+FAST_PAIRS = [('syeast0', 'syeast25'), ('alpha1', 'alpha2'), ('email1', 'email2')]
+USED_PAIRS = FAST_PAIRS if IS_FAST else COMPLETE_PAIRS
+LDEG = 1 if IS_FAST else 2
 
 def get_all_gtags():
     all_gtags = set()
 
-    for gtag1, gtag2 in BASE_PAIRS:
+    for gtag1, gtag2 in USED_PAIRS:
         all_gtags.add(gtag1)
         all_gtags.add(gtag2)
 
@@ -105,7 +108,7 @@ def gen_all_indexes(algo):
     index_paths = dict()
 
     for gtag in ALL_GTAGS:
-        p, index_path = run_blant(gtag, algo=algo, lDEG=2)
+        p, index_path = run_blant(gtag, algo=algo, lDEG=LDEG)
         ps.append(p)
         index_paths[gtag] = index_path
 
@@ -149,7 +152,7 @@ def gen_and_store_seed_report(full_report, index_paths, gtag1, gtag2):
     full_report.add_seed_metrics(gtag1, gtag2, all_metrics)
 
 def gen_and_store_all_seed_reports(full_report, index_paths):
-    for gtag1, gtag2 in BASE_PAIRS:
+    for gtag1, gtag2 in USED_PAIRS:
         gen_and_store_seed_report(full_report, index_paths, gtag1, gtag2)
 
 def gen_full_report(algo):
