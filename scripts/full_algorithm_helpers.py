@@ -20,7 +20,7 @@ def full_get_combined_seeds(k, species1, species2, orbits, max_indices, sims_thr
             print('skipped {species1}-{species2} o{orbit}')
             continue
 
-        all_seeds_list = find_seeds(read_in_index(s1_index_path, k), read_in_index(s2_index_path, k), ODVDirectory(get_odv_file_path(species1)), ODVDirectory(get_odv_file_path(species2)), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
+        all_seeds_list = find_seeds(read_in_index(s1_index_path, k), read_in_index(s2_index_path, k), ODVDirectory(get_odv_path(species1)), ODVDirectory(get_odv_path(species2)), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
         all_seeds_lists.append(all_seeds_list)
 
         if print_progress:
@@ -43,7 +43,7 @@ def full_get_patch_combined_seeds(k, species1, species2, orbits, max_indices, si
         s2_graph_path = get_graph_path(species2)
         s1_index = get_patched_index(k, s1_index_path, s1_graph_path)
         s2_index = get_patched_index(k, s2_index_path, s2_graph_path)
-        all_seeds_list = find_seeds(s1_index, s2_index, ODVDirectory(get_odv_file_path(species1)), ODVDirectory(get_odv_file_path(species2)), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
+        all_seeds_list = find_seeds(s1_index, s2_index, ODVDirectory(get_odv_path(species1)), ODVDirectory(get_odv_path(species2)), SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold), print_progress=print_progress)
         all_seeds_lists.append(all_seeds_list)
 
         if print_progress:
@@ -120,7 +120,7 @@ def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path
     s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=prox, target_num_matching=target_num_matching)
 
     # TODO: fix odv stuff
-    all_seeds = find_seeds(s1_index, s2_index, ODVDirectory(get_odv_file_path('mouse')), ODVDirectory(get_odv_file_path('rat')), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
+    all_seeds = find_seeds(s1_index, s2_index, ODVDirectory(get_odv_path('syeast0', 5)), ODVDirectory(get_odv_path('syeast0', 5)), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
     avg_nc = get_avg_node_correctness(all_seeds, s1_to_s2_orthologs)
     node_cov = get_node_coverage(all_seeds)
     perf_seed_vol = len(get_orthoseeds_list(all_seeds, s1_to_s2_orthologs))
@@ -132,8 +132,17 @@ def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path
 
     return (all_seeds, seed_metrics, extr_metrics)
 
+def seed_to_str(seed):
+    gid, glet1, glet2 = seed
+    return '\t'.join([gid, ','.join(glet1), ','.join(glet2)])
+
+def seeds_to_str(seeds):
+    return '\n'.join([seed_to_str(seed) for seed in seeds])
+
 if __name__ == '__main__':
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
-    seeds, seed_metrics, extr_metrics = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo=None))
+    gtag1, gtag2 = order_gtags(gtag1, gtag2)
+    seeds, seed_metrics, extr_metrics = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo='bno'))
     print(len(seeds), seed_metrics, extr_metrics)
+    write_to_file(seeds_to_str(seeds), f'{gtag1}-{gtag2}-seeds.txt')

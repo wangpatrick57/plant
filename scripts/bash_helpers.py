@@ -1,5 +1,6 @@
 #!/pkg/python/3.7.4/bin/python3
-from all_helpers import *
+from graph_helpers import *
+from index_helpers import *
 import subprocess
 
 def bool_conv(b):

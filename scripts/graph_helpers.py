@@ -23,6 +23,20 @@ def get_gtag_graph_path(gtag):
     else:
         return get_snap_graph_path(gtag)
 
+def gtag_to_mark(gtag):
+    if gtag == 'syeast0':
+        return 'sy0'
+    elif gtag == 'syeast05':
+        return 'sy5'
+    elif gtag == 'syeast10':
+        return 'sy10'
+    elif gtag == 'syeast15':
+        return 'sy15'
+    elif gtag == 'syeast20':
+        return 'sy20'
+    elif gtag == 'syeast25':
+        return 'sy25'
+
 def get_base_graph_path(name):
     return f'{NETWORKS_DIR}/{name}.el'
 
