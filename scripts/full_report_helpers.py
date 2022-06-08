@@ -7,6 +7,11 @@ IS_FAST = False
 COMPLETE_PAIRS = [('mouse', 'human'), ('mouse', 'rat'), ('syeast0', 'syeast25'), ('alpha1', 'alpha2'), ('math1', 'math2'), ('email1', 'email2'), ('gnutellafour_10v1', 'gnutellafour_10v2'), ('hepph_10v1', 'hepph_10v2')]
 FAST_PAIRS = [('syeast0', 'syeast25'), ('alpha1', 'alpha2'), ('email1', 'email2')]
 USED_PAIRS = FAST_PAIRS if IS_FAST else COMPLETE_PAIRS
+
+# DEBUG
+USED_PAIRS = [('syeast0', 'syeast05'), ('syeast0', 'syeast10'), ('syeast0', 'syeast15'), ('syeast0', 'syeast20'), ('syeast0', 'syeast25')]
+# DEBUG
+
 LDEG = 1 if IS_FAST else 2
 
 def get_all_gtags():

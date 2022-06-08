@@ -87,4 +87,5 @@ class GraphShell:
 
 if __name__ == '__main__':
     gsh = GraphShell()
-    gsh.tick('mount alphabet')
+    # gsh.tick('mount alphabet')
+    gsh.run()

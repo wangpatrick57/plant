@@ -27,10 +27,14 @@ def read_in_slashes_m2m(m2m_path):
 
     return m2m_pairs
 
-def write_perfect_orthologs_to_file(nodes, path):
+def write_perfect_orthologs_to_file(gtag, path):
+    graph_path = get_gtag_graph_path(gtag)
+    nodes = read_in_nodes(graph_path)
+    mark = gtag_to_mark(gtag)
+
     with open(path, 'w') as f:
         for node in nodes:
-            marked_node = f'sy5_{node}'
+            marked_node = f'{mark}_{node}'
             f.write(f'{node}\t{marked_node}\t1\n')
 
 def write_seeds_to_files(orthoseeds, allseeds, file_path_func):
@@ -62,6 +66,4 @@ def write_to_file(s, fpath):
         
 if __name__ == '__main__':
     out_path = get_data_path('mcl/fake_ort/syeast-syeast-perf.ort')
-    path = get_graph_path('syeast0')
-    nodes = read_in_nodes(path)
-    write_perfect_orthologs_to_file(nodes, out_path)
+    write_perfect_orthologs_to_file('syeast0', out_path)
