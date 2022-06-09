@@ -101,16 +101,13 @@ def gen_all_indexes(gtags, algo, lDEG, overwrite=False):
     alph = True
 
     for gtag in gtags:
-        index_path = get_index_path(gtag, alph=alph, algo=algo, lDEG=lDEG)
-
-        if overwrite or not file_exists(index_path):
-            p, index_path = run_blant(gtag, alph=alph, algo=algo, lDEG=lDEG)
-            ps.append(p)
-
+        p, index_path = run_blant(gtag, alph=alph, algo=algo, lDEG=lDEG, overwrite=overwrite)
+        ps.append(p)
         index_paths[gtag] = index_path
 
     for p in ps:
-        p.wait()
+        if p != None: # p will be None if overwrite is false and the index file already exists
+            p.wait()
 
     return index_paths
 
@@ -163,7 +160,7 @@ def gen_full_report(algo, gtag_pairs, lDEG):
 
 if __name__ == '__main__':
     algo = sys.argv[1] if len(sys.argv) > 1 else None
-    is_fast = False
+    is_fast = True
     gtag_pairs = [('syeast0', 'syeast05'), ('syeast0', 'syeast10'), ('syeast0', 'syeast15'), ('syeast0', 'syeast20'), ('syeast0', 'syeast25')]
     lDEG = 1 if is_fast else 2
     full_report = gen_full_report(algo, gtag_pairs, lDEG)
