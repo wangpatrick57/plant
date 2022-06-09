@@ -78,9 +78,9 @@ def get_node_coverage(all_seeds):
 
     return len(nodes)
 
-def get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo=None):
-    s1_index_path = get_index_path(gtag1, alph=s1_alph, algo=algo)
-    s2_index_path = get_index_path(gtag2, alph=s2_alph, algo=algo)
+def get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo=None, lDEG=2):
+    s1_index_path = get_index_path(gtag1, alph=s1_alph, algo=algo, lDEG=lDEG)
+    s2_index_path = get_index_path(gtag2, alph=s2_alph, algo=algo, lDEG=lDEG)
     s1_graph_path = get_graph_path(gtag1)
     s2_graph_path = get_graph_path(gtag2)
     s1_to_s2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
@@ -127,8 +127,9 @@ def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path
     seed_metrics = (avg_nc, node_cov, perf_seed_vol)
 
     all_node_pairs = extract_node_pairs(all_seeds)
-    extr_nc = len(get_orthopairs_list(all_node_pairs, s1_to_s2_orthologs))
-    extr_metrics = (len(all_node_pairs), extr_nc)
+    extr_vol = len(all_node_pairs)
+    extr_nc = 0 if extr_vol == 0 else len(get_orthopairs_list(all_node_pairs, s1_to_s2_orthologs)) / extr_vol
+    extr_metrics = (extr_vol, extr_nc)
 
     return (all_seeds, seed_metrics, extr_metrics)
 
