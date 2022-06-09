@@ -230,7 +230,7 @@ if __name__ == '__main__':
     seed = int(datetime.datetime.now().timestamp())
     print(f'using seed {seed}')
     random.seed(seed)
-    path = get_gtag_graph_path('syeast0')
+    path = get_graph_path('syeast0')
     el = read_in_el(path)
     print('el read in')
     sys.setrecursionlimit(100000)

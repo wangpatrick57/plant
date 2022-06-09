@@ -54,7 +54,7 @@ def analyze_top_nodes_similarity(species1, species2, n):
     return (num_matches, num_total)
 
 if __name__ == '__main__':
-    path = get_gtag_graph_path('slashdotaug_5v1')
+    path = get_graph_path('slashdotaug_5v1')
     el = read_in_el(path)
     adj_set = adj_set_of_el(el)
     top_nodes = get_top_nodes(adj_set, 5)

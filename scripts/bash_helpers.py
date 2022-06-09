@@ -8,7 +8,7 @@ def bool_conv(b):
 
 def run_blant(gtag, lDEG=2, alph=True, algo=None):
     assert alph != None # alph can't be None because we need a different .sh script for that
-    graph_path = get_gtag_graph_path(gtag)
+    graph_path = get_graph_path(gtag)
     out_path = get_index_path(gtag, lDEG=lDEG, alph=alph, algo=algo)
     common_settings = f'{graph_path} {lDEG} {bool_conv(alph)} {out_path}'
 

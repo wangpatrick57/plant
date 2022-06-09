@@ -115,8 +115,8 @@ class ODV:
         return ODV.WEIGHTS[i] * abs(top_inner) / bot
 
 def get_odv_orthologs(gtag1, gtag2, n, k):
-    graph_path1 = get_gtag_graph_path(gtag1)
-    graph_path2 = get_gtag_graph_path(gtag2)
+    graph_path1 = get_graph_path(gtag1)
+    graph_path2 = get_graph_path(gtag2)
     nodes1 = read_in_nodes(graph_path1)
     nodes2 = read_in_nodes(graph_path2)
     odv_path1 = get_odv_path(gtag1, k)

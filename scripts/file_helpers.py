@@ -28,7 +28,7 @@ def read_in_slashes_m2m(m2m_path):
     return m2m_pairs
 
 def write_perfect_orthologs_to_file(gtag, path):
-    graph_path = get_gtag_graph_path(gtag)
+    graph_path = get_graph_path(gtag)
     nodes = read_in_nodes(graph_path)
     mark = gtag_to_mark(gtag)
 

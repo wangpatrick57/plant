@@ -26,8 +26,8 @@ if __name__ == '__main__':
     gtag1 = 'syeast0'
     gtag2 = 'syeast05'
     g1_to_g2_orts = get_s1_to_s2_orthologs(gtag1, gtag2)
-    adj_set1 = read_in_adj_set(get_gtag_graph_path(gtag1))
-    adj_set2 = read_in_adj_set(get_gtag_graph_path(gtag2))
+    adj_set1 = read_in_adj_set(get_graph_path(gtag1))
+    adj_set2 = read_in_adj_set(get_graph_path(gtag2))
     seeds, _, _ = low_param_one_run(*get_gtag_run_info(gtag1, gtag2))
     orthoseeds = get_orthoseeds_list(seeds, g1_to_g2_orts)
     deg_distr = get_deg_distr(orthoseeds, adj_set1, adj_set2)

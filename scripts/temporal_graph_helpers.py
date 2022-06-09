@@ -22,13 +22,9 @@ def get_tel_std_sections(tel):
     min_time = min(times)
     max_time = max(times)
     length = (max_time - min_time) / 2
-
-    return get_tel_custom_length_sections(tel, length):
-
-def get_tel_custom_length_sections(tel, length):
     els = []
 
-    for i in range(10):
+    for i in [1, 2, 4]:
         start_time = min_time + i * length / 20
         end_time = start_time + length
         el = get_el_in_interval(tel, start_time, end_time)
@@ -138,11 +134,12 @@ def get_node_limit_node_edge_ratios(graph_path, start_time, interval, count, nod
 # TODO: update doc with new graphs
 if __name__ == '__main__':
     base = sys.argv[1]
-    start_time = 1217567877
-    length = 15_000_000
-    tel = read_in_xel_in_interval(f'../networks/snap/{base}.tel', start_time, start_time + length * 2)
-    els = get_tel_custom_length_std_sections(tel, length)
+    tel = read_in_temporal_el(f'../networks/snap/{base}.tel')
+    els = get_tel_std_sections(tel)
+    base_label = '_std'
+    addons = ['05', '10', '20']
 
-    for i, el in enumerate(els):
-        write_el_to_file(el, f'../networks/snap/{base}{i}.el')
-        graph_stats(el, f'{base}{i}')
+    for el, addon in zip(els, addons):
+        gtag = f'{base}{base_label}{addon}'
+        write_el_to_file(el, f'../networks/snap/{gtag}.el')
+        graph_stats(el, f'{gtag}')

@@ -41,7 +41,7 @@ class GraphShell:
 
     def mount_graph(self, mount_gtag):
         self._mounted_gtag = mount_gtag
-        mount_fpath = get_gtag_graph_path(mount_gtag)
+        mount_fpath = get_graph_path(mount_gtag)
         self._el = clean_el(read_in_el(mount_fpath))
         self._adj_set = read_in_adj_set(mount_fpath)
         self._nodes = read_in_nodes(mount_fpath)

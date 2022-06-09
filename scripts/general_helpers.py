@@ -21,8 +21,8 @@ def print_dict(d):
     print('\n'.join([f'{k}\t{v}' for k, v in d.items()]))
 
 def order_gtags(gtag1, gtag2):
-    graph_path1 = get_gtag_graph_path(gtag1)
-    graph_path2 = get_gtag_graph_path(gtag2)
+    graph_path1 = get_graph_path(gtag1)
+    graph_path2 = get_graph_path(gtag2)
     nodes1 = read_in_nodes(graph_path1)
     nodes2 = read_in_nodes(graph_path2)
     el1 = read_in_el(graph_path1)
