@@ -3,27 +3,14 @@ import os
 import sys
 from all_helpers import *
 
-IS_FAST = False
-COMPLETE_PAIRS = [('mouse', 'human'), ('mouse', 'rat'), ('syeast0', 'syeast25'), ('alpha1', 'alpha2'), ('math1', 'math2'), ('email1', 'email2'), ('gnutellafour_10v1', 'gnutellafour_10v2'), ('hepph_10v1', 'hepph_10v2')]
-FAST_PAIRS = [('syeast0', 'syeast25'), ('alpha1', 'alpha2'), ('email1', 'email2')]
-USED_PAIRS = FAST_PAIRS if IS_FAST else COMPLETE_PAIRS
+def gtags_from_pairs(gtag_pairs):
+    gtags = set()
 
-# DEBUG
-USED_PAIRS = [('syeast0', 'syeast05'), ('syeast0', 'syeast10'), ('syeast0', 'syeast15'), ('syeast0', 'syeast20'), ('syeast0', 'syeast25')]
-# DEBUG
+    for gtag1, gtag2 in gtag_pairs:
+        gtags.add(gtag1)
+        gtags.add(gtag2)
 
-LDEG = 1 if IS_FAST else 2
-
-def get_all_gtags():
-    all_gtags = set()
-
-    for gtag1, gtag2 in USED_PAIRS:
-        all_gtags.add(gtag1)
-        all_gtags.add(gtag2)
-
-    return list(all_gtags)
-
-ALL_GTAGS = get_all_gtags()
+    return sorted(list(gtags))
 
 class FullReport:
     def __init__(self, algo):
@@ -108,13 +95,18 @@ class FullReport:
 
         return '\n'.join(lines)
 
-def gen_all_indexes(algo):
+def gen_all_indexes(gtags, algo, lDEG, overwrite=False):
     ps = []
     index_paths = dict()
+    alph = True
 
-    for gtag in ALL_GTAGS:
-        p, index_path = run_blant(gtag, algo=algo, lDEG=LDEG)
-        ps.append(p)
+    for gtag in gtags:
+        index_path = get_index_path(gtag, alph=alph, algo=algo, lDEG=lDEG)
+
+        if overwrite or not file_exists(index_path):
+            p, index_path = run_blant(gtag, alph=alph, algo=algo, lDEG=lDEG)
+            ps.append(p)
+
         index_paths[gtag] = index_path
 
     for p in ps:
@@ -156,20 +148,24 @@ def gen_and_store_seed_report(full_report, index_paths, gtag1, gtag2):
     all_metrics = tuple(all_metrics)
     full_report.add_seed_metrics(gtag1, gtag2, all_metrics)
 
-def gen_and_store_all_seed_reports(full_report, index_paths):
-    for gtag1, gtag2 in USED_PAIRS:
+def gen_and_store_all_seed_reports(full_report, index_paths, gtag_pairs):
+    for gtag1, gtag2 in gtag_pairs:
         gen_and_store_seed_report(full_report, index_paths, gtag1, gtag2)
 
-def gen_full_report(algo):
+def gen_full_report(algo, gtag_pairs, lDEG):
     full_report = FullReport(algo)
-    index_paths = gen_all_indexes(algo)
+    gtags = gtags_from_pairs(gtag_pairs)
+    index_paths = gen_all_indexes(gtags, algo, lDEG)
     store_all_index_reports(full_report, index_paths)
-    gen_and_store_all_seed_reports(full_report, index_paths)
+    gen_and_store_all_seed_reports(full_report, index_paths, gtag_pairs)
     # run with P=1 C=5, storing seed_vol, avg_nc, node_cov, perf_seed_vol, extr_vol, extr_nc
     return full_report
 
 if __name__ == '__main__':
     algo = sys.argv[1] if len(sys.argv) > 1 else None
-    full_report = gen_full_report(algo)
+    is_fast = False
+    gtag_pairs = [('syeast0', 'syeast05'), ('syeast0', 'syeast10'), ('syeast0', 'syeast15'), ('syeast0', 'syeast20'), ('syeast0', 'syeast25')]
+    lDEG = 1 if is_fast else 2
+    full_report = gen_full_report(algo, gtag_pairs, lDEG)
     print('algo:', full_report.get_algo())
     print(full_report.sheets_str())

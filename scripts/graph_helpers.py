@@ -10,6 +10,28 @@ NETWORKS_DIR = '/home/wangph1/plant/networks'
 def get_all_iid_mammals():
     return ['cat', 'cow', 'dog', 'guinea_pig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep']
 
+def get_all_syeasts():
+    syeasts = ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25']
+
+def get_paper_nontprl_snap():
+    social = ['deezer', 'git']
+    collab = ['astroph, cond']
+    citat = ['hepph', 'hepth']
+    comm = ['enron']
+    auto = ['caida', 'oreg2']
+    p2p = ['gnu24', 'gnu30']
+    return social + collab + citat + comm + auto + p2p
+
+def get_paper_tprl_snap():
+    return ['math', 'reddit']
+
+def get_paper_nonmod_gtags():
+    iid_mammals = get_all_iid_mammals()
+    syeasts = get_all_syeasts()
+    nontprl_snap = get_paper_nontprl_snap()
+    tprl_snap = get_paper_tprl_snap()
+    return iid_mammals + syeasts + nontprl_snap + tprl_snap
+
 def is_species(gtag):
     return gtag in get_all_iid_mammals() or 'syeast' in gtag
 
