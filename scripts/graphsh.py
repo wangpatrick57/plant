@@ -36,13 +36,18 @@ class GraphShell:
             self.graph_info()
         elif head == 'cd':
             self.change_node(args)
+        elif head == 'top':
+            self.log_top(int(args[0]))
+        elif head == 'edge':
+            self.has_edge(args[0], args[1])
         else:
             log('did not understand command')
 
     def mount_graph(self, mount_gtag):
         self._mounted_gtag = mount_gtag
         mount_fpath = get_graph_path(mount_gtag)
-        self._el = clean_el(read_in_el(mount_fpath))
+        self._el = read_in_el(mount_fpath)
+        self._edge_set = set(self._el)
         self._adj_set = read_in_adj_set(mount_fpath)
         self._nodes = read_in_nodes(mount_fpath)
         self._heurs = get_deg_heurs(self._nodes, self._adj_set)
@@ -76,6 +81,21 @@ class GraphShell:
         num_edges = len(self._el)
         log(f'{self._mounted_gtag}: {num_nodes}n {num_edges}e')
 
+    def log_top(self, n):
+        for i in range(n):
+            node = self._sorted_neighs[i]
+            log(f'{i}: {node} (deg {self.get_deg(node)})')
+
+    def get_deg(self, node):
+        return len(self._adj_set[node])
+
+    def has_edge(self, node1, node2):
+        way1 = node1 in self._adj_set[node2]
+        way2 = node2 in self._adj_set[node1]
+        assert way1 == way2, 'adj_set not symmetric'
+        existence_str = 'exists' if way1 else 'does not exist'
+        log(existence_str)
+
     def run(self):
         while True:
             try:
@@ -87,5 +107,4 @@ class GraphShell:
 
 if __name__ == '__main__':
     gsh = GraphShell()
-    # gsh.tick('mount alphabet')
     gsh.run()
