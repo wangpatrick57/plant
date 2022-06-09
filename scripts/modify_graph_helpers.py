@@ -3,9 +3,6 @@ import sys
 from graph_helpers import *
 from pyblant import *
 
-def get_adv_graph_path(gtag, i):
-    return get_base_graph_path(f'adversarial/{adv_gtag(gtag, i)}')
-
 # adv_num=0 is the edge between the top two nodes
 def get_adversarial_edge(edge_set, sorted_nodes, rm_num):
     adv_num = 0
@@ -44,15 +41,11 @@ def get_adv_edge_params(gtag):
     return edge_set, sorted_nodes
 
 def get_adversarial_el(gtag, i):
-    print(gtag, get_graph_path(gtag))
     el = read_in_el(get_graph_path(gtag))
     edge_set, sorted_nodes = get_adv_edge_params(gtag)
     node1, node2 = get_adversarial_edge(edge_set, sorted_nodes, i)
     adv_el = edge_removed_el(el, node1, node2)
     return adv_el
-
-def adv_gtag(gtag, i):
-    return f'{gtag}-adv{i}'
 
 if __name__ == '__main__':
     gtag = sys.argv[1]

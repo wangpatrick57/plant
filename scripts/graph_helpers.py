@@ -38,8 +38,10 @@ def is_species(gtag):
 def get_graph_path(gtag):
     if gtag == 'tester':
         return get_base_graph_path(gtag)
-    if gtag in {'alphabet', 'alpha10'}:
+    elif gtag in {'alphabet', 'alpha10'}:
         return get_custom_graph_path(gtag)
+    elif '-adv' in gtag:
+        return get_adv_graph_path(gtag)
     elif is_species(gtag):
         return get_species_graph_path(gtag)
     else:
@@ -64,6 +66,12 @@ def get_base_graph_path(name):
 
 def get_custom_graph_path(name):
     return get_base_graph_path(f'custom/{name}')
+
+def get_adv_gtag(gtag, i):
+    return f'{gtag}-adv{i}'
+
+def get_adv_graph_path(adv_gtag):
+    return get_base_graph_path(f'adversarial/{adv_gtag}')
 
 def get_species_graph_path(species):
     if 'syeast' in species:
