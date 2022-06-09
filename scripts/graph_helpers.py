@@ -69,6 +69,9 @@ def read_in_el(graph_path):
     graph_file.close()
     return clean_el(el)
 
+def in_edge_set(node1, node2, edge_set):
+    return (node1, node2) in edge_set or (node2, node1) in edge_set
+
 # if you need to read in nodes of a temporal graph, refactor this to call a helper function called read_in_nodes_logic which takes in an el
 def read_in_nodes(graph_path):
     return nodes_of_el(read_in_el(graph_path))
