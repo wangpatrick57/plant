@@ -1,7 +1,11 @@
 #!/pkg/python/3.7.4/bin/python3
+import os
 from graph_helpers import *
 
 PLANT_DIR = '/home/wangph1/plant'
+
+def file_exists(path):
+    return os.path.exists(path)
 
 def get_data_path(data_path):
     return f'{PLANT_DIR}/data/{data_path}'

@@ -182,7 +182,7 @@ def blant_expand(prev_nodes, prev_nodes_count, k, lDEG, alph, adj_set, heurs, re
         prev_nodes[prev_nodes_count] = to_expand
         blant_expand(prev_nodes, prev_nodes_count + 1, k, lDEG, alph, adj_set, heurs, results, rpt=rpt, print_tree=print_tree, print_path_of=print_path_of)
 
-def run_blant(el, k=8, lDEG=2, alph=True, use_rpt=False, print_tree=False, print_progress=None, print_path_of=None):
+def run_pyblant(el, k=8, lDEG=2, alph=True, use_rpt=False, print_tree=False, print_progress=None, print_path_of=None):
     nodes = nodes_of_el(el)
     adj_set = adj_set_of_el(el)
     heurs = get_deg_heurs(nodes, adj_set)
@@ -235,6 +235,6 @@ if __name__ == '__main__':
     print('el read in')
     sys.setrecursionlimit(100000)
     k = 6
-    graphlets = run_blant(el, k=k, lDEG=2, use_rpt=True, print_tree=False, print_progress=None, print_path_of=None)
+    graphlets = run_pyblant(el, k=k, lDEG=2, use_rpt=True, print_tree=False, print_progress=None, print_path_of=None)
     print(len(graphlets))
     write_to_file(graphlets_str(graphlets), f'test_py_sy0_k{k}l2.out')
