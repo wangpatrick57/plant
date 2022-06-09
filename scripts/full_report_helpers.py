@@ -146,8 +146,8 @@ def store_all_index_reports(full_report, index_paths):
 def gen_and_store_seed_report(full_report, index_paths, gtag1, gtag2):
     index1_path = index_paths[gtag1]
     index2_path = index_paths[gtag2]
-    graph1_path = get_gtag_graph_path(gtag1)
-    graph2_path = get_gtag_graph_path(gtag2)
+    graph1_path = get_graph_path(gtag1)
+    graph2_path = get_graph_path(gtag2)
     g1_to_g2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
     all_seeds, seed_metrics, extr_metrics = low_param_one_run(index1_path, graph1_path, index2_path, graph2_path, g1_to_g2_orthologs)
     all_metrics = [len(all_seeds)]

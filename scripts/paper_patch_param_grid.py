@@ -5,12 +5,13 @@ from index_helpers import *
 from graph_helpers import *
 from ortholog_helpers import *
 
-snap1 = sys.argv[1]
-snap2 = sys.argv[2]
-s1_index_path = get_index_path(snap1)
-s1_graph_path = get_graph_path(snap1)
-s2_index_path = get_index_path(snap2)
-s2_graph_path = get_graph_path(snap2)
+gtag1 = sys.argv[1]
+gtag2 = sys.argv[2]
+algo = 'bno'
+s1_index_path = get_index_path(gtag1, algo=algo)
+s1_graph_path = get_graph_path(gtag1)
+s2_index_path = get_index_path(gtag2, algo=algo)
+s2_graph_path = get_graph_path(gtag2)
 s1_to_s2_orthologs = SelfOrthos()
 
 orth = []

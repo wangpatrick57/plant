@@ -81,8 +81,8 @@ def get_node_coverage(all_seeds):
 def get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo=None):
     s1_index_path = get_index_path(gtag1, alph=s1_alph, algo=algo)
     s2_index_path = get_index_path(gtag2, alph=s2_alph, algo=algo)
-    s1_graph_path = get_gtag_graph_path(gtag1)
-    s2_graph_path = get_gtag_graph_path(gtag2)
+    s1_graph_path = get_graph_path(gtag1)
+    s2_graph_path = get_graph_path(gtag2)
     s1_to_s2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
     return (s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs)
 
