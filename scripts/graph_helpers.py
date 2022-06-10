@@ -3,6 +3,7 @@ import re
 import random
 import networkx as nx
 import sys
+from collections import defaultdict
 from file_helpers import *
 
 NETWORKS_DIR = '/home/wangph1/plant/networks'
@@ -11,7 +12,7 @@ def get_all_iid_mammals():
     return ['cat', 'cow', 'dog', 'guinea_pig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep']
 
 def get_all_syeasts():
-    syeasts = ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25']
+    return ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25']
 
 def get_paper_nontprl_snap():
     social = ['deezer', 'git']
@@ -25,6 +26,25 @@ def get_paper_nontprl_snap():
 def get_paper_tprl_snap():
     return ['math', 'reddit']
 
+def is_paper_snap(gtag):
+    return gtag in get_paper_nontprl_snap() or gtag in get_paper_tprl_snap()
+
+def check_all_marks_unique(gtags):
+    num_gtags = len(set(gtags))
+    marks = [nonmod_gtag_to_mark(gtag) for gtag in gtags]
+    mark_dupes = defaultdict(int)
+
+    for mark in marks:
+        mark_dupes[mark] += 1
+    
+    num_marks = len(mark_dupes)
+
+    if num_gtags == num_marks:
+        print('all marks unique')
+    else:
+        print('some marks are duplicate')
+        print('\n'.join([f'{mark}: {cnt}' for mark, cnt in mark_dupes.items() if cnt > 1]))
+
 def get_paper_nonmod_gtags():
     iid_mammals = get_all_iid_mammals()
     syeasts = get_all_syeasts()
@@ -33,21 +53,25 @@ def get_paper_nonmod_gtags():
     return iid_mammals + syeasts + nontprl_snap + tprl_snap
 
 def is_species(gtag):
-    return gtag in get_all_iid_mammals() or 'syeast' in gtag
+    base_gtag = gtag.split('_')[0]
+    return base_gtag in get_all_iid_mammals() or 'syeast' in base_gtag
+
+def is_iid_mammal(gtag):
+    return gtag in get_all_iid_mammals()
 
 def get_graph_path(gtag):
     if gtag == 'tester':
         return get_base_graph_path(gtag)
     elif gtag in {'alphabet', 'alpha10'}:
         return get_custom_graph_path(gtag)
-    elif '-adv' in gtag:
+    elif '_adv' in gtag:
         return get_adv_graph_path(gtag)
     elif is_species(gtag):
         return get_species_graph_path(gtag)
     else:
         return get_snap_graph_path(gtag)
 
-def gtag_to_mark(gtag):
+def nonmod_gtag_to_mark(gtag):
     if gtag == 'syeast0':
         return 'sy0'
     elif gtag == 'syeast05':
@@ -60,6 +84,19 @@ def gtag_to_mark(gtag):
         return 'sy20'
     elif gtag == 'syeast25':
         return 'sy25'
+    elif is_iid_mammal(gtag):
+        return gtag[:3]
+    elif is_paper_snap(gtag):
+        if gtag == 'hepph':
+            return 'hph'
+        elif gtag == 'hepth':
+            return 'hth'
+        elif gtag == 'gnu24':
+            return 'g24'
+        elif gtag == 'gnu30':
+            return 'g30'
+        else:
+            return gtag[:3]
 
 def get_base_graph_path(name):
     return f'{NETWORKS_DIR}/{name}.el'
@@ -68,7 +105,7 @@ def get_custom_graph_path(name):
     return get_base_graph_path(f'custom/{name}')
 
 def get_adv_gtag(gtag, i):
-    return f'{gtag}-adv{i}'
+    return f'{gtag}_adv{i}'
 
 def get_adv_graph_path(adv_gtag):
     return get_base_graph_path(f'adversarial/{adv_gtag}')
@@ -220,8 +257,6 @@ def induced_subgraph(el, nodes):
     return clean_el(sg)
 
 if __name__ == '__main__':
-    path = get_base_graph_path('syeast/syeast0')
-    el = read_in_el(path)
-    nxg = el_to_nxg(el)
-    ccs_list = list(get_ccs_list(nxg))
-    print([len(c) for c in ccs_list])
+    el = read_in_el(sys.argv[1])
+    el = clean_el(el)
+    write_el_to_file(el, sys.argv[1])
