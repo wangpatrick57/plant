@@ -1,5 +1,4 @@
 import re
-from graph_helpers import *
 
 ORTHO_FILE_PATH = '/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.Uniprot.tsv'
 
@@ -91,16 +90,18 @@ def is_ortholog(node1, node2, s1_to_s2_orthologs):
     return node1 in s1_to_s2_orthologs and s1_to_s2_orthologs[node1] == node2
 
 def get_g1_to_g2_orthologs(gtag1, gtag2):
-    g1_is_species = is_species(gtag1)
-    g2_is_species = is_species(gtag2)
+    from graph_helpers import is_species
+    base_gtag1 = gtag1.split('_')[0]
+    base_gtag2 = gtag2.split('_')[0]
+    g1_is_species = is_species(base_gtag1)
+    g2_is_species = is_species(base_gtag2)
 
     if g1_is_species != g2_is_species:
         raise AssertionError
 
     if g1_is_species:
-        return get_s1_to_s2_orthologs(gtag1, gtag2)
+        return get_s1_to_s2_orthologs(base_gtag1, base_gtag2)
     else:
-        print('test')
         return SelfOrthos()
 
 def get_s1_to_s2_orthologs(species1, species2):

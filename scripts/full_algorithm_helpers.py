@@ -1,5 +1,4 @@
 #!/pkg/python/3.7.4/bin/python3
-# this file runs the entire algorithm from start to finish, hiding all the internal detailns
 from seeding_algorithm_core import *
 from node_pair_extraction_helpers import *
 from index_helpers import *
@@ -9,6 +8,7 @@ from patch_helpers import *
 from validation_helpers import *
 from graph_helpers import *
 
+# this file runs the entire algorithm from start to finish, hiding all the internal detailns
 def full_get_combined_seeds(k, species1, species2, orbits, max_indices, sims_threshold, print_progress=False):
     all_seeds_lists = []
 

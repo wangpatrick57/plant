@@ -7,22 +7,49 @@ from statistics import mean
 from bash_helpers import *
 from graph_helpers import *
 
-NUM_GRAPHLETS = 30
-NUM_ORBITS = 73
+K = 4 # k is not an input parameter because we need to precompute weights and the weight sum in ODV for efficiency
 
-def get_odv_path(species, k):
-    return get_data_path(f'odv/{species}-k{k}.odv')
+def get_odv_path(gtag, k):
+    return get_data_path(f'odv/{gtag}-k{k}.odv')
 
-def calc_orbit_counts():
-    USE_CACHE = False
+def gtag_to_k(gtag):
+    from graph_helpers import is_syeast
+    if is_syeast(gtag):
+        return 5
+    else:
+        return 4
+
+def num_graphlets(k):
+    if k == 5:
+        return 30
+    elif k == 4:
+        return 9
+    else:
+        return None
+
+def num_orbits(k):
+    if k == 5:
+        return 73
+    elif k == 4:
+        return 15
+    else:
+        return None
+
+def calc_orbit_counts(k):
+    USE_CACHE = True
 
     if USE_CACHE:
-        return [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3, 4, 6, 5, 4, 5, 6, 6, 4, 4, 5, 5, 8, 4, 6, 6, 7, 5, 6, 6, 6, 5, 6, 7, 7, 5, 7, 7, 7, 6, 5, 5, 6, 8, 8, 6, 6, 8, 6, 9, 6, 6, 4, 6, 6, 8, 9, 6, 6, 8, 8, 6, 7, 7, 8, 5, 6, 6, 4]
+        if k == 5:
+            return [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3, 4, 6, 5, 4, 5, 6, 6, 4, 4, 5, 5, 8, 4, 6, 6, 7, 5, 6, 6, 6, 5, 6, 7, 7, 5, 7, 7, 7, 6, 5, 5, 6, 8, 8, 6, 6, 8, 6, 9, 6, 6, 4, 6, 6, 8, 9, 6, 6, 8, 8, 6, 7, 7, 8, 5, 6, 6, 4]
+        elif k == 4:
+            return [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3]
+        else:
+            return None
     else:
-        orbit_counts = [None] * NUM_ORBITS
+        orbit_counts = [None] * num_orbits(k)
 
-        for graphlet_num in range(NUM_GRAPHLETS):
-            p = run_orca(5, get_base_graph_path(f'graphlets/graphlet{graphlet_num}'))
+        for graphlet_num in range(num_graphlets(k)):
+            p = run_orca_raw(k, get_base_graph_path(f'graphlets/graphlet{graphlet_num}'))
             orbit_lines = p.stdout.decode().strip().split('\n')[1:]
 
             for line in orbit_lines:
@@ -42,9 +69,9 @@ def calc_orbit_counts():
 
         return orbit_counts
 
-def calc_weights():
-    orbit_counts = calc_orbit_counts()
-    weights = [1 - math.log(orbit_count) / math.log(NUM_ORBITS) for orbit_count in orbit_counts]
+def calc_weights(k):
+    orbit_counts = calc_orbit_counts(k)
+    weights = [1 - math.log(orbit_count) / math.log(num_orbits(k)) for orbit_count in orbit_counts]
     return weights
 
 class ODVDirectory:
@@ -71,7 +98,7 @@ class ODVDirectory:
 
 
 class ODV:
-    WEIGHTS = calc_weights()
+    WEIGHTS = calc_weights(K)
     WEIGHT_SUM = sum(WEIGHTS) # 45.08670802954777# sum(WEIGHTS)
 
     def __init__(self, odv_list):
@@ -144,12 +171,9 @@ def get_odv_orthologs(gtag1, gtag2, n, k):
         
         proc_nodes += 1
 
-        if proc_nodes * 100 / tot_nodes > percent_printed:
+        if proc_nodes * 10000 / tot_nodes > percent_printed:
             percent_printed += 1
-            print(f'{percent_printed}% done', file=sys.stderr)
-
-        if percent_printed >= 5:
-            break
+            print(f'{proc_nodes} / {tot_nodes}', file=sys.stderr)
 
     return sorted(top_n, reverse=True)
 
@@ -190,6 +214,9 @@ def analyze_mcl_test_data():
 
 def get_fake_ort_path(base, ext):
     return get_data_path(f'mcl/fake_ort/{base}.{ext}')
+
+def get_odv_ort_path(gtag1, gtag2, k, n):
+    return get_fake_ort_path(f'{gtag1}-{gtag2}-k{k}-n{n}', 'ort')
 
 def gen_fake_ort_from_sim(base, k, n):
     sim_path = get_fake_ort_path(base, 'sim')
@@ -243,30 +270,23 @@ def validate_sim_function(gtag1, gtag2):
             my_sim_non_decimal = int(my_sim * FACTOR)
             tot_diff += abs(sim_non_decimal - my_sim_non_decimal)
             tot_pairs += 1
-            
-            if tot_pairs > 1_300:
-                break
 
-            inequal_orbits = odv1.get_inequal_orbits(odv2)
-
-            if len(inequal_orbits) < 4:
-                print(f'tot{tot_pairs}p')
-                print(f'{node1}-{node2}: {abs(sim_non_decimal - my_sim_non_decimal)}')
-                print(f'\tdiffs: {inequal_orbits}')
+            if tot_pairs % 5000 == 0:
+                print(tot_pairs, '/', 1004 ** 2)
 
     avg_diff = (tot_diff / tot_pairs) / FACTOR
     print(f'avg_diff: {avg_diff}')
     print(f'num_gt10: {num_gt10}')
 
-def odv_ort_to_str(odv_ort):
-    return '\n'.join([f'{node1}\t{node2}\t{score}' for score, node1, node2 in odv_ort])
+def odv_ort_to_str(odv_ort, mark1, mark2):
+    return '\n'.join([f'{mark1}_{node1}\t{mark2}_{node2}\t{score}' for score, node1, node2 in odv_ort])
 
 
 if __name__ == '__main__':
-    # calc_orbit_counts()
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
-    k = sys.argv[3]
+    mark1 = gtag_to_mark(gtag1)
+    mark2 = gtag_to_mark(gtag2)
     n = 5000
-    odv_ort = get_odv_orthologs(gtag1, gtag2, n, k)
-    write_to_file(odv_ort_to_str(odv_ort), get_fake_ort_path(f'{gtag1}-{gtag2}-k{k}-n{n}', 'myort'))
+    odv_ort = get_odv_orthologs(gtag1, gtag2, n, K)
+    write_to_file(odv_ort_to_str(odv_ort, mark1, mark2), get_fake_ort_path(f'{gtag1}-{gtag2}-k{K}-n{n}', 'ort'))

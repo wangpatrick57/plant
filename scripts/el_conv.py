@@ -37,9 +37,6 @@ def bel2dmel(num_el):
     sorted_el = sorted(deduped_el)
     return sorted_el
 
-def get_nif_str(el):
-    return('\n'.join([f'{node1}\t{node2}\t1' for node1, node2 in el]))
-
 if __name__ == '__main__':
     path = get_base_graph_path('syeast/syeast20_marked')
     el = read_in_el(path)
