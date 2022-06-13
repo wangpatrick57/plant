@@ -24,7 +24,7 @@ def get_tel_std_sections(tel):
     length = (max_time - min_time) / 2
     els = []
 
-    for i in [1, 2, 4]:
+    for i in [0, 1, 2, 4]:
         start_time = min_time + i * length / 20
         end_time = start_time + length
         el = get_el_in_interval(tel, start_time, end_time)
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     tel = read_in_temporal_el(f'../networks/snap/{base}.tel')
     els = get_tel_std_sections(tel)
     base_label = '_std'
-    addons = ['05', '10', '20']
+    addons = ['0']
 
     for el, addon in zip(els, addons):
         gtag = f'{base}{base_label}{addon}'

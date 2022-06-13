@@ -1,0 +1,5 @@
+write function to generate nif for gtag
+write function to generate odvs for two gtags
+write function to copy all three files to out
+write function in vm to take all of these files and put them in the mcl folder
+run mcl with human and human_adv0 and mouse and rat

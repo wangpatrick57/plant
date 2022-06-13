@@ -5,11 +5,12 @@ import networkx as nx
 import sys
 from collections import defaultdict
 from file_helpers import *
+from el_conv import *
 
 NETWORKS_DIR = '/home/wangph1/plant/networks'
 
 def get_all_iid_mammals():
-    return ['cat', 'cow', 'dog', 'guinea_pig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep']
+    return ['cat', 'cow', 'dog', 'guineapig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep']
 
 def get_all_syeasts():
     return ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25']
@@ -29,9 +30,22 @@ def get_paper_tprl_snap():
 def is_paper_snap(gtag):
     return gtag in get_paper_nontprl_snap() or gtag in get_paper_tprl_snap()
 
+def get_marked_node(gtag, node):
+    return f'{gtag_to_mark(gtag)}_{node}'
+
+def get_marked_el(gtag):
+    path = get_graph_path(gtag)
+    el = read_in_el(path)
+    marked_el = []
+
+    for node1, node2 in el:
+        marked_el.append((get_marked_node(gtag, node1), get_marked_node(gtag, node2)))
+
+    return marked_el
+
 def check_all_marks_unique(gtags):
     num_gtags = len(set(gtags))
-    marks = [nonmod_gtag_to_mark(gtag) for gtag in gtags]
+    marks = [gtag_to_mark(gtag) for gtag in gtags]
     mark_dupes = defaultdict(int)
 
     for mark in marks:
@@ -45,7 +59,7 @@ def check_all_marks_unique(gtags):
         print('some marks are duplicate')
         print('\n'.join([f'{mark}: {cnt}' for mark, cnt in mark_dupes.items() if cnt > 1]))
 
-def get_paper_nonmod_gtags():
+def get_paper_base_gtags():
     iid_mammals = get_all_iid_mammals()
     syeasts = get_all_syeasts()
     nontprl_snap = get_paper_nontprl_snap()
@@ -71,7 +85,25 @@ def get_graph_path(gtag):
     else:
         return get_snap_graph_path(gtag)
 
-def nonmod_gtag_to_mark(gtag):
+def get_nif_path(gtag):
+    return get_base_graph_path(f'mcl/{gtag}_marked', ext='nif')
+
+def split_gtag(gtag):
+    splitted = gtag.split('_')
+    base_gtag = splitted[0]
+    mods = splitted[1:]
+    return base_gtag, mods
+
+def gtag_to_mark(gtag):
+    base_gtag, mods = split_gtag(gtag)
+    mark = base_gtag_to_mark(base_gtag)
+    
+    for mod in mods:
+        mark += mod
+
+    return mark
+
+def base_gtag_to_mark(gtag):
     if gtag == 'syeast0':
         return 'sy0'
     elif gtag == 'syeast05':
@@ -98,8 +130,8 @@ def nonmod_gtag_to_mark(gtag):
         else:
             return gtag[:3]
 
-def get_base_graph_path(name):
-    return f'{NETWORKS_DIR}/{name}.el'
+def get_base_graph_path(name, ext='el'):
+    return f'{NETWORKS_DIR}/{name}.{ext}'
 
 def get_custom_graph_path(name):
     return get_base_graph_path(f'custom/{name}')
@@ -110,14 +142,14 @@ def get_adv_gtag(gtag, i):
 def get_adv_graph_path(adv_gtag):
     return get_base_graph_path(f'adversarial/{adv_gtag}')
 
+def is_syeast(species):
+    return 'syeast' in species
+
 def get_species_graph_path(species):
-    if 'syeast' in species:
+    if is_syeast(species):
         return get_base_graph_path(f'syeast/{species}')
     else:
-        return f'/home/sana/Jurisica/IID/networks/IID{species}.el'
-
-def get_notopedge_graph_path(species):
-    return f'{NETWORKS_DIR}/paper/IID{species}_without_top_edge.el'
+        return get_base_graph_path(f'iid/{species}')
 
 def get_snap_graph_path(snap):
     return f'{NETWORKS_DIR}/snap/{snap}.el'
@@ -257,6 +289,10 @@ def induced_subgraph(el, nodes):
     return clean_el(sg)
 
 if __name__ == '__main__':
-    el = read_in_el(sys.argv[1])
+    gtag = sys.argv[1]
+    el = get_marked_el(gtag)
     el = clean_el(el)
-    write_el_to_file(el, sys.argv[1])
+    path = get_graph_path(gtag)
+    out_path = get_nif_path(gtag)
+    print(out_path)
+    write_to_file(get_nif_str(el), out_path)

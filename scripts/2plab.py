@@ -1,11 +1,12 @@
 #!/pkg/python/3.7.4/bin/python3
-from temporal_graph_helpers import *
-from graph_helpers import *
-from file_helpers import *
+from all_helpers import *
+import sys
 
-tel = read_in_temporal_el('../networks/snap/math.tel')
-els = get_tel_std_sections(tel)
+advis = [0, 1, 2, 3, 5, 8, 11, 15]
 
-for i, el in enumerate(els):
-    write_el_to_file(el, f'../networks/snap/math{i}.el')
-    graph_stats(el, f'otc{i}')
+for advi in advis:
+    gtag = f'hepph'
+    index_path = get_index_path(gtag, algo='bno')
+
+    with open(index_path, 'r') as f:
+        print(len(f.readlines()))

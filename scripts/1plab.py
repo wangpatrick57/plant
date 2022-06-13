@@ -1,22 +1,56 @@
 #!/pkg/python/3.7.4/bin/python3
-old_path = '/home/wangph1/BLANT/old'
-new_path = '/home/wangph1/BLANT/new'
-old_graphlets_without_id = []
-new_graphlets_without_id = []
+import sys
+from all_helpers import *
 
-with open(old_path, 'r') as old_f:
-    for line in old_f:
-        splitted = line.strip().split()
-        old_graphlets_without_id.append(tuple(splitted[1:]))
+def gen_adv_graphs(gtags, advis, overwrite=False):
+    for gtag in gtags:
+        for advi in advis:
+            adv_el = get_adversarial_el(gtag, advi)
+            path = get_adv_graph_path(get_adv_gtag(gtag, advi))
 
-with open(new_path, 'r') as new_f:
-    for line in new_f:
-        splitted = line.strip().split()
-        new_graphlets_without_id.append(tuple(splitted[1:]))
+            if overwrite or not file_exists(path):
+                write_el_to_file(adv_el, path)
 
-print(old_graphlets_without_id)
-print(new_graphlets_without_id)
-print('all old', len(old_graphlets_without_id))
-print('all new', len(new_graphlets_without_id))
-print('uniq old', len(set(old_graphlets_without_id)))
-print('uniq new', len(set(new_graphlets_without_id)))
+def print_adv_report_line(gtag, advis, include_base):
+    gen_adv_graphs([gtag], advis)
+    adv_gtags = []
+
+    if include_base:
+        adv_gtags.append(gtag)
+    
+    for advi in advis:
+        adv_gtags.append(get_adv_gtag(gtag, advi))
+
+    algo = 'bno'
+    lDEG = 2
+
+    gen_all_indexes(adv_gtags, algo, lDEG, overwrite=True)
+    gtag1 = gtag
+    extr_vols = []
+    extr_ncs = []
+
+    for gtag2 in adv_gtags:
+        run_info = get_gtag_run_info(gtag1, gtag2, algo=algo, lDEG=lDEG)
+        _, _, (extr_vol, extr_nc) = low_param_one_run(*run_info)
+        extr_vols.append(extr_vol)
+        extr_ncs.append(extr_nc)
+        print(f'done with {gtag1}, {gtag2}', file=sys.stderr)
+
+    print(gtag + '\t' + '\t'.join([str(vol) for vol in extr_vols]))
+    print(gtag + '\t' + '\t'.join([str(nc) for nc in extr_ncs]))
+
+if __name__ == '__main__':
+    gtag = sys.argv[1]
+    algo = sys.argv[2]
+    advis = [0, 1, 2, 3, 5, 8, 11, 15]
+    lDEG = 2
+    
+    # gen all indexes one by one
+    adv_gtags = [gtag]
+    gen_all_indexes(adv_gtags, algo, lDEG, overwrite=True)
+
+    for advi in advis:
+        adv_gtags = [get_adv_gtag(gtag, advi)]
+        gen_all_indexes(adv_gtags, algo, lDEG, overwrite=True)
+
+    # print_adv_report_line(gtag, advis, False)

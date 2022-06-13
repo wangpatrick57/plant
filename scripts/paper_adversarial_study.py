@@ -14,25 +14,23 @@ def gen_adv_graphs(gtags, advis, overwrite=False):
 def print_adv_report_line(gtag, advis, include_base):
     gen_adv_graphs([gtag], advis)
     adv_gtags = []
+
+    if include_base:
+        adv_gtags.append(gtag)
     
     for advi in advis:
         adv_gtags.append(get_adv_gtag(gtag, advi))
 
-    gen_all_indexes(adv_gtags, 'bno', 1)
+    algo = 'bnocpy1'
+    lDEG = 2
+
+    gen_all_indexes(adv_gtags, algo, lDEG)
     gtag1 = gtag
-    gtag2_list = []
-
-    if include_base:
-        gtag2_list.append(gtag)
-
-    for advi in advis:
-        gtag2_list.append(get_adv_gtag(gtag, advi))
-
     extr_vols = []
     extr_ncs = []
 
-    for gtag2 in gtag2_list:
-        run_info = get_gtag_run_info(gtag1, gtag2, algo='bno', lDEG=2)
+    for gtag2 in adv_gtags:
+        run_info = get_gtag_run_info(gtag1, gtag2, algo=algo, lDEG=lDEG)
         _, _, (extr_vol, extr_nc) = low_param_one_run(*run_info)
         extr_vols.append(extr_vol)
         extr_ncs.append(extr_nc)
