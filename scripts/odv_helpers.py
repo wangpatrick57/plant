@@ -7,8 +7,6 @@ from statistics import mean
 from bash_helpers import *
 from graph_helpers import *
 
-K = 4 # k is not an input parameter because we need to precompute weights and the weight sum in ODV for efficiency
-
 def get_odv_path(gtag, k):
     return get_data_path(f'odv/{gtag}-k{k}.odv')
 
@@ -18,6 +16,22 @@ def gtag_to_k(gtag):
         return 5
     else:
         return 4
+
+def gtag_to_n(gtag):
+    if gtag in {'tester', 'alphabet', 'alpha10'}:
+        return 5
+    else:
+        return 5000
+
+def two_gtags_to_k(gtag1, gtag2):
+    assert gtag_to_k(gtag1) == gtag_to_k(gtag2)
+    k = gtag_to_k(gtag1)
+    return k
+
+def two_gtags_to_n(gtag1, gtag2):
+    assert gtag_to_n(gtag1) == gtag_to_n(gtag2)
+    n = gtag_to_n(gtag1)
+    return n
 
 def num_graphlets(k):
     if k == 5:
@@ -84,7 +98,7 @@ class ODVDirectory:
             line_split = line.strip().split()
             node = line_split[0]
             odv_list = [int(s) for s in line_split[1:]]
-            odv = ODV(odv_list)
+            odv = ODV(node, odv_list)
             self._directory[node] = odv
 
     def get_odv(self, node):
@@ -98,14 +112,20 @@ class ODVDirectory:
 
 
 class ODV:
-    WEIGHTS = calc_weights(K)
-    WEIGHT_SUM = sum(WEIGHTS) # 45.08670802954777# sum(WEIGHTS)
+    WEIGHTS = []
+    WEIGHT_SUM = 0
 
-    def __init__(self, odv_list):
+    @staticmethod
+    def set_weights_vars(k):
+        ODV.WEIGHTS = calc_weights(k)
+        ODV.WEIGHT_SUM = sum(ODV.WEIGHTS) # 45.08670802954777 <- calculated value from .sim file
+
+    def __init__(self, node, odv_list):
+        self._node = node
         self._odv_list = odv_list
 
     def get_similarity(self, other):
-        assert len(self._odv_list) == len(other._odv_list) == len(ODV.WEIGHTS), f'self: {len(self._odv_list)}, other: {len(other._odv_list)}, weights: {len(ODV.WEIGHTS)}'
+        assert len(self._odv_list) == len(other._odv_list) == len(ODV.WEIGHTS), f'self: {len(self._odv_list)}, other: {len(other._odv_list)}, weights: {len(ODV.WEIGHTS)}, self._node: {self._node}, other._node: {other._node}'
         distance_sum = sum([self._get_single_orbit_similarity(m1, m2, i) for i, (m1, m2) in enumerate(zip(self._odv_list, other._odv_list))])
         weight_sum = ODV.WEIGHT_SUM
         return 1 - distance_sum / weight_sum
@@ -141,7 +161,7 @@ class ODV:
         bot = math.log(max(m1, m2) + 2)
         return ODV.WEIGHTS[i] * abs(top_inner) / bot
 
-def get_odv_orthologs(gtag1, gtag2, n, k):
+def get_odv_orthologs(gtag1, gtag2, k, n):
     graph_path1 = get_graph_path(gtag1)
     graph_path2 = get_graph_path(gtag2)
     nodes1 = read_in_nodes(graph_path1)
@@ -287,6 +307,8 @@ if __name__ == '__main__':
     gtag2 = sys.argv[2]
     mark1 = gtag_to_mark(gtag1)
     mark2 = gtag_to_mark(gtag2)
-    n = 5000
-    odv_ort = get_odv_orthologs(gtag1, gtag2, n, K)
-    write_to_file(odv_ort_to_str(odv_ort, mark1, mark2), get_fake_ort_path(f'{gtag1}-{gtag2}-k{K}-n{n}', 'ort'))
+    k = two_gtags_to_k(gtag1, gtag2)
+    n = two_gtags_to_n(gtag1, gtag2)
+    ODV.set_weights_vars(k)
+    odv_ort = get_odv_orthologs(gtag1, gtag2, k, n)
+    write_to_file(odv_ort_to_str(odv_ort, mark1, mark2), get_fake_ort_path(f'{gtag1}-{gtag2}-k{k}-n{n}', 'ort'))

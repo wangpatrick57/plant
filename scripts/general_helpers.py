@@ -1,6 +1,4 @@
 #!/bin/python3
-from graph_helpers import *
-
 def assert_with_prints(value, target, value_title):
     assert value == target, f'{value_title} is not {target}'
     print(f'success, {value_title} = {target}')
@@ -21,6 +19,7 @@ def print_dict(d):
     print('\n'.join([f'{k}\t{v}' for k, v in d.items()]))
 
 def order_gtags(gtag1, gtag2):
+    from graph_helpers import get_graph_path, read_in_nodes, read_in_el
     graph_path1 = get_graph_path(gtag1)
     graph_path2 = get_graph_path(gtag2)
     nodes1 = read_in_nodes(graph_path1)
