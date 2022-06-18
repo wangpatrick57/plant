@@ -12,6 +12,12 @@ NETWORKS_DIR = '/home/wangph1/plant/networks'
 def get_all_iid_mammals():
     return ['cat', 'cow', 'dog', 'guineapig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep']
 
+def get_all_iid_nonmammals():
+    return ['fly', 'worm']
+
+def get_all_iid_species():
+    return get_all_iid_mammals() + get_all_iid_nonmammals()
+
 def get_all_syeasts():
     return ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25']
 
@@ -60,7 +66,7 @@ def check_all_marks_unique(gtags):
         print('\n'.join([f'{mark}: {cnt}' for mark, cnt in mark_dupes.items() if cnt > 1]))
 
 def get_paper_base_gtags():
-    iid_mammals = get_all_iid_mammals()
+    iid_species = get_all_iid_species()
     syeasts = get_all_syeasts()
     nontprl_snap = get_paper_nontprl_snap()
     tprl_snap = get_paper_tprl_snap()
@@ -68,10 +74,10 @@ def get_paper_base_gtags():
 
 def is_species(gtag):
     base_gtag = gtag.split('_')[0]
-    return base_gtag in get_all_iid_mammals() or 'syeast' in base_gtag
+    return base_gtag in get_all_iid_species() or 'syeast' in base_gtag
 
-def is_iid_mammal(gtag):
-    return gtag in get_all_iid_mammals()
+def is_iid_species(gtag):
+    return gtag in get_all_iid_species()
 
 def get_graph_path(gtag):
     if gtag == 'tester':
@@ -116,7 +122,7 @@ def base_gtag_to_mark(gtag):
         return 'sy20'
     elif gtag == 'syeast25':
         return 'sy25'
-    elif is_iid_mammal(gtag):
+    elif is_iid_species(gtag):
         return gtag[:3]
     elif is_paper_snap(gtag):
         if gtag == 'hepph':

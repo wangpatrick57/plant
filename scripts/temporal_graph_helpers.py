@@ -18,14 +18,20 @@ def read_in_temporal_el(graph_path):
 
 # standard sections are splitting the graph in half by time and then shifting 10% for a total of 10 graphs (ignoring the one with no overlap)
 def get_tel_std_sections(tel):
+    return get_tel_sections(tel, [0.5] * 4, [0, 0.025, 0.05, 0.1])
+
+def get_tel_sections(tel, length_ratios, offset_ratios):
+    assert len(length_ratios) == len(offset_ratios), 'length_ratios must be the same len as offset_ratios' 
     times = [time for node1, node2, time in tel]
     min_time = min(times)
     max_time = max(times)
-    length = (max_time - min_time) / 2
+    total_length = max_time - min_time
     els = []
 
-    for i in [0, 1, 2, 4]:
-        start_time = min_time + i * length / 20
+    for length_ratio, offset_ratio in zip(length_ratios, offset_ratios):
+        length = length_ratio * total_length
+        offset = offset_ratio * total_length
+        start_time = min_time + offset
         end_time = start_time + length
         el = get_el_in_interval(tel, start_time, end_time)
         els.append(el)
@@ -135,9 +141,9 @@ def get_node_limit_node_edge_ratios(graph_path, start_time, interval, count, nod
 if __name__ == '__main__':
     base = sys.argv[1]
     tel = read_in_temporal_el(f'../networks/snap/{base}.tel')
-    els = get_tel_std_sections(tel)
-    base_label = '_std'
-    addons = ['0']
+    els = get_tel_sections(tel, [0.25, 0.3], [0] * 2)
+    base_label = '_varlen'
+    addons = ['25', '30']
 
     for el, addon in zip(els, addons):
         gtag = f'{base}{base_label}{addon}'

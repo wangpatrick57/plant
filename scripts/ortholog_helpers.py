@@ -73,7 +73,11 @@ def get_orthopairs_list(node_pairs, s1_to_s2_orthologs):
     orthopairs_list = []
 
     for node1, node2 in node_pairs:
-        if is_ortholog(node1, node2, s1_to_s2_orthologs):
+        base_node1 = node1.split('_')[1]
+        base_node2 = node2.split('_')[1]
+
+        if is_ortholog(base_node1, base_node2, s1_to_s2_orthologs):
+            print(base_node1, base_node2)
             orthopairs_list.append((node1, node2))
 
     return orthopairs_list
@@ -90,6 +94,7 @@ def is_ortholog(node1, node2, s1_to_s2_orthologs):
     return node1 in s1_to_s2_orthologs and s1_to_s2_orthologs[node1] == node2
 
 def get_g1_to_g2_orthologs(gtag1, gtag2):
+    # TODO: rewrite this completely, it's very messy
     from graph_helpers import is_species
     base_gtag1 = gtag1.split('_')[0]
     base_gtag2 = gtag2.split('_')[0]
@@ -102,9 +107,14 @@ def get_g1_to_g2_orthologs(gtag1, gtag2):
     if g1_is_species:
         return get_s1_to_s2_orthologs(base_gtag1, base_gtag2)
     else:
-        return SelfOrthos()
+        if 'marked' in gtag1 and 'marked' in gtag2:
+            return MarkedSelfOrthos()
+        else:
+            return SelfOrthos()
 
 def get_s1_to_s2_orthologs(species1, species2):
+    from graph_helpers import get_graph_path, read_in_nodes
+
     if 'syeast' in species1 or 'syeast' in species2:
         assert 'syeast' in species1 and 'syeast' in species2, 'syeast must be in both or neither'
         s1_to_s2 = dict()

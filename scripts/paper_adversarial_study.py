@@ -41,5 +41,6 @@ def print_adv_report_line(gtag, advis, include_base):
 
 if __name__ == '__main__':
     gtag = sys.argv[1]
-    advis = [0, 1, 2, 3, 5, 8, 11, 15]
-    print_adv_report_line(gtag, advis, True)
+    # advis = [0, 1, 2, 3, 5, 8, 11, 15]
+    # print_adv_report_line(gtag, advis, True)
+    gen_adv_graphs([gtag], [0])

@@ -2,13 +2,24 @@
 import os
 from graph_helpers import *
 
-PLANT_DIR = '/home/wangph1/plant'
+HOME_DIR = '/home/wangph1'
+PLANT_DIR = f'{HOME_DIR}/plant'
 
 def file_exists(path):
     return os.path.exists(path)
 
+def get_num_lines(path):
+    with open(path, 'r') as f:
+        return len(f.readlines())
+
 def get_data_path(data_path):
     return f'{PLANT_DIR}/data/{data_path}'
+
+def get_home_path(home_path):
+    return f'{HOME_DIR}/{home_path}'
+
+def remove_extension(path):
+    return '.'.join(path.split('.')[:-1])
 
 def read_in_m2m(m2m_path):
     m2m_pairs = []

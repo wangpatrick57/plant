@@ -30,6 +30,10 @@ def run_outsend(path):
     cmd = f'outsend {path}'
     subprocess.run(cmd.split())
 
+def run_outtake(out_fname, here_path):
+    cmd = f'outtake {out_fname} {here_path}'
+    subprocess.run(cmd.split())
+
 def run_orca_raw(k, el_path):
     cmd = f'orca.sh {k} {el_path}'
     p = subprocess.run(cmd.split(), capture_output=True)
@@ -50,5 +54,32 @@ def run_orca_for_gtag(gtag, overwrite=False):
     else:
         print(f'using old odv file for {gtag}', file=sys.stderr)
 
+def run_align_mcl(gtag1, gtag2, overwrite=False):
+    from graph_helpers import get_nif_path
+    from odv_helpers import two_gtags_to_k, two_gtags_to_n, get_odv_ort_path
+    from mcl_helpers import get_mcl_out_path
+    from file_helpers import file_exists, get_home_path, remove_extension
+    MCL_SCRIPT_PATH = get_home_path('alignMCL/raw_run_align_mcl.sh')
+
+    k = two_gtags_to_k(gtag1, gtag2)
+    n = two_gtags_to_n(gtag1, gtag2)
+    out_path = get_mcl_out_path(gtag1, gtag2, k, n)
+
+    if overwrite or not file_exists(out_path):
+        out_arg = remove_extension(out_path)
+        nif_path1 = get_nif_path(gtag1)
+        nif_path2 = get_nif_path(gtag2)
+        odv_ort_path = get_odv_ort_path(gtag1, gtag2, k, n)
+        cmd = f'{MCL_SCRIPT_PATH} {nif_path1} {nif_path2} {odv_ort_path} {out_arg}'
+        p = subprocess.Popen(cmd.split())
+    else:
+        p = None
+        print(f'using old mcl out file for {gtag1}-{gtag2}', file=sys.stderr)
+
+    return p
+
 if __name__ == '__main__':
-    run_orca_for_gtag('tester')
+    gtag1 = 'syeast0'
+    gtag2 = 'syeast05'
+    p = run_align_mcl(gtag1, gtag2, overwrite=True)
+    p.wait()
