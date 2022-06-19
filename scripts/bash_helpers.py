@@ -54,7 +54,7 @@ def run_orca_for_gtag(gtag, overwrite=False):
     else:
         print(f'using old odv file for {gtag}', file=sys.stderr)
 
-def run_align_mcl(gtag1, gtag2, overwrite=False):
+def run_align_mcl(gtag1, gtag2, overwrite=False, notes=''):
     from graph_helpers import get_nif_path
     from odv_helpers import two_gtags_to_k, two_gtags_to_n, get_odv_ort_path
     from mcl_helpers import get_mcl_out_path
@@ -63,13 +63,13 @@ def run_align_mcl(gtag1, gtag2, overwrite=False):
 
     k = two_gtags_to_k(gtag1, gtag2)
     n = two_gtags_to_n(gtag1, gtag2)
-    out_path = get_mcl_out_path(gtag1, gtag2, k, n)
+    out_path = get_mcl_out_path(gtag1, gtag2, k, n, notes=notes)
 
     if overwrite or not file_exists(out_path):
         out_arg = remove_extension(out_path)
         nif_path1 = get_nif_path(gtag1)
         nif_path2 = get_nif_path(gtag2)
-        odv_ort_path = get_odv_ort_path(gtag1, gtag2, k, n)
+        odv_ort_path = get_odv_ort_path(gtag1, gtag2, k, n, notes=notes)
         cmd = f'{MCL_SCRIPT_PATH} {nif_path1} {nif_path2} {odv_ort_path} {out_arg}'
         p = subprocess.Popen(cmd.split())
     else:

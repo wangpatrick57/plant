@@ -166,6 +166,9 @@ def get_snap_graph_path(snap):
 def read_in_adj_set(graph_path):
     return adj_set_of_el(read_in_el(graph_path))
 
+def get_max_deg(adj_set):
+    return max([len(neighs) for neighs in adj_set.values()])
+
 def read_in_el(graph_path):
     el = []
     graph_file = open(graph_path, 'r')
