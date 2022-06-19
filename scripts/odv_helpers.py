@@ -21,7 +21,7 @@ def gtag_to_n(gtag):
     if gtag in {'tester', 'alphabet', 'alpha10'}:
         return 5
     else:
-        return 5000
+        return 15000
 
 def two_gtags_to_k(gtag1, gtag2):
     assert gtag_to_k(gtag1) == gtag_to_k(gtag2)
@@ -161,11 +161,21 @@ class ODV:
         bot = math.log(max(m1, m2) + 2)
         return ODV.WEIGHTS[i] * abs(top_inner) / bot
 
-def get_odv_orthologs(gtag1, gtag2, k, n):
-    graph_path1 = get_graph_path(gtag1)
-    graph_path2 = get_graph_path(gtag2)
-    nodes1 = read_in_nodes(graph_path1)
-    nodes2 = read_in_nodes(graph_path2)
+def read_in_nodes_wo_deg1(gtag):
+    graph_path = get_graph_path(gtag)
+    nodes = read_in_nodes(graph_path)
+    adj_set = read_in_adj_set(graph_path)
+    new_nodes = [node for node in nodes if len(adj_set[node]) > 1]
+    return new_nodes
+
+def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False):
+    if no1:
+        nodes1 = read_in_nodes_wo_deg1(gtag1)
+        nodes2 = read_in_nodes_wo_deg1(gtag2)
+    else:
+        nodes1 = list(read_in_nodes(get_graph_path(gtag1)))
+        nodes2 = list(read_in_nodes(get_graph_path(gtag2)))
+
     odv_path1 = get_odv_path(gtag1, k)
     odv_path2 = get_odv_path(gtag2, k)
     odv_dir1 = ODVDirectory(odv_path1)
@@ -178,24 +188,33 @@ def get_odv_orthologs(gtag1, gtag2, k, n):
     tot_nodes = len(nodes1) # approximation for less incrementing
     proc_nodes = 0
     percent_printed = 0
+    skip = 1
 
     for node1 in nodes1:
-        for node2 in nodes2:
+        for i in range(0, len(nodes2), skip):
+            node2 = nodes2[i]
             odv1 = odv_dir1.get_odv(node1)
             odv2 = odv_dir2.get_odv(node2)
             sim = odv1.get_similarity(odv2)
-            min_node = min(node1, node2)
-            max_node = max(node1, node2)
-            obj = (sim, min_node, max_node)
+            # don't do min/max node just for sorting purposes, because the nodes come from two different graphs
+            # min_node = min(node1, node2) BAD
+            # max_node = max(node1, node2) BAD
+            obj = (sim, node1, node2)
             min_top = heapq.heappushpop(top_n, obj)
         
         proc_nodes += 1
 
-        if proc_nodes * 10000 / tot_nodes > percent_printed:
+        if proc_nodes * 1000 / tot_nodes > percent_printed:
             percent_printed += 1
             print(f'{proc_nodes} / {tot_nodes}', file=sys.stderr)
 
     return sorted(top_n, reverse=True)
+
+def get_odv_orthologs_balanced_method(gtag1, gtag2, k, n):
+    pass
+
+def get_odv_orthologs(gtag1, gtag2, k, n):
+    return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=True)
 
 def analyze_mcl_test_data():
     nif1_path = get_data_path('mcl/mcl_test/ppi1.nif')
@@ -236,7 +255,46 @@ def get_fake_ort_path(base, ext):
     return get_data_path(f'mcl/fake_ort/{base}.{ext}')
 
 def get_odv_ort_path(gtag1, gtag2, k, n):
-    return get_fake_ort_path(f'{gtag1}-{gtag2}-k{k}-n{n}', 'ort')
+    return get_fake_ort_path(f'{gtag1}-{gtag2}-k{k}-n{n}-no1', 'ort')
+
+def get_default_odv_ort_path(gtag1, gtag2):
+    k = two_gtags_to_k(gtag1, gtag2)
+    n = two_gtags_to_n(gtag1, gtag2)
+    return get_odv_ort_path(gtag1, gtag2, k, n)
+
+def read_in_odv_orts(path):
+    with open(path, 'r') as f:
+        lines = f.readlines()
+        return [line.split('\t') for line in lines]
+
+def odv_ort_file_to_nodes(path, left):
+    from graph_helpers import unmark_node
+
+    with open(path, 'r') as f:
+        nodes = []
+
+        for line in f:
+            marked_node1, marked_node2, score = line.strip().split('\t')
+            node1 = unmark_node(marked_node1)
+            node2 = unmark_node(marked_node2)
+
+            if left:
+                nodes.append(node1)
+            else:
+                nodes.append(node2)
+
+        return nodes
+
+def odv_ort_to_nodes(odv_orts, left):
+    nodes = list()
+
+    for score, node1, node2 in odv_orts:
+        if left:
+            nodes.append(node1)
+        else:
+            nodes.append(node2)
+
+    return nodes
 
 def gen_fake_ort_from_sim(base, k, n):
     sim_path = get_fake_ort_path(base, 'sim')
@@ -249,21 +307,15 @@ def gen_fake_ort_from_sim(base, k, n):
 
             for line in sim_f:
                 node1, node2, score = line.split()
-                marked_node2 = f'sy20_{node2}'
+                marked_node2 = f'sy05_{node2}'
 
-                if i < k:
+                if i < n:
                     added_nodes.add(node1)
                     added_nodes.add(node2)
                     ort_f.write('\t'.join([node1, marked_node2, score]) + '\n')
                     i += 1
                 else:
-                    if node1 not in added_nodes or node2 not in added_nodes:
-                        added_nodes.add(node1)
-                        added_nodes.add(node2)
-                        ort_f.write('\t'.join([node1, marked_node2, score]) + '\n')
-
-                    if len(added_nodes) >= n:
-                        break
+                    break
 
 # function I used to validate the sim function based on Hayes' sim files
 def validate_sim_function(gtag1, gtag2):
@@ -294,6 +346,9 @@ def validate_sim_function(gtag1, gtag2):
             if tot_pairs % 5000 == 0:
                 print(tot_pairs, '/', 1004 ** 2)
 
+            if tot_pairs > 10000:
+                break
+
     avg_diff = (tot_diff / tot_pairs) / FACTOR
     print(f'avg_diff: {avg_diff}')
     print(f'num_gt10: {num_gt10}')
@@ -303,12 +358,16 @@ def odv_ort_to_str(odv_ort, mark1, mark2):
 
 
 if __name__ == '__main__':
+    from graph_helpers import get_graph_path, read_in_adj_set
+    from analysis_helpers import get_deg_distr, print_deg_distr
+
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
-    mark1 = gtag_to_mark(gtag1)
-    mark2 = gtag_to_mark(gtag2)
-    k = two_gtags_to_k(gtag1, gtag2)
-    n = two_gtags_to_n(gtag1, gtag2)
-    ODV.set_weights_vars(k)
-    odv_ort = get_odv_orthologs(gtag1, gtag2, k, n)
-    write_to_file(odv_ort_to_str(odv_ort, mark1, mark2), get_fake_ort_path(f'{gtag1}-{gtag2}-k{k}-n{n}', 'ort'))
+    left = True
+    nodes_gtag = gtag1 if left else gtag2
+
+    path = '/home/wangph1/vmcopy/copy/mouse-rat-k4-n5000.ort'
+    nodes = odv_ort_file_to_nodes(path, left)
+    adj_set = read_in_adj_set(get_graph_path(nodes_gtag))
+    deg_distr = get_deg_distr(nodes, adj_set)
+    print_deg_distr(deg_distr)

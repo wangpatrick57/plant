@@ -17,9 +17,10 @@ def gen_nif_file(gtag, overwrite=False):
         print(f'using old nif file for {gtag}', file=sys.stderr)
 
 def gen_odv_ort_file(gtag1, gtag2, overwrite=False):
-    from graph_helpers import gtag_to_mark
-    from odv_helpers import get_odv_orthologs, odv_ort_to_str, get_odv_ort_path, two_gtags_to_k, two_gtags_to_n, ODV
+    from graph_helpers import gtag_to_mark, read_in_adj_set, get_graph_path
+    from odv_helpers import get_odv_orthologs, odv_ort_to_str, get_odv_ort_path, two_gtags_to_k, two_gtags_to_n, ODV, odv_ort_to_nodes
     from file_helpers import file_exists, write_to_file
+    from analysis_helpers import get_deg_distr, deg_distr_to_str
 
     k = two_gtags_to_k(gtag1, gtag2)
     n = two_gtags_to_n(gtag1, gtag2)
@@ -28,6 +29,13 @@ def gen_odv_ort_file(gtag1, gtag2, overwrite=False):
 
     if overwrite or not file_exists(ort_path):
         odv_ort = get_odv_orthologs(gtag1, gtag2, k, n)
+
+        # PAT DEBUG
+        nodes = odv_ort_to_nodes(odv_ort, True)
+        deg_distr = get_deg_distr(nodes, read_in_adj_set(get_graph_path(gtag1)))
+        write_to_file(deg_distr_to_str(deg_distr), '/home/wangph1/plant/scripts/temp')
+        # DEBUG END
+
         mark1 = gtag_to_mark(gtag1)
         mark2 = gtag_to_mark(gtag2)
         ort_str = odv_ort_to_str(odv_ort, mark1, mark2)
@@ -90,12 +98,17 @@ def prepare_mcl(gtag1, gtag2):
     run_orca_for_gtag(gtag1)
     run_orca_for_gtag(gtag2)
     gen_odv_ort_file(gtag1, gtag2)
-    copy_to_out(gtag1, gtag2)
 
 def process_mcl(gtag1, gtag2):
-    take_from_out(gtag1, gtag2)
     num_ort, num_pairs = evaluate_alignment(gtag1, gtag2)
     print(f'{num_ort} / {num_pairs}')
+
+def full_local_run_mcl(gtag1, gtag2):
+    from bash_helpers import run_align_mcl
+
+    prepare_mcl(gtag1, gtag2)
+    run_align_mcl(gtag1, gtag2)
+    process_mcl(gtag1, gtag2)
 
 if __name__ == '__main__':
     mode = sys.argv[1]
@@ -104,7 +117,11 @@ if __name__ == '__main__':
 
     if mode == 'prep':
         prepare_mcl(gtag1, gtag2)
+        copy_to_out(gtag1, gtag2)
     elif mode == 'proc':
+        take_from_out(gtag1, gtag2)
         process_mcl(gtag1, gtag2)
+    elif mode == 'full':
+        full_local_run_mcl(gtag1, gtag2)
     else:
         print('USAGE: mcl_helpers.py gtag1 gtag2 mode, where mode is prep or proc')

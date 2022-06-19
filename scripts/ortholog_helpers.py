@@ -1,4 +1,6 @@
+#!/pkg/python/3.7.4/bin/python3
 import re
+import sys
 
 ORTHO_FILE_PATH = '/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.Uniprot.tsv'
 
@@ -112,6 +114,36 @@ def get_g1_to_g2_orthologs(gtag1, gtag2):
         else:
             return SelfOrthos()
 
+def get_species_to_index(ortho_file):
+    species_to_index = dict()
+    species_line = ortho_file.readline().strip()
+    species_order = re.split('[\s\t]+', species_line)
+
+    for i, species in enumerate(species_order):
+        species_to_index[species] = i
+
+    return species_to_index
+
+def get_ortholog_nodes(species):
+    nodes = list()
+    
+    with open(ORTHO_FILE_PATH, 'r') as ortho_file:
+        species_to_index = get_species_to_index(ortho_file)
+        species_pos = species_to_index[species]
+
+        for line in ortho_file:
+            line_split = line.strip().split()
+
+            if line_split[species_pos] == species: # first line
+                pass
+            else: # other lines
+                node = line_split[species_pos]
+
+                if node != '0':
+                    nodes.append(node)
+
+    return nodes
+
 def get_s1_to_s2_orthologs(species1, species2):
     from graph_helpers import get_graph_path, read_in_nodes
 
@@ -127,13 +159,7 @@ def get_s1_to_s2_orthologs(species1, species2):
         return s1_to_s2
 
     with open(ORTHO_FILE_PATH, 'r') as ortho_file:
-        species_to_index = dict()
-        species_line = ortho_file.readline().strip()
-        species_order = re.split('[\s\t]+', species_line)
-
-        for i, species in enumerate(species_order):
-            species_to_index[species] = i
-
+        species_to_index = get_species_to_index(ortho_file)
         s1_to_s2 = dict()
         s1_pos = species_to_index[species1]
         s2_pos = species_to_index[species2]
@@ -153,4 +179,12 @@ def get_s1_to_s2_orthologs(species1, species2):
         return s1_to_s2
 
 if __name__ == '__main__':
-    s1_to_s2_orthologs = get_s1_to_s2_orthologs('mouse', 'rat')
+    from graph_helpers import read_in_adj_set, get_graph_path
+    from analysis_helpers import get_deg_distr, print_deg_distr
+
+    species = sys.argv[1]
+    nodes = get_ortholog_nodes(species)
+    adj_set = read_in_adj_set(get_graph_path(species))
+    nodes = [node for node in nodes if node in adj_set]
+    deg_distr = get_deg_distr(nodes, adj_set)
+    print_deg_distr(deg_distr)
