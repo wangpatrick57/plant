@@ -40,6 +40,8 @@ class GraphShell:
             self.log_top(int(args[0]))
         elif head == 'edge':
             self.has_edge(args[0], args[1])
+        elif head == 'ninfo':
+            self.log_node_info(args[0])
         else:
             log('did not understand command')
 
@@ -95,6 +97,11 @@ class GraphShell:
         assert way1 == way2, 'adj_set not symmetric'
         existence_str = 'exists' if way1 else 'does not exist'
         log(existence_str)
+
+    def log_node_info(self, node):
+        deg = self.get_deg(node)
+        log(f'node: {node}')
+        log(f'deg: {deg}')
 
     def run(self):
         while True:
