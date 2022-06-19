@@ -2,55 +2,18 @@
 import sys
 from all_helpers import *
 
-def gen_adv_graphs(gtags, advis, overwrite=False):
-    for gtag in gtags:
-        for advi in advis:
-            adv_el = get_adversarial_el(gtag, advi)
-            path = get_adv_graph_path(get_adv_gtag(gtag, advi))
+gtag1 = 'mouse'
+gtag2 = 'rat'
+k = two_gtags_to_k(gtag1, gtag2)
+odv_dir1 = ODVDirectory(get_odv_path(gtag1, k))
+odv_dir2 = ODVDirectory(get_odv_path(gtag2, k))
+ODV.set_weights_vars(k)
+nodes1 = ['P62259', 'Q61510', 'P12023', 'Q3UFB7', 'Q80V62']
+nodes2 = ['P62260', 'D4A9N5', 'P08592', 'P35739', 'B5DF91']
 
-            if overwrite or not file_exists(path):
-                write_el_to_file(adv_el, path)
-
-def print_adv_report_line(gtag, advis, include_base):
-    gen_adv_graphs([gtag], advis)
-    adv_gtags = []
-
-    if include_base:
-        adv_gtags.append(gtag)
-    
-    for advi in advis:
-        adv_gtags.append(get_adv_gtag(gtag, advi))
-
-    algo = 'bno'
-    lDEG = 2
-
-    gen_all_indexes(adv_gtags, algo, lDEG, overwrite=True)
-    gtag1 = gtag
-    extr_vols = []
-    extr_ncs = []
-
-    for gtag2 in adv_gtags:
-        run_info = get_gtag_run_info(gtag1, gtag2, algo=algo, lDEG=lDEG)
-        _, _, (extr_vol, extr_nc) = low_param_one_run(*run_info)
-        extr_vols.append(extr_vol)
-        extr_ncs.append(extr_nc)
-        print(f'done with {gtag1}, {gtag2}', file=sys.stderr)
-
-    print(gtag + '\t' + '\t'.join([str(vol) for vol in extr_vols]))
-    print(gtag + '\t' + '\t'.join([str(nc) for nc in extr_ncs]))
-
-if __name__ == '__main__':
-    gtag = sys.argv[1]
-    algo = sys.argv[2]
-    advis = [0, 1, 2, 3, 5, 8, 11, 15]
-    lDEG = 2
-    
-    # gen all indexes one by one
-    adv_gtags = [gtag]
-    gen_all_indexes(adv_gtags, algo, lDEG, overwrite=True)
-
-    for advi in advis:
-        adv_gtags = [get_adv_gtag(gtag, advi)]
-        gen_all_indexes(adv_gtags, algo, lDEG, overwrite=True)
-
-    # print_adv_report_line(gtag, advis, False)
+for node1 in nodes1:
+    for node2 in nodes2:
+        odv1 = odv_dir1.get_odv(node1)
+        odv2 = odv_dir2.get_odv(node2)
+        sim = odv1.get_similarity(odv2)
+        print(node1, node2, sim)

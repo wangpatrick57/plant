@@ -39,6 +39,9 @@ def is_paper_snap(gtag):
 def get_marked_node(gtag, node):
     return f'{gtag_to_mark(gtag)}_{node}'
 
+def unmark_node(node):
+    return '_'.join(node.split('_')[1:])
+
 def get_marked_el(gtag):
     path = get_graph_path(gtag)
     el = read_in_el(path)
