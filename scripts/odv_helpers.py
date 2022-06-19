@@ -21,7 +21,7 @@ def gtag_to_n(gtag):
     if gtag in {'tester', 'alphabet', 'alpha10'}:
         return 15
     else:
-        return 15000
+        return 1500
 
 def two_gtags_to_k(gtag1, gtag2):
     assert gtag_to_k(gtag1) == gtag_to_k(gtag2)

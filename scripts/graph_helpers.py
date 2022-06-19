@@ -83,12 +83,16 @@ def is_iid_species(gtag):
     return gtag in get_all_iid_species()
 
 def get_graph_path(gtag):
+    from noise_helpers import is_noisy_gtag, get_noisy_graph_path
+
     if gtag == 'tester':
         return get_base_graph_path(gtag)
     elif gtag in {'alphabet', 'alpha10'}:
         return get_custom_graph_path(gtag)
     elif '_adv' in gtag:
         return get_adv_graph_path(gtag)
+    elif is_noisy_gtag(gtag):
+        return get_noisy_graph_path(gtag)
     elif is_species(gtag):
         return get_species_graph_path(gtag)
     else:
@@ -179,6 +183,9 @@ def read_in_el(graph_path):
 
     graph_file.close()
     return clean_el(el)
+
+def el_to_str(el):
+    return '\n'.join([f'{node1}\t{node2}' for node1, node2 in el])
 
 def in_edge_set(node1, node2, edge_set):
     return (node1, node2) in edge_set or (node2, node1) in edge_set
