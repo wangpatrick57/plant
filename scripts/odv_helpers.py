@@ -228,7 +228,7 @@ def get_odv_orthologs_balanced_method(gtag1, gtag2, k, n):
     pass
 
 def get_odv_orthologs(gtag1, gtag2, k, n):
-    return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=0.8)
+    return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=0.9)
 
 def analyze_mcl_test_data():
     nif1_path = get_data_path('mcl/mcl_test/ppi1.nif')

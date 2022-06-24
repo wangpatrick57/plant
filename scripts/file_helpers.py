@@ -6,7 +6,17 @@ HOME_DIR = '/home/wangph1'
 PLANT_DIR = f'{HOME_DIR}/plant'
 
 def file_exists(path):
-    return os.path.exists(path)
+    exists = os.path.exists(path)
+
+    if exists:
+        with open(path, 'r') as f:
+            line = f.readline()
+            is_empty = line == ''
+            return not is_empty
+
+        raise Exception
+    else:
+            return False
 
 def get_num_lines(path):
     with open(path, 'r') as f:
@@ -80,5 +90,4 @@ def write_to_file(s, fpath):
         f.write(s)
         
 if __name__ == '__main__':
-    out_path = get_data_path('mcl/fake_ort/syeast-syeast-perf.ort')
-    write_perfect_orthologs_to_file('syeast0', out_path)
+    print(file_exists(sys.argv[1]))

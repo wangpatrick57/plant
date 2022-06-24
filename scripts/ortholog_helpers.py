@@ -75,11 +75,10 @@ def get_orthopairs_list(node_pairs, s1_to_s2_orthologs):
     orthopairs_list = []
 
     for node1, node2 in node_pairs:
-        base_node1 = node1.split('_')[1]
-        base_node2 = node2.split('_')[1]
+        base_node1 = node1.split('_')[0]#[1] todo: fix this when I fix g1_to_g2_ort, this is for removing the mark
+        base_node2 = node2.split('_')[0]#[1]
 
         if is_ortholog(base_node1, base_node2, s1_to_s2_orthologs):
-            print(base_node1, base_node2)
             orthopairs_list.append((node1, node2))
 
     return orthopairs_list
@@ -102,6 +101,8 @@ def get_g1_to_g2_orthologs(gtag1, gtag2):
     base_gtag2 = gtag2.split('_')[0]
     g1_is_species = is_species(base_gtag1)
     g2_is_species = is_species(base_gtag2)
+    g1_is_marked = 'marked' in gtag1
+    g2_is_marked = 'marked' in gtag2
 
     if g1_is_species != g2_is_species:
         raise AssertionError
@@ -120,6 +121,9 @@ def get_species_to_index(ortho_file):
     species_order = re.split('[\s\t]+', species_line)
 
     for i, species in enumerate(species_order):
+        if species == 'guinea_pig':
+            species = 'guineapig'
+
         species_to_index[species] = i
 
     return species_to_index
@@ -133,11 +137,15 @@ def get_ortholog_nodes(species):
 
         for line in ortho_file:
             line_split = line.strip().split()
+            pos_elem = line_split[species_pos]
 
-            if line_split[species_pos] == species: # first line
+            if pos_elem == 'guinea_pig':
+                pos_elem = 'guineapig'
+
+            if pos_elem == species: # first line
                 pass
             else: # other lines
-                node = line_split[species_pos]
+                node = pos_elem
 
                 if node != '0':
                     nodes.append(node)
