@@ -1,5 +1,6 @@
-write function to generate nif for gtag
-write function to generate odvs for two gtags
-write function to copy all three files to out
-write function in vm to take all of these files and put them in the mcl folder
-run mcl with human and human_adv0 and mouse and rat
+generate nttels DONE
+print densities of all graphs
+based on that, decide how to deal with densities (if we even need to at all)
+read in nttels and generate base, 1, 5, 10
+run all
+investigate ldeg2 vs ldeg3 for syeast as well as alph and rev

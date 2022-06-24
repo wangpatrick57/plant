@@ -78,11 +78,20 @@ def get_matching_poses_list(entry_list, prox, target_num_matching):
     total_to_check = len(entry_list)
     num_checked = 0
 
+    # handle negative prox (means equals instead of <=)
+    if prox < 0:
+        prox = -prox
+        i_start_offset = prox
+    else:
+        i_start_offset = 1
+
+    i_end_offset = prox + 1
+
     for i in range(0, len(entry_list)):
         matching_poses_list.append([])
         outer_entry = entry_list[i]
 
-        for j in range(i + 1, i + prox + 1):
+        for j in range(i + i_start_offset, i + i_end_offset):
             if j >= len(entry_list):
                 continue
 

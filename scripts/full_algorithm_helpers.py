@@ -78,29 +78,29 @@ def get_node_coverage(all_seeds):
 
     return len(nodes)
 
-def get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo=None, lDEG=2):
-    s1_index_path = get_index_path(gtag1, alph=s1_alph, algo=algo, lDEG=lDEG)
-    s2_index_path = get_index_path(gtag2, alph=s2_alph, algo=algo, lDEG=lDEG)
-    s1_graph_path = get_graph_path(gtag1)
-    s2_graph_path = get_graph_path(gtag2)
-    s1_to_s2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
-    return (s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs)
+def get_gtag_run_info(gtag1, gtag2, g1_alph=True, g2_alph=True, algo=None, lDEG=2):
+    g1_index_path = get_index_path(gtag1, alph=g1_alph, algo=algo, lDEG=lDEG)
+    g2_index_path = get_index_path(gtag2, alph=g2_alph, algo=algo, lDEG=lDEG)
+    g1_graph_path = get_graph_path(gtag1)
+    g2_graph_path = get_graph_path(gtag2)
+    g1_to_g2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
+    return (g1_index_path, g1_graph_path, g2_index_path, g2_graph_path, g1_to_g2_orthologs)
 
 def get_alphrev_gtag_run_infos(gtag1, gtag2, algo=None):
     infos = []
     
-    for s1_alph in [True, False]:
-        for s2_alph in [True, False]:
-            infos.append(get_gtag_run_info(gtag1, gtag2, s1_alph=s1_alph, s2_alph=s2_alph), algo=algo)
+    for g1_alph in [True, False]:
+        for g2_alph in [True, False]:
+            infos.append(get_gtag_run_info(gtag1, gtag2, g1_alph=g1_alph, g2_alph=g2_alph), algo=algo)
 
     return infos
 
 def get_alphrev_strs():
     strs = []
     
-    for s1_alph in [True, False]:
-        for s2_alph in [True, False]:
-            str_tup = ('alph' if s1_alph else 'rev', 'alph' if s2_alph else 'rev')
+    for g1_alph in [True, False]:
+        for g2_alph in [True, False]:
+            str_tup = ('alph' if g1_alph else 'rev', 'alph' if g2_alph else 'rev')
             strs.append(''.join(str_tup))
 
     return strs
@@ -128,7 +128,7 @@ def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path
 
     all_node_pairs = extract_node_pairs(all_seeds)
     extr_vol = len(all_node_pairs)
-    extr_nc = 0 if extr_vol == 0 else len(get_orthopairs_list(all_node_pairs, s1_to_s2_orthologs)) / extr_vol
+    extr_nc = len(get_orthopairs_list(all_node_pairs, s1_to_s2_orthologs))
     extr_metrics = (extr_vol, extr_nc)
 
     return (all_seeds, seed_metrics, extr_metrics)
@@ -149,8 +149,5 @@ if __name__ == '__main__':
     lDEG = 2
     gtag1, gtag2 = order_gtags(gtag1, gtag2)
     gen_all_indexes([gtag1, gtag2], algo=algo, lDEG=lDEG)
-    seeds, seed_metrics, extr_metrics = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo=algo, lDEG=lDEG))
+    seeds, seed_metrics, extr_metrics = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, g1_alph=True, g2_alph=True, algo=algo, lDEG=lDEG))
     print(len(seeds), seed_metrics, extr_metrics)
-    write_to_file(seeds_to_str(seeds), f'{gtag1}-{gtag2}-seeds.txt')
-
-

@@ -100,6 +100,5 @@ if __name__ == '__main__':
     s1_odv_dir = ODVDirectory(get_odv_file_path(species1))
     s2_odv_dir = ODVDirectory(get_odv_file_path(species2))
     seeds = find_seeds(s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAlgorithmSettings(max_indices=3))
-    print(len(seeds))
 
 

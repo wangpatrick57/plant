@@ -22,8 +22,8 @@ def get_all_syeasts():
     return ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25']
 
 def get_paper_nontprl_snap():
-    social = ['deezer', 'git']
-    collab = ['astroph, cond']
+    social = ['facebook', 'git']
+    collab = ['astroph', 'cond']
     citat = ['hepph', 'hepth']
     comm = ['enron']
     auto = ['caida', 'oreg2']
@@ -31,7 +31,51 @@ def get_paper_nontprl_snap():
     return social + collab + citat + comm + auto + p2p
 
 def get_paper_tprl_snap():
-    return ['math', 'reddit']
+    return ['reddit', 'sxso', 'math', 'super', 'ubuntu', 'wiki', 'email', 'college', 'otc', 'alpha']
+
+def get_syeast_pairs():
+    pairs = []
+    syeasts = get_all_syeasts()
+    syeast0 = syeasts[0]
+    syeast_others = syeasts[1:]
+
+    for other in syeast_others:
+        pairs.append((syeast0, other))
+
+    return pairs
+
+def get_iid_mammal_pairs():
+    pairs = []
+    mammals = get_all_iid_mammals()
+
+    for i in range(len(mammals)):
+        for j in range(i + 1, len(mammals)):
+            pairs.append((mammals[i], mammals[j]))
+
+    return pairs
+
+def get_tprl_pairs():
+    from temporal_graph_helpers import get_std_percents, get_gtag_from_tgtag
+
+    pairs = []
+    tprls = get_paper_tprl_snap()
+    percents = get_std_percents()
+    percent0 = percents[0]
+    percent_others = percents[1:]
+
+    for tgtag in tprls:
+        for other in percent_others:
+            p0_gtag = get_gtag_from_tgtag(tgtag, percent0)
+            other_gtag = get_gtag_from_tgtag(tgtag, other)
+            pairs.append((p0_gtag, other_gtag))
+
+    return pairs
+
+def get_paper_all_pairs():
+    syeast_pairs = get_syeast_pairs()
+    iid_pairs = get_iid_mammal_pairs()
+    tprl_pairs = get_tprl_pairs()
+    return syeast_pairs + iid_pairs + tprl_pairs
 
 def is_paper_snap(gtag):
     return gtag in get_paper_nontprl_snap() or gtag in get_paper_tprl_snap()

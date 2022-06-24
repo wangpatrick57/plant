@@ -111,6 +111,20 @@ def gen_all_indexes(gtags, algo, lDEG, overwrite=False):
 
     return index_paths
 
+def gen_all_indexes_sequential(gtags, algo, lDEG, overwrite=False):
+    index_paths = dict()
+    alph = True
+
+    for gtag in gtags:
+        p, index_path = run_blant(gtag, alph=alph, algo=algo, lDEG=lDEG, overwrite=overwrite)
+
+        if p != None:
+            p.wait()
+
+        index_paths[gtag] = index_path
+
+    return index_paths
+
 def extract_index_metrics(index_path):
     with open(index_path, 'r') as index_file:
         idx_vol = len(index_file.readlines())
