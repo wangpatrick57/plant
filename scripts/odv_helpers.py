@@ -18,10 +18,9 @@ def gtag_to_k(gtag):
         return 4
 
 def gtag_to_n(gtag):
-    if gtag in {'tester', 'alphabet', 'alpha10'}:
-        return 15
-    else:
-        return 1500
+    from graph_helpers import read_in_nodes, get_graph_path
+    nodes = read_in_nodes(get_graph_path(gtag))
+    return len(nodes)
 
 def two_gtags_to_k(gtag1, gtag2):
     assert gtag_to_k(gtag1) == gtag_to_k(gtag2)
@@ -29,9 +28,7 @@ def two_gtags_to_k(gtag1, gtag2):
     return k
 
 def two_gtags_to_n(gtag1, gtag2):
-    assert gtag_to_n(gtag1) == gtag_to_n(gtag2)
-    n = gtag_to_n(gtag1)
-    return n
+    return min(gtag_to_n(gtag1), gtag_to_n(gtag2))
 
 def num_graphlets(k):
     if k == 5:
@@ -208,8 +205,12 @@ def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=1):
             odv1 = odv_dir1.get_odv(node1)
             odv2 = odv_dir2.get_odv(node2)
             odv_sim = odv1.get_similarity(odv2)
-            deg_sim = get_deg_sim(node1, node2, adj_set1, adj_set2, max_deg1, max_deg2) # the reason we pass in max is so that we don't have to recalculate it every time we call this
-            sim = alpha * odv_sim + (1 - alpha) * deg_sim
+            # deg_sim = get_deg_sim(node1, node2, adj_set1, adj_set2, max_deg1, max_deg2) # the reason we pass in max is so that we don't have to recalculate it every time we call this
+            # sim = alpha * odv_sim + (1 - alpha) * deg_sim
+
+            # PAT DEBUG
+            sim = odv_sim # commented out deg_sim for speed
+
             # don't do min/max node just for sorting purposes, because the nodes come from two different graphs
             # min_node = min(node1, node2) BAD
             # max_node = max(node1, node2) BAD
@@ -228,7 +229,8 @@ def get_odv_orthologs_balanced_method(gtag1, gtag2, k, n):
     pass
 
 def get_odv_orthologs(gtag1, gtag2, k, n):
-    return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=0.9)
+    # return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=0.9)
+    return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=True, alpha=1)
 
 def analyze_mcl_test_data():
     nif1_path = get_data_path('mcl/mcl_test/ppi1.nif')
@@ -385,5 +387,7 @@ if __name__ == '__main__':
     k = two_gtags_to_k(gtag1, gtag2)
     ODV.set_weights_vars(k)
     n = two_gtags_to_n(gtag1, gtag2)
+    print(n)
+    quit()
     odv_ort = get_odv_orthologs(gtag1, gtag2, k, n)
     print(odv_ort_to_str(odv_ort, '', ''))

@@ -1,6 +1,3 @@
-generate nttels DONE
-print densities of all graphs
-based on that, decide how to deal with densities (if we even need to at all)
-read in nttels and generate base, 1, 5, 10
-run all
+get nc on biogrid seeds
+run all indexes
 investigate ldeg2 vs ldeg3 for syeast as well as alph and rev

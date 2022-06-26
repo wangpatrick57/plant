@@ -23,21 +23,17 @@ def print_gtags_status(gtags):
 
 if __name__ == '__main__':
     gtag_dir = dict()
-    gtag_dir['c28'] = ['facebook', 'facebook_5v1', 'facebook_5v2', 'facebook_5v3', 'facebook_5v4', 'facebook_5v5']
-    gtag_dir['c29'] = ['git', 'git_5v1', 'git_5v2', 'git_5v3', 'git_5v4', 'git_5v5']
-    gtag_dir['c30'] = ['astroph', 'astroph_5v1', 'astroph_5v2', 'astroph_5v3', 'astroph_5v4', 'astroph_5v5']
-    gtag_dir['c31'] = ['cond', 'cond_5v1', 'cond_5v2', 'cond_5v3', 'cond_5v4', 'cond_5v5']
-    gtag_dir['c32'] = ['hepph', 'hepph_5v1', 'hepph_5v2', 'hepph_5v3', 'hepph_5v4', 'hepph_5v5']
-    gtag_dir['c33'] = ['hepth', 'hepth_5v1', 'hepth_5v2', 'hepth_5v3', 'hepth_5v4', 'hepth_5v5']
-    gtag_dir['c34'] = ['enron', 'enron_5v1', 'enron_5v2', 'enron_5v3', 'enron_5v4', 'enron_5v5']
-    gtag_dir['c35'] = ['caida', 'caida_5v1', 'caida_5v2', 'caida_5v3', 'caida_5v4', 'caida_5v5']
-    gtag_dir['c36'] = ['oreg2', 'oreg2_5v1', 'oreg2_5v2', 'oreg2_5v3', 'oreg2_5v4', 'oreg2_5v5']
-    gtag_dir['c37'] = ['gnu24', 'gnu24_5v1', 'gnu24_5v2', 'gnu24_5v3', 'gnu24_5v4', 'gnu24_5v5']
-    gtag_dir['c38'] = ['gnu30', 'gnu30_5v1', 'gnu30_5v2', 'gnu30_5v3', 'gnu30_5v4', 'gnu30_5v5']
-    gtag_dir['c99'] = ['math_std0', 'math_std05'] # all done already
-    gtag_dir['c39'] = ['reddit_std0', 'reddit_std05']
-    gtag_dir['c99'] = ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25'] # all done already
-    gtag_dir['c40'] = get_all_iid_mammals()
+    bgs = get_biogrid_acronyms()
+    bgs = [f'bg{bg}' for bg in bgs]
+
+    gtag_dir['c20'] = bgs[0:1]
+    gtag_dir['c21'] = bgs[1:2]
+    gtag_dir['c22'] = bgs[2:3]
+    gtag_dir['c23'] = bgs[3:4]
+    gtag_dir['c24'] = bgs[4:5]
+    gtag_dir['c25'] = bgs[5:6]
+    gtag_dir['c26'] = bgs[6:7]
+    gtag_dir['c27'] = bgs[7:8]
 
     machine = sys.argv[1]
     gtags = gtag_dir[machine]

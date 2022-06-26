@@ -75,24 +75,22 @@ def get_orthopairs_list(node_pairs, s1_to_s2_orthologs):
     orthopairs_list = []
 
     for node1, node2 in node_pairs:
-        base_node1 = node1.split('_')[0]#[1] todo: fix this when I fix g1_to_g2_ort, this is for removing the mark
-        base_node2 = node2.split('_')[0]#[1]
-
-        if is_ortholog(base_node1, base_node2, s1_to_s2_orthologs):
+        if is_ortholog(node1, node2, s1_to_s2_orthologs):
             orthopairs_list.append((node1, node2))
 
     return orthopairs_list
 
 def is_ortholog(node1, node2, s1_to_s2_orthologs):
+    unmarked1 = node1.split('_')[-1]
+    unmarked2 = node2.split('_')[-1]
+
     if type(s1_to_s2_orthologs) is SelfOrthos:
         return node1 == node2
 
     if type(s1_to_s2_orthologs) is MarkedSelfOrthos:
-        unmarked1 = node1.split('_')[-1]
-        unmarked2 = node2.split('_')[-1]
         return unmarked1 == unmarked2
     
-    return node1 in s1_to_s2_orthologs and s1_to_s2_orthologs[node1] == node2
+    return unmarked1 in s1_to_s2_orthologs and s1_to_s2_orthologs[unmarked1] == unmarked2
 
 def get_g1_to_g2_orthologs(gtag1, gtag2):
     # TODO: rewrite this completely, it's very messy

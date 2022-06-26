@@ -2,6 +2,8 @@
 from graph_helpers import *
 from index_helpers import *
 import subprocess
+import time
+import sys
 
 def bool_conv(b):
     return 1 if b else 0
@@ -63,13 +65,16 @@ def run_align_mcl(gtag1, gtag2, overwrite=False, notes=''):
 
     k = two_gtags_to_k(gtag1, gtag2)
     n = two_gtags_to_n(gtag1, gtag2)
-    out_path = get_mcl_out_path(gtag1, gtag2, k, n, notes=notes)
+
+    # PAT DEBUG
+    out_path = get_mcl_out_path(gtag1, gtag2, k, n, notes=f'{notes}+{int(time.time())}')
 
     if overwrite or not file_exists(out_path):
         out_arg = remove_extension(out_path)
         nif_path1 = get_nif_path(gtag1)
         nif_path2 = get_nif_path(gtag2)
         odv_ort_path = get_odv_ort_path(gtag1, gtag2, k, n, notes=notes)
+        print(out_path, nif_path1, nif_path2, odv_ort_path, sep='\n')
         cmd = f'{MCL_SCRIPT_PATH} {nif_path1} {nif_path2} {odv_ort_path} {out_arg}'
         p = subprocess.Popen(cmd.split())
     else:
@@ -79,7 +84,8 @@ def run_align_mcl(gtag1, gtag2, overwrite=False, notes=''):
     return p
 
 if __name__ == '__main__':
-    gtag1 = 'syeast0'
-    gtag2 = 'syeast05'
-    p = run_align_mcl(gtag1, gtag2, overwrite=True)
+    notes = sys.argv[1]
+    gtag1 = 'mouse'
+    gtag2 = 'rat'
+    p = run_align_mcl(gtag1, gtag2, notes=notes, overwrite=True)
     p.wait()
