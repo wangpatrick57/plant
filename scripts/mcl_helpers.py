@@ -65,6 +65,10 @@ def get_mcl_out_fname(gtag1, gtag2, k, n, notes=''):
 
     return f'{base}.txt'
 
+def read_in_mcl_out(path):
+    with open(path, 'r') as f:
+        pass
+
 def get_mcl_out_path(gtag1, gtag2, k, n, notes=''):
     from file_helpers import get_data_path
     return get_data_path(f'mcl/{get_mcl_out_fname(gtag1, gtag2, k, n, notes=notes)}')
@@ -87,6 +91,7 @@ def evaluate_alignment(gtag1, gtag2, notes=''):
     k = two_gtags_to_k(gtag1, gtag2)
     n = two_gtags_to_n(gtag1, gtag2)
     out_path = get_mcl_out_path(gtag1, gtag2, k, n, notes=notes)
+    print(out_path)
     m2m_pairs = read_in_slashes_m2m(out_path)
     node_pairs = extract_node_pairs_from_m2m(m2m_pairs)
     node_pairs_str = '\n'.join(f'{node1}\t{node2}' for node1, node2 in node_pairs)

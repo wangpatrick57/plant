@@ -1,7 +1,7 @@
 #!/pkg/python/3.7.4/bin/python3
 import re
 import random
-import networkx as nx
+# import networkx as nx
 import sys
 from collections import defaultdict
 from file_helpers import *
@@ -32,6 +32,32 @@ def get_paper_nontprl_snap():
 
 def get_paper_tprl_snap():
     return ['reddit', 'sxso', 'math', 'super', 'ubuntu', 'wiki', 'email', 'college', 'otc', 'alpha']
+
+def get_biogrid_acronyms():
+    return ['RN', 'SP', 'SC', 'CE', 'DM', 'MM', 'AT', 'HS']
+
+def get_biogrid_pairs():
+    acronyms = get_biogrid_acronyms()
+    pairs = []
+
+    for i in range(len(acronyms)):
+        for j in range(i + 1, len(acronyms)):
+            pairs.append((acronyms[i], acronyms[j]))
+
+    return pairs
+
+def get_biogrid_induced_gtags():
+    pairs = get_biogrid_pairs()
+    gtags = []
+
+    for bg1, bg2 in pairs:
+        pair_str = f'{bg1}-{bg2}'
+        gtag1 = f'{pair_str}-{bg1}'
+        gtag2 = f'{pair_str}-{bg2}'
+        gtags.append(gtag1)
+        gtags.append(gtag2)
+
+    return gtags
 
 def get_syeast_pairs():
     pairs = []
@@ -86,6 +112,22 @@ def get_marked_node(gtag, node):
 def unmark_node(node):
     return '_'.join(node.split('_')[1:])
 
+def unmarked_anthill(anthill):
+    if type(anthill) is str:
+        return unmark_node(anthill)
+
+    assert type(anthill) is list or type(anthill) is tuple
+
+    unmarked = [] # always list so we can append
+
+    for subhill in anthill:
+        unmarked.append(unmarked_anthill(subhill))
+
+    if type(anthill) is tuple: # convert if it's a tuple
+        unmarked = tuple(unmarked)
+
+    return unmarked
+
 def get_marked_el(gtag):
     path = get_graph_path(gtag)
     el = read_in_el(path)
@@ -123,6 +165,14 @@ def is_species(gtag):
     base_gtag = gtag.split('_')[0]
     return base_gtag in get_all_iid_species() or 'syeast' in base_gtag
 
+def is_biogrid(gtag):
+    base_gtag = gtag.split('_')[0]
+    return base_gtag[2:] in get_biogrid_acronyms()
+
+def is_biogrid_induced(gtag):
+    base_gtag = gtag.split('_')[0]
+    return base_gtag in get_biogrid_induced_gtags()
+
 def is_iid_species(gtag):
     return gtag in get_all_iid_species()
 
@@ -139,6 +189,10 @@ def get_graph_path(gtag):
         return get_noisy_graph_path(gtag)
     elif is_species(gtag):
         return get_species_graph_path(gtag)
+    elif is_biogrid(gtag):
+        return get_biogrid_graph_path(gtag)
+    elif is_biogrid_induced(gtag):
+        return get_biogrid_induced_graph_path(gtag)
     else:
         return get_snap_graph_path(gtag)
 
@@ -210,6 +264,12 @@ def get_species_graph_path(species):
 
 def get_snap_graph_path(snap):
     return f'{NETWORKS_DIR}/snap/{snap}.el'
+
+def get_biogrid_graph_path(bg):
+    return get_base_graph_path(f'biogrid/{bg}')
+
+def get_biogrid_induced_graph_path(bg):
+    return get_base_graph_path(f'bgind/{bg}')
 
 def read_in_adj_set(graph_path):
     return adj_set_of_el(read_in_el(graph_path))
@@ -321,6 +381,7 @@ def print_el(el):
 def print_xel(xel):
     print('\n'.join('\t'.join([e for e in edge]) for edge in xel))
 
+'''
 def el_to_nxg(el):
     nxg = nx.Graph()
 
@@ -330,7 +391,7 @@ def el_to_nxg(el):
     return nxg
 
 def get_ccs_list(nxg):
-    return nx.connected_components(nxg)
+    return nx.connected_components(nxg)'''
 
 def soften_el(el, r):
     soft_el = []
