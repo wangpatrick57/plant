@@ -82,7 +82,7 @@ class IndexEntry:
 
 
 # algo None refers to the original algorithm (Henry's)
-def get_index_path(gtag, algo=None, percent=0, orbit=0, alph=True, lDEG=None):
+def get_index_path(gtag, algo='bno', percent=0, orbit=0, alph=True, lDEG=None):
     if lDEG == None:
         if 'syeast' in gtag:
             # lDEG = 3

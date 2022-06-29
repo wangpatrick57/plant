@@ -13,7 +13,7 @@ lDEG = 2
 extr_nc = []
 extr_vol = []
 
-for prox in range(1, 10):
+for prox in [1, 2, 3, 4, 5, 8, 12, 15, 20, 25, 30]:
     extr_nc.append([])
     extr_vol.append([])
 

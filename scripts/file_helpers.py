@@ -5,6 +5,9 @@ from graph_helpers import *
 HOME_DIR = '/home/wangph1'
 PLANT_DIR = f'{HOME_DIR}/plant'
 
+def get_plant_path(path):
+    return f'{PLANT_DIR}/{path}'
+
 def file_exists(path):
     exists = os.path.exists(path)
 
@@ -46,7 +49,7 @@ def read_in_slashes_m2m(m2m_path):
 
     with open(m2m_path, 'r') as f:
         for alignment in f:
-            for line in alignment.split('\t'):
+            for line in alignment.strip().split('\t'):
                 node1, node2 = line.split('/')
                 m2m_pairs.append((node1, node2))
 

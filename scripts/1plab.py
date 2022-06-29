@@ -1,12 +1,19 @@
 #!/pkg/python/3.7.4/bin/python3
 from all_helpers import *
-import random
 
-ort = get_g1_to_g2_orthologs('mouse', 'rat')
-s = ''
+path = sys.argv[1]
+splitted = path.split('-')
+gtag1 = splitted[0]
+gtag2 = splitted[1]
+adj_set1 = read_in_adj_set(get_graph_path(gtag1))
+adj_set2 = read_in_adj_set(get_graph_path(gtag2))
 
-for mouse, rat in ort.items():
-    num = random.uniform(0.6, 1.0)
-    s += f'{mouse}\t{rat}\t{num}\n'
-
-write_to_file(s, get_data_path(f'mcl/fake_ort/mouse-rat-k4-n15000-truerand.ort'))
+with open(path, 'r') as f:
+    for line in f:
+        node1, node2, score = line.strip().split()
+        node1 = unmark_node(node1)
+        node2 = unmark_node(node2)
+        deg1 = len(adj_set1[node1])
+        deg2 = len(adj_set2[node2])
+        print(f'{path}: {node1} ({deg1}), {node2} ({deg2})')
+        break

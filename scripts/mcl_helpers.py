@@ -29,13 +29,6 @@ def gen_odv_ort_file(gtag1, gtag2, overwrite=False, notes=''):
 
     if overwrite or not file_exists(ort_path):
         odv_ort = get_odv_orthologs(gtag1, gtag2, k, n)
-
-        # PAT DEBUG
-        nodes = odv_ort_to_nodes(odv_ort, True)
-        deg_distr = get_deg_distr(nodes, read_in_adj_set(get_graph_path(gtag1)))
-        write_to_file(deg_distr_to_str(deg_distr), f'{ort_path}.dgds')
-        # DEBUG END
-
         mark1 = gtag_to_mark(gtag1)
         mark2 = gtag_to_mark(gtag2)
         ort_str = odv_ort_to_str(odv_ort, mark1, mark2)
@@ -84,7 +77,7 @@ def take_from_out(gtag1, gtag2, notes=''):
     run_outtake(out_fname, here_path) # note: the out here means the output file of mcl, while the out param of run_outtake refers to the remote git repo called "out" (which is named vmcopy lol)
 
 def evaluate_alignment(gtag1, gtag2, notes=''):
-    from node_pair_extraction_helpers import MarkedSelfOrthos, read_in_slashes_m2m, extract_node_pairs_from_m2m, get_orthopairs_list, get_g1_to_g2_orthologs
+    from node_pair_extraction_helpers import SelfOrthos, read_in_slashes_m2m, extract_node_pairs_from_m2m, get_orthopairs_list, get_g1_to_g2_orthologs
     from odv_helpers import two_gtags_to_k, two_gtags_to_n
     from file_helpers import write_to_file
 
@@ -123,19 +116,32 @@ def full_local_run_mcl(gtag1, gtag2, notes=''):
 
     process_mcl(gtag1, gtag2, notes=notes)
 
+def wayne_copy_mcl(gtag1, gtag2, notes=''):
+    from bash_helpers import run_cmd
+    from general_helpers import get_wayne_path
+    from odv_helpers import two_gtags_to_k, two_gtags_to_n
+
+    k = two_gtags_to_k(gtag1, gtag2)
+    n = two_gtags_to_n(gtag1, gtag2)
+    old_path = get_mcl_out_path(gtag1, gtag2, k, n, notes=notes)
+    new_path = get_wayne_path(f'mcl/{gtag1}-{gtag2}-mclseeds.txt')
+    p = run_cmd(f'cp {old_path} {new_path}')
+
 if __name__ == '__main__':
     mode = sys.argv[1]
     gtag1 = sys.argv[2]
     gtag2 = sys.argv[3]
-    notes = sys.argv[4] if len(sys.argv) > 4 else ''
+    notes = sys.argv[4]
 
     if mode == 'prep':
         prepare_mcl(gtag1, gtag2, notes=notes)
-        copy_to_out(gtag1, gtag2, notes=notes)
+        # copy_to_out(gtag1, gtag2, notes=notes)
     elif mode == 'proc':
-        take_from_out(gtag1, gtag2, notes=notes)
+        # take_from_out(gtag1, gtag2, notes=notes)
         process_mcl(gtag1, gtag2, notes=notes)
     elif mode == 'full':
         full_local_run_mcl(gtag1, gtag2, notes=notes)
+    elif mode == 'wcpy':
+        wayne_copy_mcl(gtag1, gtag2, notes=notes)
     else:
         print('USAGE: mcl_helpers.py gtag1 gtag2 mode, where mode is prep or proc')
