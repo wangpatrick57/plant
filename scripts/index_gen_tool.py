@@ -23,17 +23,7 @@ def print_gtags_status(gtags):
 
 if __name__ == '__main__':
     gtag_dir = dict()
-    bgs = get_biogrid_acronyms()
-    bgs = [f'bg{bg}' for bg in bgs]
-
-    gtag_dir['c20'] = bgs[0:1]
-    gtag_dir['c21'] = bgs[1:2]
-    gtag_dir['c22'] = bgs[2:3]
-    gtag_dir['c23'] = bgs[3:4]
-    gtag_dir['c24'] = bgs[4:5]
-    gtag_dir['c25'] = bgs[5:6]
-    gtag_dir['c26'] = bgs[6:7]
-    gtag_dir['c27'] = bgs[7:8]
+    gtag_dir['c20'] = ['cat']
 
     machine = sys.argv[1]
     gtags = gtag_dir[machine]

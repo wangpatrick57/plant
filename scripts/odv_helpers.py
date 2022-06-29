@@ -190,7 +190,7 @@ def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=1):
     max_deg1 = get_max_deg(adj_set1)
     max_deg2 = get_max_deg(adj_set2)
 
-    assert n <= len(nodes1) * len(nodes2)
+    # assert n < len(nodes1) * len(nodes2), f'{n} must be >= {len(nodes1)} * {len(nodes2)}'
 
     top_n = [(-1, '', '')] * n
     heapq.heapify(top_n)
@@ -198,6 +198,8 @@ def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=1):
     proc_nodes = 0
     percent_printed = 0
     skip = 1
+
+    assert alpha == 1.0 # since we're commenting out deg_sim
 
     for node1 in nodes1:
         for i in range(0, len(nodes2), skip):
@@ -207,9 +209,7 @@ def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=1):
             odv_sim = odv1.get_similarity(odv2)
             # deg_sim = get_deg_sim(node1, node2, adj_set1, adj_set2, max_deg1, max_deg2) # the reason we pass in max is so that we don't have to recalculate it every time we call this
             # sim = alpha * odv_sim + (1 - alpha) * deg_sim
-
-            # PAT DEBUG
-            sim = odv_sim # commented out deg_sim for speed
+            sim = odv_sim
 
             # don't do min/max node just for sorting purposes, because the nodes come from two different graphs
             # min_node = min(node1, node2) BAD
@@ -219,7 +219,7 @@ def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=1):
         
         proc_nodes += 1
 
-        if proc_nodes * 1000 / tot_nodes > percent_printed:
+        if proc_nodes * 10000 / tot_nodes > percent_printed:
             percent_printed += 1
             print(f'{proc_nodes} / {tot_nodes}', file=sys.stderr)
 
@@ -229,7 +229,7 @@ def get_odv_orthologs_balanced_method(gtag1, gtag2, k, n):
     pass
 
 def get_odv_orthologs(gtag1, gtag2, k, n):
-    # return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=0.9)
+    # return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=0.7)
     return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=True, alpha=1)
 
 def analyze_mcl_test_data():
@@ -284,9 +284,12 @@ def get_default_odv_ort_path(gtag1, gtag2):
     return get_odv_ort_path(gtag1, gtag2, k, n)
 
 def read_in_odv_orts(path):
+    from graph_helpers import unmark_node
+
     with open(path, 'r') as f:
         lines = f.readlines()
-        return [line.split('\t') for line in lines]
+        splitted_strs = [line.strip().split('\t') for line in lines]
+        return [(unmark_node(node1), unmark_node(node2), float(score)) for node1, node2, score in splitted_strs]
 
 def odv_ort_file_to_nodes(path, left):
     from graph_helpers import unmark_node
@@ -387,7 +390,5 @@ if __name__ == '__main__':
     k = two_gtags_to_k(gtag1, gtag2)
     ODV.set_weights_vars(k)
     n = two_gtags_to_n(gtag1, gtag2)
-    print(n)
-    quit()
     odv_ort = get_odv_orthologs(gtag1, gtag2, k, n)
     print(odv_ort_to_str(odv_ort, '', ''))

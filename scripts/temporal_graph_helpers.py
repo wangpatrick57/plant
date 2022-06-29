@@ -72,26 +72,6 @@ def read_in_xel_in_interval(graph_path, start_time, end_time, is_tel=True):
 
         return xel
 
-# a no_t_tel is basically an ordered set (ordered and unique)
-def get_no_t_tel(tel):
-    no_t_tel = []
-    added_edges = set()
-
-    for node1, node2, time in tel:
-        if node1 == node2:
-            continue
-
-        edge = get_canon_edge(node1, node2)
-
-        if edge not in added_edges:
-            added_edges.add(edge)
-            no_t_tel.append(edge)
-
-    print('len(tel):', len(tel))
-    print('len(no_t_tel):', len(no_t_tel))
-    print('len(added_edges):', len(added_edges))
-    return no_t_tel
-
 # TODO
 def get_el_from_nttel_with_limits(no_t_tel, num_skipped_edges, node_limit=20_000, edge_limit=EDGE_LIMIT, density_limit=20, total_edge_ratio_limit=10/11):
     from graph_helpers import nodes_of_el
@@ -131,7 +111,7 @@ def get_el_from_nttel_with_limits(no_t_tel, num_skipped_edges, node_limit=20_000
     return el
 
 def get_std_percents():
-    return [0, 1, 5, 10]
+    return [0, 1, 3, 5]
 
 def get_gtag_from_tgtag(tgtag, percent):
     return f'{tgtag}_s{percent}'
@@ -140,11 +120,11 @@ def gen_std_tgtag_els(tgtag):
     from graph_helpers import el_to_str
     from file_helpers import write_to_file
 
-    ntpath = get_nttgraph_path(tgtag)
-    nttel = read_in_nttel(ntpath)
+    nttpath = get_nttgraph_path(tgtag)
+    nttel = read_in_nttel(nttpath)
     num_edges = len(nttel)
 
-    for percent in get_std_percents():
+    for percent in [3]:# get_std_percents():
         num_skipped_edges = num_edges * percent // 100
         el = get_el_from_nttel_with_limits(nttel, num_skipped_edges)
         new_gtag = get_gtag_from_tgtag(tgtag, percent)
@@ -198,17 +178,16 @@ def get_canon_edge(node1, node2):
     return (min(node1, node2), max(node1, node2))
 
 # canonizes edges and ignores self edges
-def gen_nttel_file(tgtag, max_unique_edges=EDGE_LIMIT):
+def gen_nttel_file(tgtag, max_edges=EDGE_LIMIT):
     from file_helpers import write_to_file
 
     tel_path = get_tgraph_path(tgtag)
 
     with open(tel_path) as tel_f:
-        unique_edges = set()
         nttel = []
 
         for line in tel_f:
-            if len(unique_edges) >= max_unique_edges:
+            if len(nttel) >= max_edges:
                 break
 
             node1, node2, time = line.strip().split()
@@ -218,8 +197,7 @@ def gen_nttel_file(tgtag, max_unique_edges=EDGE_LIMIT):
 
             edge = get_canon_edge(node1, node2)
 
-            if edge not in unique_edges:
-                unique_edges.add(edge)
+            if edge != None:
                 nttel.append(edge)
 
         nttel_path = get_nttgraph_path(tgtag)
@@ -233,3 +211,4 @@ if __name__ == '__main__':
 
     for tgtag in get_paper_tprl_snap():
         gen_std_tgtag_els(tgtag)
+        print(f'done with {tgtag}')

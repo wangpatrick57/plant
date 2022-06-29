@@ -5,7 +5,7 @@ from index_helpers import *
 from odv_helpers import *
 from ortholog_helpers import *
 from patch_helpers import *
-from validation_helpers import *
+from index_validation_helpers import *
 from graph_helpers import *
 
 # this file runs the entire algorithm from start to finish, hiding all the internal detailns
@@ -78,7 +78,7 @@ def get_node_coverage(all_seeds):
 
     return len(nodes)
 
-def get_gtag_run_info(gtag1, gtag2, g1_alph=True, g2_alph=True, algo=None, lDEG=2):
+def get_gtag_run_info(gtag1, gtag2, g1_alph=True, g2_alph=True, algo='bno', lDEG=2):
     g1_index_path = get_index_path(gtag1, alph=g1_alph, algo=algo, lDEG=lDEG)
     g2_index_path = get_index_path(gtag2, alph=g2_alph, algo=algo, lDEG=lDEG)
     g1_graph_path = get_graph_path(gtag1)
@@ -86,7 +86,7 @@ def get_gtag_run_info(gtag1, gtag2, g1_alph=True, g2_alph=True, algo=None, lDEG=
     g1_to_g2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
     return (g1_index_path, g1_graph_path, g2_index_path, g2_graph_path, g1_to_g2_orthologs)
 
-def get_alphrev_gtag_run_infos(gtag1, gtag2, algo=None):
+def get_alphrev_gtag_run_infos(gtag1, gtag2, algo='bno'):
     infos = []
     
     for g1_alph in [True, False]:
@@ -139,6 +139,17 @@ def seed_to_str(seed):
 
 def seeds_to_str(seeds):
     return '\n'.join([seed_to_str(seed) for seed in seeds])
+
+def wayne_write_blant_seeds(gtag1, gtag2):
+    from file_helpers import write_to_file
+    from general_helpers import get_wayne_path
+
+    seeds, seed_metrics, extr_metrics = low_param_one_run(*get_gtag_run_info(gtag1, gtag2))
+    seeds_str = seeds_to_str(seeds)
+    print(gtag1, gtag2, seed_metrics, extr_metrics)
+    path = get_wayne_path(f'blant/{gtag1}-{gtag2}-blantseeds.txt')
+    write_to_file(seeds_str, path)
+    print(f'wrote to {path}')
 
 if __name__ == '__main__':
     from full_report_helpers import gen_all_indexes

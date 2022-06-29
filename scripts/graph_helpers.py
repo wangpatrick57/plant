@@ -36,7 +36,7 @@ def get_paper_tprl_snap():
 def get_biogrid_acronyms():
     return ['RN', 'SP', 'SC', 'CE', 'DM', 'MM', 'AT', 'HS']
 
-def get_biogrid_pairs():
+def get_biogrid_base_pairs():
     acronyms = get_biogrid_acronyms()
     pairs = []
 
@@ -46,8 +46,11 @@ def get_biogrid_pairs():
 
     return pairs
 
+def get_biogrid_gtags_with_bg():
+    return [f'bg{acronym}' for acronym in get_biogrid_acronyms()]
+
 def get_biogrid_induced_gtags():
-    pairs = get_biogrid_pairs()
+    pairs = get_biogrid_base_pairs()
     gtags = []
 
     for bg1, bg2 in pairs:
@@ -58,6 +61,21 @@ def get_biogrid_induced_gtags():
         gtags.append(gtag2)
 
     return gtags
+
+def get_biogrid_pairs():
+    return [(f'bg{bg1}', f'bg{bg2}') for bg1, bg2 in get_biogrid_base_pairs()]
+
+def get_biogrid_induced_pairs():
+    bg_pairs = get_biogrid_base_pairs()
+    bgind_pairs = []
+
+    for bg1, bg2 in bg_pairs:
+        pair_str = f'{bg1}-{bg2}'
+        gtag1 = f'{pair_str}-{bg1}'
+        gtag2 = f'{pair_str}-{bg2}'
+        bgind_pairs.append((gtag1, gtag2))
+
+    return bgind_pairs
 
 def get_syeast_pairs():
     pairs = []
@@ -79,6 +97,18 @@ def get_iid_mammal_pairs():
             pairs.append((mammals[i], mammals[j]))
 
     return pairs
+
+def get_tprl_gtags():
+    from temporal_graph_helpers import get_std_percents, get_gtag_from_tgtag
+
+    gtags = []
+
+    for tgtag in get_paper_tprl_snap():
+        for percent in get_std_percents():
+            gtag = get_gtag_from_tgtag(tgtag, percent)
+            gtags.append(gtag)
+
+    return gtags
 
 def get_tprl_pairs():
     from temporal_graph_helpers import get_std_percents, get_gtag_from_tgtag
@@ -102,6 +132,27 @@ def get_paper_all_pairs():
     iid_pairs = get_iid_mammal_pairs()
     tprl_pairs = get_tprl_pairs()
     return syeast_pairs + iid_pairs + tprl_pairs
+
+def get_paper_abbr_pairs():
+    syeast_pairs = get_syeast_pairs()[2:3]
+    iid_pairs = get_iid_mammal_pairs()[::5]
+    tprl_pairs = get_tprl_pairs()[1::3]
+    return syeast_pairs + iid_pairs + tprl_pairs
+
+def OLD_get_paper_abbr_pairs():
+    syeast_pairs = get_syeast_pairs()[2:3]
+    iid_pairs = get_iid_mammal_pairs()[::5]
+    tprl_pairs = get_tprl_pairs()[2::3]
+    return syeast_pairs + iid_pairs + tprl_pairs
+
+def get_paper_all_gtags():
+    return get_all_iid_mammals() + get_all_syeasts() + get_tprl_gtags()
+
+def get_paper_base_gtags():
+    iid_species = get_all_iid_species()
+    syeasts = get_all_syeasts()
+    tprl_snap = get_paper_tprl_snap()
+    return iid_mammals + syeasts + tprl_snap
 
 def is_paper_snap(gtag):
     return gtag in get_paper_nontprl_snap() or gtag in get_paper_tprl_snap()
@@ -153,13 +204,6 @@ def check_all_marks_unique(gtags):
     else:
         print('some marks are duplicate')
         print('\n'.join([f'{mark}: {cnt}' for mark, cnt in mark_dupes.items() if cnt > 1]))
-
-def get_paper_base_gtags():
-    iid_species = get_all_iid_species()
-    syeasts = get_all_syeasts()
-    nontprl_snap = get_paper_nontprl_snap()
-    tprl_snap = get_paper_tprl_snap()
-    return iid_mammals + syeasts + nontprl_snap + tprl_snap
 
 def is_species(gtag):
     base_gtag = gtag.split('_')[0]
@@ -240,6 +284,10 @@ def base_gtag_to_mark(gtag):
             return 'g30'
         else:
             return gtag[:3]
+    elif gtag in get_biogrid_induced_gtags():
+        return gtag.split('-')[-1]
+    elif gtag in get_biogrid_gtags_with_bg():
+        return gtag[2:]
 
 def get_base_graph_path(name, ext='el'):
     return f'{NETWORKS_DIR}/{name}.{ext}'

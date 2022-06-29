@@ -82,5 +82,5 @@ if __name__ == '__main__':
     print(path)
     m2m_pairs = read_in_slashes_m2m(path)
     node_pairs = extract_node_pairs_from_m2m(m2m_pairs)
-    orthopairs = get_orthopairs_list(node_pairs, MarkedSelfOrthos())
+    orthopairs = get_orthopairs_list(node_pairs, SelfOrthos())
     print(f'{len(orthopairs)} / {len(node_pairs)}')

@@ -11,9 +11,6 @@ class SelfOrthos(dict):
     def __getitem__(self, key):
         return key
 
-class MarkedSelfOrthos:
-    pass
-
 
 def get_avg_node_correctness(all_seeds, g1_to_g2_orthologs):
     if len(all_seeds) == 0:
@@ -85,22 +82,16 @@ def is_ortholog(node1, node2, s1_to_s2_orthologs):
     unmarked2 = node2.split('_')[-1]
 
     if type(s1_to_s2_orthologs) is SelfOrthos:
-        return node1 == node2
-
-    if type(s1_to_s2_orthologs) is MarkedSelfOrthos:
         return unmarked1 == unmarked2
     
     return unmarked1 in s1_to_s2_orthologs and s1_to_s2_orthologs[unmarked1] == unmarked2
 
 def get_g1_to_g2_orthologs(gtag1, gtag2):
-    # TODO: rewrite this completely, it's very messy
     from graph_helpers import is_species
     base_gtag1 = gtag1.split('_')[0]
     base_gtag2 = gtag2.split('_')[0]
     g1_is_species = is_species(base_gtag1)
     g2_is_species = is_species(base_gtag2)
-    g1_is_marked = 'marked' in gtag1
-    g2_is_marked = 'marked' in gtag2
 
     if g1_is_species != g2_is_species:
         raise AssertionError
@@ -108,10 +99,7 @@ def get_g1_to_g2_orthologs(gtag1, gtag2):
     if g1_is_species:
         return get_s1_to_s2_orthologs(base_gtag1, base_gtag2)
     else:
-        if 'marked' in gtag1 and 'marked' in gtag2:
-            return MarkedSelfOrthos()
-        else:
-            return SelfOrthos()
+        return SelfOrthos()
 
 def get_species_to_index(ortho_file):
     species_to_index = dict()

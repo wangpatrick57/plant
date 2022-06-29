@@ -4,19 +4,19 @@ from ortholog_helpers import *
 
 cached_adj_sets = dict()
 
-def cache_read_in_adj_set(species):
-    if species not in cached_adj_sets:
-        cached_adj_sets[species] = read_in_adj_set(get_graph_path(species))
+def cache_read_in_adj_set(gtag):
+    if gtag not in cached_adj_sets:
+        cached_adj_sets[gtag] = read_in_adj_set(get_graph_path(gtag))
 
-    return cached_adj_sets[species]
+    return cached_adj_sets[gtag]
 
 def get_top_nodes(adj_set, n):
     degrees = [(node, len(neighs)) for node, neighs in adj_set.items()]
     degrees.sort(key=(lambda data : data[1]), reverse=True)
     return degrees[:n]
 
-def get_top_nodes_el(species, n):
-    adj_set = cache_read_in_adj_set(species)
+def get_top_nodes_el(gtag, n):
+    adj_set = cache_read_in_adj_set(gtag)
     top_nodes = get_top_nodes(adj_set, n)
     top_nodes_dict = {node: i for i, (node, degree) in enumerate(top_nodes)}
     el = []
@@ -24,16 +24,16 @@ def get_top_nodes_el(species, n):
     for node, degree in top_nodes:
         for neigh in adj_set[node]:
             if neigh in top_nodes_dict:
-                node1 = f'{species[0:3]}{top_nodes_dict[node]}'
-                node2 = f'{species[0:3]}{top_nodes_dict[neigh]}'
+                node1 = f'{gtag[0:3]}{top_nodes_dict[node]}'
+                node2 = f'{gtag[0:3]}{top_nodes_dict[neigh]}'
                 el.append((node1, node2))
 
     el = clean_el(el)
     return el
 
-def analyze_top_nodes_similarity(species1, species2, n):
-    s1_adj_set = cache_read_in_adj_set(species1)
-    s2_adj_set = cache_read_in_adj_set(species2)
+def analyze_top_nodes_similarity(gtag1, gtag2, n):
+    s1_adj_set = cache_read_in_adj_set(gtag1)
+    s2_adj_set = cache_read_in_adj_set(gtag2)
     s1_top_nodes = get_top_nodes(s1_adj_set, n)
     s2_top_nodes = get_top_nodes(s2_adj_set, n)
     num_matches = 0
