@@ -1,3 +1,1 @@
-get nc on biogrid seeds
-run all indexes
-investigate ldeg2 vs ldeg3 for syeast as well as alph and rev
+try to get better results on some network which performs poorly using a different expansion technique

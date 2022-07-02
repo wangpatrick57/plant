@@ -114,7 +114,7 @@ def results_with_alphrev(gtag1, gtag2):
     pass
 
 # low param means T=0, M=1, p=0, o=0 with two index and graph files
-def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=3, target_num_matching=4):
+def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=2, target_num_matching=1):
     k = 8
     s1_index = get_patched_index(k, s1_index_path, s1_graph_path, prox=prox, target_num_matching=target_num_matching)
     s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=prox, target_num_matching=target_num_matching)

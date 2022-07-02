@@ -1,0 +1,2 @@
+def get_low_volume_pairs():
+    return [('cat', 'human'), ('cat', 'sheep'), ('cow', 'human'), ('dog', 'human'), ('guineapig', 'human'), ('horse', 'human'), ('human', 'mouse'), ('human', 'pig'), ('human', 'rabbit'), ('human', 'rat'), ('mouse', 'sheep'), ('math_s0', 'math_s3'), ('math_s0', 'math_s5'), ('wiki_s0', 'wiki_s3'), ('wiki_s0', 'wiki_s5'), ('email_s0', 'email_s1'), ('email_s0', 'email_s3'), ('email_s0', 'email_s5'), ('college_s0', 'college_s3'), ('college_s0', 'college_s5'), ('alpha_s0', 'alpha_s3'), ('alpha_s0', 'alpha_s5')]
