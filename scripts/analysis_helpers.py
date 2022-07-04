@@ -22,6 +22,27 @@ def deg_distr_to_str(deg_distr):
 def print_deg_distr(deg_distr):
     print(deg_distr_to_str(deg_distr))
 
+def get_seed_nc(seeds, g1_to_g2_ort):
+    from ortholog_helpers import is_ortholog
+
+    total_nodes = 0
+    weighted_squared_sum = 0
+
+    for gid, nodes1, nodes2 in seeds:
+        assert len(nodes1) == len(nodes2)
+        seed_size = len(nodes1)
+        total_nodes += seed_size
+        seed_num_ort = 0
+        
+        for node1, node2 in zip(nodes1, nodes2):
+            if is_ortholog(node1, node2, g1_to_g2_ort):
+                seed_num_ort += 1
+
+        weighted_squared_sum += seed_num_ort ** 2 / seed_size # simplified from size * ort ^ 2 / size ^ 2
+
+    weighted_squared_mean = weighted_squared_sum / total_nodes
+    return weighted_squared_mean
+
 if __name__ == '__main__':
     gtag1 = 'syeast0'
     gtag2 = 'syeast05'

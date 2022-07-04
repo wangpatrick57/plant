@@ -5,6 +5,9 @@ from graph_helpers import *
 HOME_DIR = '/home/wangph1'
 PLANT_DIR = f'{HOME_DIR}/plant'
 
+def get_seeds_path(gtag1, gtag2, algo='bno'):
+    return get_data_path(f'seeds/{gtag1}-{gtag2}-{algo}.seeds')
+
 def get_plant_path(path):
     return f'{PLANT_DIR}/{path}'
 
