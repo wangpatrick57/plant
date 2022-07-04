@@ -99,7 +99,10 @@ class ODVDirectory:
             self._directory[node] = odv
 
     def get_odv(self, node):
-        return self._directory[node]
+        if node in self._directory:
+            return self._directory[node]
+        else:
+            return None
 
     def get_nodes(self):
         return self._directory.keys()
@@ -122,6 +125,9 @@ class ODV:
         self._odv_list = odv_list
 
     def get_similarity(self, other):
+        if len(self._odv_list) == 0 or len(other._odv_list) == 0: # handle the case where the node is not connected to anything in one or both files, causing it to appear with no numbers after it in the .odv file
+            return 0
+
         assert len(self._odv_list) == len(other._odv_list) == len(ODV.WEIGHTS), f'self: {len(self._odv_list)}, other: {len(other._odv_list)}, weights: {len(ODV.WEIGHTS)}, self._node: {self._node}, other._node: {other._node}'
         distance_sum = sum([self._get_single_orbit_similarity(m1, m2, i) for i, (m1, m2) in enumerate(zip(self._odv_list, other._odv_list))])
         weight_sum = ODV.WEIGHT_SUM
@@ -199,17 +205,20 @@ def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=1):
     percent_printed = 0
     skip = 1
 
-    assert alpha == 1.0 # since we're commenting out deg_sim
+    # assert alpha == 1.0 # since we're commenting out deg_sim
 
     for node1 in nodes1:
         for i in range(0, len(nodes2), skip):
             node2 = nodes2[i]
             odv1 = odv_dir1.get_odv(node1)
             odv2 = odv_dir2.get_odv(node2)
+
+            if odv1 == None or odv2 == None:
+                continue
+
             odv_sim = odv1.get_similarity(odv2)
-            # deg_sim = get_deg_sim(node1, node2, adj_set1, adj_set2, max_deg1, max_deg2) # the reason we pass in max is so that we don't have to recalculate it every time we call this
-            # sim = alpha * odv_sim + (1 - alpha) * deg_sim
-            sim = odv_sim
+            deg_sim = get_deg_sim(node1, node2, adj_set1, adj_set2, max_deg1, max_deg2) # the reason we pass in max is so that we don't have to recalculate it every time we call this
+            sim = alpha * odv_sim + (1 - alpha) * deg_sim
 
             # don't do min/max node just for sorting purposes, because the nodes come from two different graphs
             # min_node = min(node1, node2) BAD
@@ -229,7 +238,6 @@ def get_odv_orthologs_balanced_method(gtag1, gtag2, k, n):
     pass
 
 def get_odv_orthologs(gtag1, gtag2, k, n):
-    # return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=0.7)
     return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=True, alpha=1)
 
 def analyze_mcl_test_data():
@@ -278,18 +286,22 @@ def get_odv_ort_path(gtag1, gtag2, k, n, notes=''):
 
     return get_fake_ort_path(base, 'ort')
 
-def get_default_odv_ort_path(gtag1, gtag2):
+def get_default_odv_ort_path(gtag1, gtag2, notes=''):
     k = two_gtags_to_k(gtag1, gtag2)
     n = two_gtags_to_n(gtag1, gtag2)
-    return get_odv_ort_path(gtag1, gtag2, k, n)
+    return get_odv_ort_path(gtag1, gtag2, k, n, notes=notes)
 
-def read_in_odv_orts(path):
+def read_in_odv_orts(path, include_score=True):
     from graph_helpers import unmark_node
 
     with open(path, 'r') as f:
         lines = f.readlines()
         splitted_strs = [line.strip().split('\t') for line in lines]
-        return [(unmark_node(node1), unmark_node(node2), float(score)) for node1, node2, score in splitted_strs]
+
+        if include_score:
+            return [(unmark_node(node1), unmark_node(node2), float(score)) for node1, node2, score in splitted_strs]
+        else:
+            return [(unmark_node(node1), unmark_node(node2)) for node1, node2, _ in splitted_strs]
 
 def odv_ort_file_to_nodes(path, left):
     from graph_helpers import unmark_node
