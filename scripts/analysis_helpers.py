@@ -29,7 +29,7 @@ def get_seed_nc(seeds, g1_to_g2_ort):
     weighted_squared_sum = 0
 
     for gid, nodes1, nodes2 in seeds:
-        assert len(nodes1) == len(nodes2)
+        assert len(nodes1) == len(nodes2), print(gid, nodes1, nodes2, sep='\n')
         seed_size = len(nodes1)
         total_nodes += seed_size
         seed_num_ort = 0
@@ -42,6 +42,10 @@ def get_seed_nc(seeds, g1_to_g2_ort):
 
     weighted_squared_mean = weighted_squared_sum / total_nodes
     return weighted_squared_mean
+
+def get_avg_size(seeds):
+    sizes = [len(nodes1) for gid, nodes1, nodes2 in seeds]
+    return sum(sizes) / len(sizes)
 
 if __name__ == '__main__':
     gtag1 = 'syeast0'
