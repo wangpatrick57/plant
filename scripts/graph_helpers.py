@@ -9,6 +9,35 @@ from el_conv import *
 
 NETWORKS_DIR = '/home/wangph1/plant/networks'
 
+def gtag_to_real_name(gtag):
+    if gtag in get_all_iid_mammals():
+        return f'IID{gtag}'
+    elif gtag in get_all_syeasts():
+        num_str = gtag.split('syeast')[1]
+        num = int(num_str)
+        return f'Yeast{num}'
+    else:
+        base_gtag, mods = split_gtag(gtag)
+
+        if base_gtag in get_paper_tprl_snap():
+            tprl_names = {
+                'reddit': 'RedditHyperlinks',
+                'sxso': 'StackOverflow',
+                'math': 'MathOverflow',
+                'super': 'SuperUser',
+                'ubuntu': 'AskUbuntu',
+                'wiki': 'WikiTalk',
+                'email': 'EmailEUCore',
+                'college': 'CollegeMsg',
+                'otc': 'BitcoinOTC',
+                'alpha': 'BitcoinAlpha'
+            }
+            # TODO: robust handling of mods
+            base_name = tprl_names[base_gtag]
+            # percent_str = mods[0][1:] + '%'
+            # return f'{base_name}-{percent_str}'
+            return base_name
+
 def get_all_iid_mammals():
     return ['cat', 'cow', 'dog', 'guineapig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep']
 
@@ -145,8 +174,9 @@ def OLD_get_paper_abbr_pairs():
     tprl_pairs = get_tprl_pairs()[2::3]
     return syeast_pairs + iid_pairs + tprl_pairs
 
-def get_paper_all_gtags():
-    return get_all_iid_mammals() + get_all_syeasts() + get_tprl_gtags()
+def get_paper_all_gtags(base_tprl_only=True):
+    tprl = get_paper_tprl_snap() if base_tprl_only else get_tprl_gtags()
+    return get_all_iid_mammals() + get_all_syeasts() + tprl
 
 def get_paper_base_gtags():
     iid_species = get_all_iid_species()
@@ -375,8 +405,10 @@ def read_in_seeds(seeds_path):
     seeds_file = open(seeds_path, 'r')
 
     for line in seeds_file:
-        node1, node2 = re.split('[\s\t]', line.strip())
-        seeds.add((node1, node2))
+        gid, nodes1, nodes2 = re.split('[\s\t]', line.strip())
+        nodes1 = tuple(nodes1.split(','))
+        nodes2 = tuple(nodes2.split(','))
+        seeds.add((gid, nodes1, nodes2))
 
     return list(seeds)
 

@@ -113,6 +113,7 @@ def investigate_alphrev_effect(gtag1, gtag2):
 def results_with_alphrev(gtag1, gtag2):
     pass
 
+# one step down from the money maker
 # low param means T=0, M=1, p=0, o=0 with two index and graph files
 def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=1, target_num_matching=1):
     k = 8
@@ -120,18 +121,43 @@ def low_param_one_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path
     s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=prox, target_num_matching=target_num_matching)
 
     # TODO: fix odv stuff
-    all_seeds = find_seeds(s1_index, s2_index, ODVDirectory(get_odv_path('syeast0', 5)), ODVDirectory(get_odv_path('syeast0', 5)), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
-    avg_nc = get_avg_node_correctness(all_seeds, s1_to_s2_orthologs)
-    node_cov = get_node_coverage(all_seeds)
-    perf_seed_vol = len(get_orthoseeds_list(all_seeds, s1_to_s2_orthologs))
-    seed_metrics = (avg_nc, node_cov, perf_seed_vol)
+    seeds = find_seeds(s1_index, s2_index, ODVDirectory(get_odv_path('syeast0', 5)), ODVDirectory(get_odv_path('syeast0', 5)), SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
+    return seeds
 
-    all_node_pairs = extract_node_pairs(all_seeds)
+def get_all_metrics(seeds, g1_to_g2_ort):
+    from analysis_helpers import get_avg_size, get_seed_nc
+
+    avg_size = get_avg_size(seeds)
+    seed_nc = get_seed_nc(seeds, g1_to_g2_ort)
+    seed_metrics = (avg_size, seed_nc)
+
+    all_node_pairs = extract_node_pairs(seeds)
     extr_vol = len(all_node_pairs)
-    extr_nc = len(get_orthopairs_list(all_node_pairs, s1_to_s2_orthologs))
+    extr_nc = len(get_orthopairs_list(all_node_pairs, g1_to_g2_ort))
     extr_metrics = (extr_vol, extr_nc)
 
-    return (all_seeds, seed_metrics, extr_metrics)
+    return (seed_metrics, extr_metrics)
+
+# does everything. period.
+def money_maker(gtag1, gtag2, algo='bno', overwrite=False, silent=False):
+    from file_helpers import file_exists
+    from ortholog_helpers import get_g1_to_g2_orthologs
+
+    seeds_path = get_seeds_path(gtag1, gtag2, algo=algo)
+
+    if overwrite or not file_exists(seeds_path):
+        seeds = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, algo=algo))
+        seeds_str = seeds_to_str(seeds)
+        write_to_file(seeds_str, seeds_path)
+    else:
+        if not silent:
+            print(f'using old seeds file for {gtag1}-{gtag2}')
+
+        seeds = read_in_seeds(seeds_path)
+
+    g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
+    seed_metrics, extr_metrics = get_all_metrics(seeds, g1_to_g2_ort)
+    return (seeds, seed_metrics, extr_metrics)
 
 def seed_to_str(seed):
     gid, glet1, glet2 = seed

@@ -3,7 +3,8 @@ from all_helpers import *
 import sys
 
 gtag = sys.argv[1]
-p, _ = run_blant(gtag, alph=True, algo='stairs', lDEG=2, overwrite=False)
+algo = sys.argv[2]
+p, _ = run_blant(gtag, alph=True, algo=algo, lDEG=2, overwrite=False)
 
 if p != None:
     p.wait()
