@@ -2,6 +2,20 @@
 from collections import defaultdict
 from all_helpers import *
 
+def organizeIntoList(fileName):
+    openedFile = open(fileName, 'r')
+    lines = []
+    for line in openedFile:
+        lines.append(map(str, line.strip().split()))
+    openedFile.close()
+    tempResult = list(map(list, zip(*lines)))
+    tempResult1 = set()
+    counter = 0
+    for i in tempResult[0]:
+        tempResult1.add((i,tempResult[1][counter]))
+        counter += 1
+    return list(tempResult1)
+
 def get_deg_distr(nodes, adj_set):
     deg_distr = defaultdict(int)
 
