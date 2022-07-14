@@ -5,7 +5,7 @@ from graph_helpers import *
 HOME_DIR = '/home/wangph1'
 PLANT_DIR = f'{HOME_DIR}/plant'
 
-def file_to_list(filename):
+def list_of_nodes_from_species(filename): # .el files seeds converted to sets, then lists (to remove duplicates as a preliminary check)
     lines = []
     with open(filename, 'r') as opened_file:
         for line in opened_file:
