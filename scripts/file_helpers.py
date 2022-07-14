@@ -5,6 +5,19 @@ from graph_helpers import *
 HOME_DIR = '/home/wangph1'
 PLANT_DIR = f'{HOME_DIR}/plant'
 
+def file_to_list(filename):
+    lines = []
+    with filename as opened_file:
+        for line in opened_file:
+            lines.append(map(str, line.strip().split()))
+    mapped_list = list(map(list, zip(*lines)))
+    set_of_mapped_items = set()
+    counter = 0
+    for first_element in mapped_list[0]:
+        set_of_mapped_items.add((first_element, mapped_list[1][counter]))
+        counter += 1
+    return list(set_of_mapped_items) # Converting list to set
+
 def get_seeds_path(gtag1, gtag2, algo='bno'):
     return get_data_path(f'seeds/{gtag1}-{gtag2}-{algo}.seeds')
 
