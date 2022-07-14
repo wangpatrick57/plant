@@ -7,7 +7,7 @@ PLANT_DIR = f'{HOME_DIR}/plant'
 
 def file_to_list(filename):
     lines = []
-    with filename as opened_file:
+    with open(filename, 'r') as opened_file:
         for line in opened_file:
             lines.append(map(str, line.strip().split()))
     mapped_list = list(map(list, zip(*lines)))
