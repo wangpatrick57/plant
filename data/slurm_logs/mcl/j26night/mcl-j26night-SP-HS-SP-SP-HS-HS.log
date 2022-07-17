@@ -1,0 +1,277 @@
+Namespace(ag_file=['/home/wangph1/plant/data/mcl/SP-HS-SP-SP-HS-HS-k4-n637-no1.ag'], ort_file=['/home/wangph1/plant/data/mcl/fake_ort/SP-HS-SP-SP-HS-HS-k4-n637-no1.ort'], ppi1_file=['/home/wangph1/plant/networks/mcl/SP-HS-SP_marked.nif'], ppi2_file=['/home/wangph1/plant/networks/mcl/SP-HS-HS_marked.nif'])
+Loading input data
+/home/wangph1/plant/networks/mcl/SP-HS-SP_marked.nif
+/home/wangph1/plant/networks/mcl/SP-HS-HS_marked.nif
+/home/wangph1/plant/data/mcl/fake_ort/SP-HS-SP-SP-HS-HS-k4-n637-no1.ort
+Building the union graph
+Building rev maps
+Building maps
+Processing net 0 - simple nodes
+Processing net 1 - simple nodes
+Processing composite nodes
+Building igraph.Graph
+Entering build_union_graph_edges
+Building graph1 edges...3% completed @ 2022-06-26 23:56:18.449102
+Building graph1 edges...6% completed @ 2022-06-26 23:56:18.459464
+Building graph1 edges...9% completed @ 2022-06-26 23:56:18.469822
+Building graph1 edges...12% completed @ 2022-06-26 23:56:18.480432
+Building graph1 edges...15% completed @ 2022-06-26 23:56:18.490777
+Building graph1 edges...18% completed @ 2022-06-26 23:56:18.501121
+Building graph1 edges...21% completed @ 2022-06-26 23:56:18.511502
+Building graph1 edges...24% completed @ 2022-06-26 23:56:18.522131
+Building graph1 edges...27% completed @ 2022-06-26 23:56:18.532477
+Building graph1 edges...30% completed @ 2022-06-26 23:56:18.542830
+Building graph1 edges...33% completed @ 2022-06-26 23:56:18.553462
+Building graph1 edges...36% completed @ 2022-06-26 23:56:18.563811
+Building graph1 edges...39% completed @ 2022-06-26 23:56:18.574190
+Building graph1 edges...42% completed @ 2022-06-26 23:56:18.584545
+Building graph1 edges...45% completed @ 2022-06-26 23:56:18.595164
+Building graph1 edges...48% completed @ 2022-06-26 23:56:18.605518
+Building graph1 edges...51% completed @ 2022-06-26 23:56:18.615877
+Building graph1 edges...54% completed @ 2022-06-26 23:56:18.626502
+Building graph1 edges...57% completed @ 2022-06-26 23:56:18.636885
+Building graph1 edges...60% completed @ 2022-06-26 23:56:18.647235
+Building graph1 edges...63% completed @ 2022-06-26 23:56:18.657590
+Building graph1 edges...66% completed @ 2022-06-26 23:56:18.668201
+Building graph1 edges...69% completed @ 2022-06-26 23:56:18.678549
+Building graph1 edges...72% completed @ 2022-06-26 23:56:18.688914
+Building graph1 edges...75% completed @ 2022-06-26 23:56:18.699299
+Building graph1 edges...78% completed @ 2022-06-26 23:56:18.709935
+Building graph1 edges...81% completed @ 2022-06-26 23:56:18.720283
+Building graph1 edges...84% completed @ 2022-06-26 23:56:18.730648
+Building graph1 edges...87% completed @ 2022-06-26 23:56:18.741286
+Building graph1 edges...90% completed @ 2022-06-26 23:56:18.751665
+Building graph1 edges...93% completed @ 2022-06-26 23:56:18.762359
+Building graph1 edges...96% completed @ 2022-06-26 23:56:18.772725
+Building graph1 edges...99% completed @ 2022-06-26 23:56:18.783362
+Merging conserved edges
+Pruning the union graph
+Building the extended union graph
+Extending the union graph...10% completed @ 2022-06-26 23:56:18.851350
+Extending the union graph...20% completed @ 2022-06-26 23:56:18.852490
+Extending the union graph...30% completed @ 2022-06-26 23:56:18.853669
+Extending the union graph...40% completed @ 2022-06-26 23:56:18.854964
+Extending the union graph...50% completed @ 2022-06-26 23:56:18.856266
+Extending the union graph...60% completed @ 2022-06-26 23:56:18.857495
+Extending the union graph...70% completed @ 2022-06-26 23:56:18.858941
+Extending the union graph...80% completed @ 2022-06-26 23:56:18.860895
+Extending the union graph...90% completed @ 2022-06-26 23:56:18.862699
+Edge Jaccard on extended union graph dist 1
+Building the extended union graph
+Extending the union graph...3% completed @ 2022-06-26 23:56:18.872488
+Extending the union graph...6% completed @ 2022-06-26 23:56:18.872757
+Extending the union graph...9% completed @ 2022-06-26 23:56:18.873006
+Extending the union graph...12% completed @ 2022-06-26 23:56:18.873264
+Extending the union graph...15% completed @ 2022-06-26 23:56:18.873501
+Extending the union graph...18% completed @ 2022-06-26 23:56:18.873754
+Extending the union graph...21% completed @ 2022-06-26 23:56:18.873972
+Extending the union graph...24% completed @ 2022-06-26 23:56:18.874497
+Extending the union graph...27% completed @ 2022-06-26 23:56:18.874706
+Extending the union graph...30% completed @ 2022-06-26 23:56:18.875022
+Extending the union graph...33% completed @ 2022-06-26 23:56:18.875485
+Extending the union graph...36% completed @ 2022-06-26 23:56:18.875681
+Extending the union graph...39% completed @ 2022-06-26 23:56:18.876150
+Extending the union graph...42% completed @ 2022-06-26 23:56:18.876442
+Extending the union graph...45% completed @ 2022-06-26 23:56:18.876797
+Extending the union graph...48% completed @ 2022-06-26 23:56:18.876967
+Extending the union graph...51% completed @ 2022-06-26 23:56:18.877177
+Extending the union graph...54% completed @ 2022-06-26 23:56:18.877436
+Extending the union graph...57% completed @ 2022-06-26 23:56:18.877665
+Extending the union graph...60% completed @ 2022-06-26 23:56:18.878060
+Extending the union graph...63% completed @ 2022-06-26 23:56:18.878322
+Extending the union graph...66% completed @ 2022-06-26 23:56:18.878603
+Extending the union graph...69% completed @ 2022-06-26 23:56:18.878848
+Extending the union graph...72% completed @ 2022-06-26 23:56:18.879166
+Extending the union graph...75% completed @ 2022-06-26 23:56:18.879392
+Extending the union graph...78% completed @ 2022-06-26 23:56:18.879654
+Extending the union graph...81% completed @ 2022-06-26 23:56:18.879934
+Extending the union graph...84% completed @ 2022-06-26 23:56:18.880402
+Extending the union graph...87% completed @ 2022-06-26 23:56:18.880589
+Extending the union graph...90% completed @ 2022-06-26 23:56:18.881034
+Extending the union graph...93% completed @ 2022-06-26 23:56:18.881364
+Extending the union graph...96% completed @ 2022-06-26 23:56:18.881641
+Extending the union graph...99% completed @ 2022-06-26 23:56:18.881961
+Evaluating vertex sums
+Extending the union graph...3% completed @ 2022-06-26 23:56:18.884231
+Extending the union graph...6% completed @ 2022-06-26 23:56:18.886271
+Extending the union graph...9% completed @ 2022-06-26 23:56:18.888288
+Extending the union graph...12% completed @ 2022-06-26 23:56:18.890311
+Extending the union graph...15% completed @ 2022-06-26 23:56:18.892345
+Extending the union graph...18% completed @ 2022-06-26 23:56:18.894382
+Extending the union graph...21% completed @ 2022-06-26 23:56:18.896382
+Extending the union graph...24% completed @ 2022-06-26 23:56:18.898436
+Extending the union graph...27% completed @ 2022-06-26 23:56:18.900428
+Extending the union graph...30% completed @ 2022-06-26 23:56:18.902535
+Extending the union graph...33% completed @ 2022-06-26 23:56:18.904555
+Extending the union graph...36% completed @ 2022-06-26 23:56:18.906572
+Extending the union graph...39% completed @ 2022-06-26 23:56:18.908596
+Extending the union graph...42% completed @ 2022-06-26 23:56:18.910575
+Extending the union graph...45% completed @ 2022-06-26 23:56:18.912640
+Extending the union graph...48% completed @ 2022-06-26 23:56:18.914622
+Extending the union graph...51% completed @ 2022-06-26 23:56:18.916642
+Extending the union graph...54% completed @ 2022-06-26 23:56:18.918651
+Extending the union graph...57% completed @ 2022-06-26 23:56:18.920766
+Extending the union graph...60% completed @ 2022-06-26 23:56:18.922790
+Extending the union graph...63% completed @ 2022-06-26 23:56:18.924800
+Extending the union graph...66% completed @ 2022-06-26 23:56:18.926813
+Extending the union graph...69% completed @ 2022-06-26 23:56:18.928844
+Extending the union graph...72% completed @ 2022-06-26 23:56:18.930852
+Extending the union graph...75% completed @ 2022-06-26 23:56:18.932894
+Extending the union graph...78% completed @ 2022-06-26 23:56:18.934903
+Extending the union graph...81% completed @ 2022-06-26 23:56:18.936923
+Extending the union graph...84% completed @ 2022-06-26 23:56:18.939030
+Extending the union graph...87% completed @ 2022-06-26 23:56:18.941009
+Extending the union graph...90% completed @ 2022-06-26 23:56:18.943003
+Extending the union graph...93% completed @ 2022-06-26 23:56:18.945067
+Extending the union graph...96% completed @ 2022-06-26 23:56:18.947049
+Extending the union graph...99% completed @ 2022-06-26 23:56:18.949042
+Calculating Jaccard scores sums
+Calculating Jaccard scores sums...3% completed @ 2022-06-26 23:56:18.949790
+Calculating Jaccard scores sums...6% completed @ 2022-06-26 23:56:18.949981
+Calculating Jaccard scores sums...9% completed @ 2022-06-26 23:56:18.950226
+Calculating Jaccard scores sums...12% completed @ 2022-06-26 23:56:18.950536
+Calculating Jaccard scores sums...15% completed @ 2022-06-26 23:56:18.950978
+Calculating Jaccard scores sums...18% completed @ 2022-06-26 23:56:18.951473
+Calculating Jaccard scores sums...21% completed @ 2022-06-26 23:56:18.951951
+Calculating Jaccard scores sums...24% completed @ 2022-06-26 23:56:18.952647
+Calculating Jaccard scores sums...27% completed @ 2022-06-26 23:56:18.953248
+Calculating Jaccard scores sums...30% completed @ 2022-06-26 23:56:18.953929
+Calculating Jaccard scores sums...33% completed @ 2022-06-26 23:56:18.954711
+Calculating Jaccard scores sums...36% completed @ 2022-06-26 23:56:18.955639
+Calculating Jaccard scores sums...39% completed @ 2022-06-26 23:56:18.956661
+Calculating Jaccard scores sums...42% completed @ 2022-06-26 23:56:18.957454
+Calculating Jaccard scores sums...45% completed @ 2022-06-26 23:56:18.958711
+Calculating Jaccard scores sums...48% completed @ 2022-06-26 23:56:18.959603
+Calculating Jaccard scores sums...51% completed @ 2022-06-26 23:56:18.960773
+Calculating Jaccard scores sums...54% completed @ 2022-06-26 23:56:18.962002
+Calculating Jaccard scores sums...57% completed @ 2022-06-26 23:56:18.963219
+Calculating Jaccard scores sums...60% completed @ 2022-06-26 23:56:18.964729
+Calculating Jaccard scores sums...63% completed @ 2022-06-26 23:56:18.966008
+Calculating Jaccard scores sums...66% completed @ 2022-06-26 23:56:18.967649
+Calculating Jaccard scores sums...69% completed @ 2022-06-26 23:56:18.969541
+Calculating Jaccard scores sums...72% completed @ 2022-06-26 23:56:18.971352
+Calculating Jaccard scores sums...75% completed @ 2022-06-26 23:56:18.973425
+Calculating Jaccard scores sums...78% completed @ 2022-06-26 23:56:18.975219
+Calculating Jaccard scores sums...81% completed @ 2022-06-26 23:56:18.977302
+Calculating Jaccard scores sums...84% completed @ 2022-06-26 23:56:18.979361
+Calculating Jaccard scores sums...87% completed @ 2022-06-26 23:56:18.980999
+Calculating Jaccard scores sums...90% completed @ 2022-06-26 23:56:18.983092
+Calculating Jaccard scores sums...93% completed @ 2022-06-26 23:56:18.985713
+Calculating Jaccard scores sums...96% completed @ 2022-06-26 23:56:18.987730
+Calculating Jaccard scores sums...99% completed @ 2022-06-26 23:56:18.990043
+Injecting direct edges contribution
+Obtaining max scores per vertex
+Obtaining max scores per vertex...3% completed @ 2022-06-26 23:56:18.994865
+Obtaining max scores per vertex...6% completed @ 2022-06-26 23:56:18.998368
+Obtaining max scores per vertex...9% completed @ 2022-06-26 23:56:19.001863
+Obtaining max scores per vertex...12% completed @ 2022-06-26 23:56:19.005349
+Obtaining max scores per vertex...15% completed @ 2022-06-26 23:56:19.008849
+Obtaining max scores per vertex...18% completed @ 2022-06-26 23:56:19.012330
+Obtaining max scores per vertex...21% completed @ 2022-06-26 23:56:19.015820
+Obtaining max scores per vertex...24% completed @ 2022-06-26 23:56:19.019332
+Obtaining max scores per vertex...27% completed @ 2022-06-26 23:56:19.022812
+Obtaining max scores per vertex...30% completed @ 2022-06-26 23:56:19.026477
+Obtaining max scores per vertex...33% completed @ 2022-06-26 23:56:19.029959
+Obtaining max scores per vertex...36% completed @ 2022-06-26 23:56:19.033449
+Obtaining max scores per vertex...39% completed @ 2022-06-26 23:56:19.036942
+Obtaining max scores per vertex...42% completed @ 2022-06-26 23:56:19.040425
+Obtaining max scores per vertex...45% completed @ 2022-06-26 23:56:19.043936
+Obtaining max scores per vertex...48% completed @ 2022-06-26 23:56:19.047427
+Obtaining max scores per vertex...51% completed @ 2022-06-26 23:56:19.050935
+Obtaining max scores per vertex...54% completed @ 2022-06-26 23:56:19.054434
+Obtaining max scores per vertex...57% completed @ 2022-06-26 23:56:19.058125
+Obtaining max scores per vertex...60% completed @ 2022-06-26 23:56:19.061615
+Obtaining max scores per vertex...63% completed @ 2022-06-26 23:56:19.065111
+Obtaining max scores per vertex...66% completed @ 2022-06-26 23:56:19.068651
+Obtaining max scores per vertex...69% completed @ 2022-06-26 23:56:19.072157
+Obtaining max scores per vertex...72% completed @ 2022-06-26 23:56:19.075668
+Obtaining max scores per vertex...75% completed @ 2022-06-26 23:56:19.079174
+Obtaining max scores per vertex...78% completed @ 2022-06-26 23:56:19.082671
+Obtaining max scores per vertex...81% completed @ 2022-06-26 23:56:19.086160
+Obtaining max scores per vertex...84% completed @ 2022-06-26 23:56:19.089836
+Obtaining max scores per vertex...87% completed @ 2022-06-26 23:56:19.093313
+Obtaining max scores per vertex...90% completed @ 2022-06-26 23:56:19.096801
+Obtaining max scores per vertex...93% completed @ 2022-06-26 23:56:19.100284
+Obtaining max scores per vertex...96% completed @ 2022-06-26 23:56:19.103760
+Obtaining max scores per vertex...99% completed @ 2022-06-26 23:56:19.107249
+Removing low scoring edges
+Removing low scoring edges...3% completed @ 2022-06-26 23:56:19.108465
+Removing low scoring edges...6% completed @ 2022-06-26 23:56:19.108723
+Removing low scoring edges...9% completed @ 2022-06-26 23:56:19.109104
+Removing low scoring edges...12% completed @ 2022-06-26 23:56:19.109613
+Removing low scoring edges...15% completed @ 2022-06-26 23:56:19.110261
+Removing low scoring edges...18% completed @ 2022-06-26 23:56:19.111039
+Removing low scoring edges...21% completed @ 2022-06-26 23:56:19.111963
+Removing low scoring edges...24% completed @ 2022-06-26 23:56:19.113048
+Removing low scoring edges...27% completed @ 2022-06-26 23:56:19.114229
+Removing low scoring edges...30% completed @ 2022-06-26 23:56:19.115623
+Removing low scoring edges...33% completed @ 2022-06-26 23:56:19.117086
+Removing low scoring edges...36% completed @ 2022-06-26 23:56:19.118685
+Removing low scoring edges...39% completed @ 2022-06-26 23:56:19.120424
+Removing low scoring edges...42% completed @ 2022-06-26 23:56:19.122300
+Removing low scoring edges...45% completed @ 2022-06-26 23:56:19.124353
+Removing low scoring edges...48% completed @ 2022-06-26 23:56:19.126527
+Removing low scoring edges...51% completed @ 2022-06-26 23:56:19.128853
+Removing low scoring edges...54% completed @ 2022-06-26 23:56:19.131302
+Removing low scoring edges...57% completed @ 2022-06-26 23:56:19.134052
+Removing low scoring edges...60% completed @ 2022-06-26 23:56:19.136764
+Removing low scoring edges...63% completed @ 2022-06-26 23:56:19.139603
+Removing low scoring edges...66% completed @ 2022-06-26 23:56:19.142595
+Removing low scoring edges...69% completed @ 2022-06-26 23:56:19.146422
+Removing low scoring edges...72% completed @ 2022-06-26 23:56:19.149811
+Removing low scoring edges...75% completed @ 2022-06-26 23:56:19.153330
+Removing low scoring edges...78% completed @ 2022-06-26 23:56:19.156942
+Removing low scoring edges...81% completed @ 2022-06-26 23:56:19.160645
+Removing low scoring edges...84% completed @ 2022-06-26 23:56:19.164773
+Removing low scoring edges...87% completed @ 2022-06-26 23:56:19.168707
+Removing low scoring edges...90% completed @ 2022-06-26 23:56:19.172898
+Removing low scoring edges...93% completed @ 2022-06-26 23:56:19.177172
+Removing low scoring edges...96% completed @ 2022-06-26 23:56:19.181675
+Removing low scoring edges...99% completed @ 2022-06-26 23:56:19.186214
+Finalizing extended graph
+508
+[mcl] new tab created
+[mcl] pid 52695
+ ite ------------------  chaos  time hom(avg,lo,hi) expa expb expc fmv
+  1  ..................  12.58  0.00 1.18/0.05/2.23 3.30 3.30 3.30  86
+  2  ..................  11.57  0.00 0.70/0.20/1.29 1.69 0.95 3.14  95
+  3  ..................   6.53  0.00 0.73/0.17/1.08 1.70 0.56 1.74  95
+  4  ..................   3.41  0.00 0.85/0.48/1.75 1.47 0.35 0.62  73
+  5  ..................   0.99  0.00 0.91/0.52/1.00 1.27 0.40 0.25  57
+  6  ..................   0.36  0.00 0.98/0.79/1.00 1.00 0.69 0.17  12
+  7  ..................   0.17  0.00 0.99/0.83/1.00 1.02 0.74 0.13   4
+  8  ..................   0.23  0.00 1.00/0.80/1.00 0.99 0.97 0.12   0
+  9  ..................   0.17  0.00 1.00/0.83/1.00 0.99 0.93 0.12   0
+ 10  ..................   0.01  0.00 1.00/0.99/1.00 0.99 0.99 0.12   0
+ 11  ..................   0.00  0.00 1.00/1.00/1.00 0.99 0.98 0.12   0
+[mcl] jury pruning marks: <100,99,99>, out of 100
+[mcl] jury pruning synopsis: <99.6 or perfect> (cf -scheme, -do log)
+[mcl] output is in /home/wangph1/plant/data/mcl/SP-HS-SP-SP-HS-HS-k4-n637-no1.txt
+[mcl] 13 clusters found
+[mcl] output is in /home/wangph1/plant/data/mcl/SP-HS-SP-SP-HS-HS-k4-n637-no1.txt
+
+Please cite:
+    Stijn van Dongen, Graph Clustering by Flow Simulation.  PhD thesis,
+    University of Utrecht, May 2000.
+       (  http://www.library.uu.nl/digiarchief/dip/diss/1895620/full.pdf
+       or  http://micans.org/mcl/lit/svdthesis.pdf.gz)
+OR
+    Stijn van Dongen, A cluster algorithm for graphs. Technical
+    Report INS-R0010, National Research Institute for Mathematics
+    and Computer Science in the Netherlands, Amsterdam, May 2000.
+       (  http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z
+       or  http://micans.org/mcl/lit/INS-R0010.ps.Z)
+
+/home/wangph1/plant/scripts
+using old nif file for SP-HS-SP
+using old nif file for SP-HS-HS
+using old odv file for SP-HS-SP
+using old odv file for SP-HS-HS
+using old odv ort file for SP-HS-SP-SP-HS-HS
+/home/wangph1/plant/data/mcl/SP-HS-SP-SP-HS-HS-k4-n637-no1.txt
+/home/wangph1/plant/networks/mcl/SP-HS-SP_marked.nif
+/home/wangph1/plant/networks/mcl/SP-HS-HS_marked.nif
+/home/wangph1/plant/data/mcl/fake_ort/SP-HS-SP-SP-HS-HS-k4-n637-no1.ort
+/home/wangph1/plant/data/mcl/SP-HS-SP-SP-HS-HS-k4-n637-no1.txt
+0 / 110
+JOBSFINISHED

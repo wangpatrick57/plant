@@ -1,0 +1,97 @@
+Namespace(ag_file=['/home/wangph1/plant/data/mcl/bgAT-bgHS-k4-n11347-no1.ag'], ort_file=['/home/wangph1/plant/data/mcl/fake_ort/bgAT-bgHS-k4-n11347-no1.ort'], ppi1_file=['/home/wangph1/plant/networks/mcl/bgAT_marked.nif'], ppi2_file=['/home/wangph1/plant/networks/mcl/bgHS_marked.nif'])
+Loading input data
+/home/wangph1/plant/networks/mcl/bgAT_marked.nif
+/home/wangph1/plant/networks/mcl/bgHS_marked.nif
+/home/wangph1/plant/data/mcl/fake_ort/bgAT-bgHS-k4-n11347-no1.ort
+Building the union graph
+Building rev maps
+Building maps
+Processing net 0 - simple nodes
+Processing net 1 - simple nodes
+Processing composite nodes
+Building igraph.Graph
+Entering build_union_graph_edges
+Building graph1 edges...3% completed @ 2022-06-26 23:58:39.526077
+Building graph1 edges...6% completed @ 2022-06-26 23:59:14.264928
+Building graph1 edges...9% completed @ 2022-06-26 23:59:49.020481
+Building graph1 edges...12% completed @ 2022-06-27 00:00:23.854965
+Building graph1 edges...15% completed @ 2022-06-27 00:00:58.740461
+Building graph1 edges...18% completed @ 2022-06-27 00:01:33.473411
+Building graph1 edges...21% completed @ 2022-06-27 00:02:08.238321
+Building graph1 edges...24% completed @ 2022-06-27 00:02:42.967764
+Building graph1 edges...27% completed @ 2022-06-27 00:03:17.732892
+Building graph1 edges...30% completed @ 2022-06-27 00:03:52.488279
+Building graph1 edges...33% completed @ 2022-06-27 00:04:27.257056
+Building graph1 edges...36% completed @ 2022-06-27 00:05:01.984239
+Building graph1 edges...39% completed @ 2022-06-27 00:05:36.771414
+Building graph1 edges...42% completed @ 2022-06-27 00:06:11.521029
+Building graph1 edges...45% completed @ 2022-06-27 00:06:46.288884
+Building graph1 edges...48% completed @ 2022-06-27 00:07:21.020693
+Building graph1 edges...51% completed @ 2022-06-27 00:07:55.772638
+Building graph1 edges...54% completed @ 2022-06-27 00:08:30.483080
+Building graph1 edges...57% completed @ 2022-06-27 00:09:05.240812
+Building graph1 edges...60% completed @ 2022-06-27 00:09:40.004149
+Building graph1 edges...63% completed @ 2022-06-27 00:10:14.742685
+Building graph1 edges...66% completed @ 2022-06-27 00:10:49.450414
+Building graph1 edges...69% completed @ 2022-06-27 00:11:24.226080
+Building graph1 edges...72% completed @ 2022-06-27 00:11:58.959085
+Building graph1 edges...75% completed @ 2022-06-27 00:12:33.983233
+Building graph1 edges...78% completed @ 2022-06-27 00:13:08.748199
+Building graph1 edges...81% completed @ 2022-06-27 00:13:43.463451
+Building graph1 edges...84% completed @ 2022-06-27 00:14:18.181186
+Building graph1 edges...87% completed @ 2022-06-27 00:14:52.954569
+Building graph1 edges...90% completed @ 2022-06-27 00:15:27.707006
+Building graph1 edges...93% completed @ 2022-06-27 00:16:02.439831
+Building graph1 edges...96% completed @ 2022-06-27 00:16:37.154883
+Building graph1 edges...99% completed @ 2022-06-27 00:17:11.931426
+Merging conserved edges
+Pruning the union graph
+Building the extended union graph
+Extending the union graph...10% completed @ 2022-06-27 00:17:27.809955
+Extending the union graph...20% completed @ 2022-06-27 00:17:27.824041
+Extending the union graph...30% completed @ 2022-06-27 00:17:27.838067
+Extending the union graph...40% completed @ 2022-06-27 00:17:27.852097
+Extending the union graph...50% completed @ 2022-06-27 00:17:27.866152
+Extending the union graph...60% completed @ 2022-06-27 00:17:27.879992
+Extending the union graph...70% completed @ 2022-06-27 00:17:27.894006
+Extending the union graph...80% completed @ 2022-06-27 00:17:27.907998
+Extending the union graph...90% completed @ 2022-06-27 00:17:27.921942
+Edge Jaccard on extended union graph dist 1
+Building the extended union graph
+Evaluating vertex sums
+Calculating Jaccard scores sums
+Injecting direct edges contribution
+Obtaining max scores per vertex
+Removing low scoring edges
+Finalizing extended graph
+0
+[mclxIOstreamIn] no assignments yield void/empty matrix
+[mcl] new tab created
+___ [mclAlgorithmStart] attempting to cluster the void
+[mcl] pid 50332
+ ite   chaos  time hom(avg,lo,hi) expa expb expc fmv
+  1  ./alignMCL.sh: line 11: 50332 Segmentation fault      (core dumped) ./mcl/bin/mcl ${OUT_FILE}.ag -o ${OUT_FILE}.txt -I 2.8 --abc
+/home/wangph1/plant/scripts
+using old nif file for bgAT
+using old nif file for bgHS
+using old odv file for bgAT
+using old odv file for bgHS
+using old odv ort file for bgAT-bgHS
+/home/wangph1/plant/data/mcl/bgAT-bgHS-k4-n11347-no1.txt
+/home/wangph1/plant/networks/mcl/bgAT_marked.nif
+/home/wangph1/plant/networks/mcl/bgHS_marked.nif
+/home/wangph1/plant/data/mcl/fake_ort/bgAT-bgHS-k4-n11347-no1.ort
+/home/wangph1/plant/data/mcl/bgAT-bgHS-k4-n11347-no1.txt
+Traceback (most recent call last):
+  File "/home/wangph1/plant/scripts/mcl_helpers.py", line 132, in <module>
+    full_local_run_mcl(gtag1, gtag2, notes=notes)
+  File "/home/wangph1/plant/scripts/mcl_helpers.py", line 117, in full_local_run_mcl
+    process_mcl(gtag1, gtag2, notes=notes)
+  File "/home/wangph1/plant/scripts/mcl_helpers.py", line 105, in process_mcl
+    num_ort, num_pairs = evaluate_alignment(gtag1, gtag2, notes=notes)
+  File "/home/wangph1/plant/scripts/mcl_helpers.py", line 88, in evaluate_alignment
+    m2m_pairs = read_in_slashes_m2m(out_path)
+  File "/home/wangph1/plant/scripts/file_helpers.py", line 47, in read_in_slashes_m2m
+    with open(m2m_path, 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/wangph1/plant/data/mcl/bgAT-bgHS-k4-n11347-no1.txt'
+JOBSFINISHED

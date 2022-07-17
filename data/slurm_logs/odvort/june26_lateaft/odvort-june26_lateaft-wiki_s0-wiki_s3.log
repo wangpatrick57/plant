@@ -1,0 +1,17 @@
+using old nif file for wiki_s0
+using old odv file for wiki_s0
+Traceback (most recent call last):
+  File "/home/wangph1/plant/scripts/mcl_helpers.py", line 127, in <module>
+    prepare_mcl(gtag1, gtag2, notes=notes)
+  File "/home/wangph1/plant/scripts/mcl_helpers.py", line 103, in prepare_mcl
+    gen_odv_ort_file(gtag1, gtag2, notes=notes)
+  File "/home/wangph1/plant/scripts/mcl_helpers.py", line 32, in gen_odv_ort_file
+    odv_ort = get_odv_orthologs(gtag1, gtag2, k, n)
+  File "/home/wangph1/plant/scripts/odv_helpers.py", line 229, in get_odv_orthologs
+    return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=0.7)
+  File "/home/wangph1/plant/scripts/odv_helpers.py", line 207, in get_odv_orthologs_lvg_method
+    odv_sim = odv1.get_similarity(odv2)
+  File "/home/wangph1/plant/scripts/odv_helpers.py", line 125, in get_similarity
+    assert len(self._odv_list) == len(other._odv_list) == len(ODV.WEIGHTS), f'self: {len(self._odv_list)}, other: {len(other._odv_list)}, weights: {len(ODV.WEIGHTS)}, self._node: {self._node}, other._node: {other._node}'
+AssertionError: self: 15, other: 0, weights: 15, self._node: 11915, other._node: 11915
+JOBSFINISHED

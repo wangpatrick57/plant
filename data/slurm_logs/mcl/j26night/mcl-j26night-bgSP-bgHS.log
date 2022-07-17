@@ -1,0 +1,125 @@
+Namespace(ag_file=['/home/wangph1/plant/data/mcl/bgSP-bgHS-k4-n3567-no1.ag'], ort_file=['/home/wangph1/plant/data/mcl/fake_ort/bgSP-bgHS-k4-n3567-no1.ort'], ppi1_file=['/home/wangph1/plant/networks/mcl/bgSP_marked.nif'], ppi2_file=['/home/wangph1/plant/networks/mcl/bgHS_marked.nif'])
+Loading input data
+/home/wangph1/plant/networks/mcl/bgSP_marked.nif
+/home/wangph1/plant/networks/mcl/bgHS_marked.nif
+/home/wangph1/plant/data/mcl/fake_ort/bgSP-bgHS-k4-n3567-no1.ort
+Building the union graph
+Building rev maps
+Building maps
+Processing net 0 - simple nodes
+Processing net 1 - simple nodes
+Processing composite nodes
+Building igraph.Graph
+Entering build_union_graph_edges
+Building graph1 edges...3% completed @ 2022-06-26 23:56:31.363349
+Building graph1 edges...6% completed @ 2022-06-26 23:56:32.457244
+Building graph1 edges...9% completed @ 2022-06-26 23:56:33.484363
+Building graph1 edges...12% completed @ 2022-06-26 23:56:34.514865
+Building graph1 edges...15% completed @ 2022-06-26 23:56:35.544289
+Building graph1 edges...18% completed @ 2022-06-26 23:56:36.573359
+Building graph1 edges...21% completed @ 2022-06-26 23:56:37.606934
+Building graph1 edges...24% completed @ 2022-06-26 23:56:38.633227
+Building graph1 edges...27% completed @ 2022-06-26 23:56:39.662260
+Building graph1 edges...30% completed @ 2022-06-26 23:56:40.688974
+Building graph1 edges...33% completed @ 2022-06-26 23:56:41.721729
+Building graph1 edges...36% completed @ 2022-06-26 23:56:42.748377
+Building graph1 edges...39% completed @ 2022-06-26 23:56:43.782904
+Building graph1 edges...42% completed @ 2022-06-26 23:56:44.811578
+Building graph1 edges...45% completed @ 2022-06-26 23:56:45.842385
+Building graph1 edges...48% completed @ 2022-06-26 23:56:46.878401
+Building graph1 edges...51% completed @ 2022-06-26 23:56:47.913863
+Building graph1 edges...54% completed @ 2022-06-26 23:56:48.942722
+Building graph1 edges...57% completed @ 2022-06-26 23:56:49.972049
+Building graph1 edges...60% completed @ 2022-06-26 23:56:50.998358
+Building graph1 edges...63% completed @ 2022-06-26 23:56:52.026959
+Building graph1 edges...66% completed @ 2022-06-26 23:56:53.052492
+Building graph1 edges...69% completed @ 2022-06-26 23:56:54.080961
+Building graph1 edges...72% completed @ 2022-06-26 23:56:55.110780
+Building graph1 edges...75% completed @ 2022-06-26 23:56:56.139774
+Building graph1 edges...78% completed @ 2022-06-26 23:56:57.168318
+Building graph1 edges...81% completed @ 2022-06-26 23:56:58.204862
+Building graph1 edges...84% completed @ 2022-06-26 23:56:59.233277
+Building graph1 edges...87% completed @ 2022-06-26 23:57:00.259161
+Building graph1 edges...90% completed @ 2022-06-26 23:57:01.296203
+Building graph1 edges...93% completed @ 2022-06-26 23:57:02.331417
+Building graph1 edges...96% completed @ 2022-06-26 23:57:03.361235
+Building graph1 edges...99% completed @ 2022-06-26 23:57:04.393026
+Merging conserved edges
+Pruning the union graph
+Building the extended union graph
+Extending the union graph...10% completed @ 2022-06-26 23:57:08.831304
+Extending the union graph...20% completed @ 2022-06-26 23:57:08.843119
+Extending the union graph...30% completed @ 2022-06-26 23:57:08.854996
+Extending the union graph...40% completed @ 2022-06-26 23:57:08.866783
+Extending the union graph...50% completed @ 2022-06-26 23:57:08.878516
+Extending the union graph...60% completed @ 2022-06-26 23:57:08.890309
+Extending the union graph...70% completed @ 2022-06-26 23:57:08.902046
+Extending the union graph...80% completed @ 2022-06-26 23:57:08.913774
+Extending the union graph...90% completed @ 2022-06-26 23:57:08.925614
+Edge Jaccard on extended union graph dist 1
+Building the extended union graph
+Extending the union graph...3% completed @ 2022-06-26 23:57:09.041299
+Extending the union graph...6% completed @ 2022-06-26 23:57:09.041837
+Extending the union graph...9% completed @ 2022-06-26 23:57:09.042342
+Extending the union graph...12% completed @ 2022-06-26 23:57:09.042854
+Extending the union graph...15% completed @ 2022-06-26 23:57:09.043358
+Extending the union graph...18% completed @ 2022-06-26 23:57:09.043865
+Extending the union graph...21% completed @ 2022-06-26 23:57:09.044368
+Extending the union graph...24% completed @ 2022-06-26 23:57:09.044869
+Extending the union graph...27% completed @ 2022-06-26 23:57:09.045373
+Extending the union graph...30% completed @ 2022-06-26 23:57:09.045888
+Extending the union graph...33% completed @ 2022-06-26 23:57:09.046401
+Extending the union graph...36% completed @ 2022-06-26 23:57:09.046907
+Extending the union graph...39% completed @ 2022-06-26 23:57:09.047411
+Extending the union graph...42% completed @ 2022-06-26 23:57:09.047912
+Extending the union graph...45% completed @ 2022-06-26 23:57:09.048414
+Extending the union graph...48% completed @ 2022-06-26 23:57:09.048916
+Extending the union graph...51% completed @ 2022-06-26 23:57:09.049423
+Extending the union graph...54% completed @ 2022-06-26 23:57:09.049936
+Extending the union graph...57% completed @ 2022-06-26 23:57:09.050442
+Extending the union graph...60% completed @ 2022-06-26 23:57:09.050943
+Extending the union graph...63% completed @ 2022-06-26 23:57:09.051446
+Extending the union graph...66% completed @ 2022-06-26 23:57:09.051951
+Extending the union graph...69% completed @ 2022-06-26 23:57:09.052455
+Extending the union graph...72% completed @ 2022-06-26 23:57:09.052957
+Extending the union graph...75% completed @ 2022-06-26 23:57:09.053458
+Extending the union graph...78% completed @ 2022-06-26 23:57:09.053971
+Extending the union graph...81% completed @ 2022-06-26 23:57:09.054474
+Extending the union graph...84% completed @ 2022-06-26 23:57:09.054980
+Extending the union graph...87% completed @ 2022-06-26 23:57:09.055488
+Extending the union graph...90% completed @ 2022-06-26 23:57:09.055995
+Extending the union graph...93% completed @ 2022-06-26 23:57:09.056502
+Extending the union graph...96% completed @ 2022-06-26 23:57:09.057003
+Extending the union graph...99% completed @ 2022-06-26 23:57:09.057502
+Evaluating vertex sums
+Extending the union graph...3% completed @ 2022-06-26 23:57:09.123692
+Extending the union graph...6% completed @ 2022-06-26 23:57:09.188785
+Extending the union graph...9% completed @ 2022-06-26 23:57:09.253674
+Extending the union graph...12% completed @ 2022-06-26 23:57:09.318496
+Extending the union graph...15% completed @ 2022-06-26 23:57:09.383311
+Extending the union graph...18% completed @ 2022-06-26 23:57:09.447865
+Extending the union graph...21% completed @ 2022-06-26 23:57:09.512310
+Extending the union graph...24% completed @ 2022-06-26 23:57:09.576632
+Extending the union graph...27% completed @ 2022-06-26 23:57:09.640796
+Extending the union graph...30% completed @ 2022-06-26 23:57:09.704595
+Extending the union graph...33% completed @ 2022-06-26 23:57:09.768267
+Extending the union graph...36% completed @ 2022-06-26 23:57:09.831767
+Extending the union graph...39% completed @ 2022-06-26 23:57:09.895085
+Extending the union graph...42% completed @ 2022-06-26 23:57:09.958217
+Extending the union graph...45% completed @ 2022-06-26 23:57:10.021158
+Extending the union graph...48% completed @ 2022-06-26 23:57:10.083804
+Extending the union graph...51% completed @ 2022-06-26 23:57:10.146128
+Extending the union graph...54% completed @ 2022-06-26 23:57:10.208403
+Extending the union graph...57% completed @ 2022-06-26 23:57:10.270395
+Extending the union graph...60% completed @ 2022-06-26 23:57:10.332066
+Extending the union graph...63% completed @ 2022-06-26 23:57:10.393639
+Extending the union graph...66% completed @ 2022-06-26 23:57:10.455013
+Extending the union graph...69% completed @ 2022-06-26 23:57:10.516080
+Extending the union graph...72% completed @ 2022-06-26 23:57:10.577121
+Extending the union graph...75% completed @ 2022-06-26 23:57:10.637698
+Extending the union graph...78% completed @ 2022-06-26 23:57:10.698104
+Extending the union graph...81% completed @ 2022-06-26 23:57:10.758401
+Extending the union graph...84% completed @ 2022-06-26 23:57:10.818380
+Extending the union graph...87% completed @ 2022-06-26 23:57:10.878040
+Extending the union graph...90% completed @ 2022-06-26 23:57:10.937418
+Extending the union graph

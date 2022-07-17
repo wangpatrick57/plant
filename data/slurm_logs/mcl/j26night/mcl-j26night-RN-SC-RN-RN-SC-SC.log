@@ -1,0 +1,102 @@
+Namespace(ag_file=['/home/wangph1/plant/data/mcl/RN-SC-RN-RN-SC-SC-k4-n68-no1.ag'], ort_file=['/home/wangph1/plant/data/mcl/fake_ort/RN-SC-RN-RN-SC-SC-k4-n68-no1.ort'], ppi1_file=['/home/wangph1/plant/networks/mcl/RN-SC-RN_marked.nif'], ppi2_file=['/home/wangph1/plant/networks/mcl/RN-SC-SC_marked.nif'])
+Loading input data
+/home/wangph1/plant/networks/mcl/RN-SC-RN_marked.nif
+/home/wangph1/plant/networks/mcl/RN-SC-SC_marked.nif
+/home/wangph1/plant/data/mcl/fake_ort/RN-SC-RN-RN-SC-SC-k4-n68-no1.ort
+Building the union graph
+Building rev maps
+Building maps
+Processing net 0 - simple nodes
+Processing net 1 - simple nodes
+Processing composite nodes
+Building igraph.Graph
+Entering build_union_graph_edges
+Building graph1 edges...0% completed @ 2022-06-26 23:56:17.863356
+Building graph1 edges...6% completed @ 2022-06-26 23:56:17.863468
+Building graph1 edges...8% completed @ 2022-06-26 23:56:17.863495
+Building graph1 edges...9% completed @ 2022-06-26 23:56:17.863520
+Building graph1 edges...21% completed @ 2022-06-26 23:56:17.863674
+Building graph1 edges...23% completed @ 2022-06-26 23:56:17.863699
+Building graph1 edges...24% completed @ 2022-06-26 23:56:17.863724
+Building graph1 edges...26% completed @ 2022-06-26 23:56:17.863749
+Building graph1 edges...27% completed @ 2022-06-26 23:56:17.863773
+Building graph1 edges...36% completed @ 2022-06-26 23:56:17.863895
+Building graph1 edges...38% completed @ 2022-06-26 23:56:17.863920
+Building graph1 edges...39% completed @ 2022-06-26 23:56:17.863944
+Building graph1 edges...41% completed @ 2022-06-26 23:56:17.863969
+Building graph1 edges...42% completed @ 2022-06-26 23:56:17.863994
+Building graph1 edges...54% completed @ 2022-06-26 23:56:17.864147
+Building graph1 edges...56% completed @ 2022-06-26 23:56:17.864172
+Building graph1 edges...57% completed @ 2022-06-26 23:56:17.864197
+Building graph1 edges...69% completed @ 2022-06-26 23:56:17.864350
+Building graph1 edges...71% completed @ 2022-06-26 23:56:17.864375
+Building graph1 edges...72% completed @ 2022-06-26 23:56:17.864399
+Building graph1 edges...84% completed @ 2022-06-26 23:56:17.864552
+Building graph1 edges...86% completed @ 2022-06-26 23:56:17.864578
+Building graph1 edges...87% completed @ 2022-06-26 23:56:17.864602
+Building graph1 edges...89% completed @ 2022-06-26 23:56:17.864627
+Building graph1 edges...90% completed @ 2022-06-26 23:56:17.864652
+Merging conserved edges
+Pruning the union graph
+Building the extended union graph
+Extending the union graph...10% completed @ 2022-06-26 23:56:17.878494
+Extending the union graph...20% completed @ 2022-06-26 23:56:17.878760
+Extending the union graph...30% completed @ 2022-06-26 23:56:17.879012
+Extending the union graph...40% completed @ 2022-06-26 23:56:17.879299
+Extending the union graph...50% completed @ 2022-06-26 23:56:17.879568
+Extending the union graph...60% completed @ 2022-06-26 23:56:17.879854
+Extending the union graph...70% completed @ 2022-06-26 23:56:17.880124
+Extending the union graph...80% completed @ 2022-06-26 23:56:17.880384
+Extending the union graph...90% completed @ 2022-06-26 23:56:17.880683
+Edge Jaccard on extended union graph dist 1
+Building the extended union graph
+Extending the union graph...0% completed @ 2022-06-26 23:56:17.882634
+Evaluating vertex sums
+Extending the union graph...0% completed @ 2022-06-26 23:56:17.883278
+Calculating Jaccard scores sums
+Calculating Jaccard scores sums...0% completed @ 2022-06-26 23:56:17.884107
+Injecting direct edges contribution
+Obtaining max scores per vertex
+Obtaining max scores per vertex...0% completed @ 2022-06-26 23:56:17.884538
+Removing low scoring edges
+Removing low scoring edges...0% completed @ 2022-06-26 23:56:17.885912
+Finalizing extended graph
+5
+[mcl] new tab created
+[mcl] pid 534342
+ ite --------  chaos  time hom(avg,lo,hi) expa expb expc fmv
+  1  ........   0.56  0.00 1.02/0.55/1.21 1.26 1.26 1.26 100
+  2  ........   0.69  0.00 0.82/0.58/1.00 0.96 0.96 1.26 100
+  3  ........   0.09  0.00 0.95/0.82/1.00 0.96 0.96 1.26 100
+  4  ........   0.00  0.00 1.00/1.00/1.00 0.96 0.48 0.63 100
+[mcl] jury pruning marks: <100,100,100>, out of 100
+[mcl] jury pruning synopsis: <100.0 or really really really good> (cf -scheme, -do log)
+[mcl] output is in /home/wangph1/plant/data/mcl/RN-SC-RN-RN-SC-SC-k4-n68-no1.txt
+[mcl] 3 clusters found
+[mcl] output is in /home/wangph1/plant/data/mcl/RN-SC-RN-RN-SC-SC-k4-n68-no1.txt
+
+Please cite:
+    Stijn van Dongen, Graph Clustering by Flow Simulation.  PhD thesis,
+    University of Utrecht, May 2000.
+       (  http://www.library.uu.nl/digiarchief/dip/diss/1895620/full.pdf
+       or  http://micans.org/mcl/lit/svdthesis.pdf.gz)
+OR
+    Stijn van Dongen, A cluster algorithm for graphs. Technical
+    Report INS-R0010, National Research Institute for Mathematics
+    and Computer Science in the Netherlands, Amsterdam, May 2000.
+       (  http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z
+       or  http://micans.org/mcl/lit/INS-R0010.ps.Z)
+
+/home/wangph1/plant/scripts
+using old nif file for RN-SC-RN
+using old nif file for RN-SC-SC
+using old odv file for RN-SC-RN
+using old odv file for RN-SC-SC
+using old odv ort file for RN-SC-RN-RN-SC-SC
+/home/wangph1/plant/data/mcl/RN-SC-RN-RN-SC-SC-k4-n68-no1.txt
+/home/wangph1/plant/networks/mcl/RN-SC-RN_marked.nif
+/home/wangph1/plant/networks/mcl/RN-SC-SC_marked.nif
+/home/wangph1/plant/data/mcl/fake_ort/RN-SC-RN-RN-SC-SC-k4-n68-no1.ort
+/home/wangph1/plant/data/mcl/RN-SC-RN-RN-SC-SC-k4-n68-no1.txt
+0 / 8
+JOBSFINISHED

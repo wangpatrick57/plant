@@ -1,0 +1,19 @@
+using old nif file for college_s0
+using old nif file for college_s1
+using old odv file for college_s0
+using old odv file for college_s1
+Traceback (most recent call last):
+  File "/home/wangph1/plant/scripts/mcl_helpers.py", line 127, in <module>
+    prepare_mcl(gtag1, gtag2, notes=notes)
+  File "/home/wangph1/plant/scripts/mcl_helpers.py", line 103, in prepare_mcl
+    gen_odv_ort_file(gtag1, gtag2, notes=notes)
+  File "/home/wangph1/plant/scripts/mcl_helpers.py", line 32, in gen_odv_ort_file
+    odv_ort = get_odv_orthologs(gtag1, gtag2, k, n)
+  File "/home/wangph1/plant/scripts/odv_helpers.py", line 229, in get_odv_orthologs
+    return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=0.7)
+  File "/home/wangph1/plant/scripts/odv_helpers.py", line 206, in get_odv_orthologs_lvg_method
+    odv2 = odv_dir2.get_odv(node2)
+  File "/home/wangph1/plant/scripts/odv_helpers.py", line 102, in get_odv
+    return self._directory[node]
+KeyError: '21'
+JOBSFINISHED
