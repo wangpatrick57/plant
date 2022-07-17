@@ -3,9 +3,14 @@ from collections import defaultdict
 from file_helpers import *
 from ortholog_helpers import *
 
-def extract_node_pairs(all_seeds_list):
+def extract_node_pairs(all_seeds_list, ignore_deg_1=False, gtag1='', gtag2=''):
     m2m_pairs = seeds_to_m2m(all_seeds_list)
-    return extract_node_pairs_from_m2m(m2m_pairs)
+    pairs = extract_node_pairs_from_m2m(m2m_pairs)
+
+    if ignore_deg_1:
+        pairs = get_rid_of_deg1_pairs(pairs, gtag1, gtag2)
+
+    return pairs
 
 # extracts node pairs from many2many alignments (.aln files)
 def extract_node_pairs_from_m2m(m2m_pairs):
@@ -22,6 +27,23 @@ def deaug(auged_node):
 
 def print_output_pairs(output_pairs):
     print('\n'.join([f'{deaug(node1)} {deaug(node2)}' for node1, node2 in output_pairs]))
+
+def get_rid_of_deg1_pairs(pairs, gtag1, gtag2):
+    graph_path1 = get_graph_path(gtag1)
+    nodes1 = read_in_nodes(graph_path1)
+    adj_set1 = read_in_adj_set(graph_path1)
+    graph_path2 = get_graph_path(gtag2)
+    nodes2 = read_in_nodes(graph_path2)
+    adj_set2 = read_in_adj_set(graph_path2)
+    deg1_nodes1 = [node for node in nodes1 if len(adj_set1[node]) == 1]
+    deg1_nodes2 = [node for node in nodes2 if len(adj_set2[node]) == 1]
+    new_pairs = []
+
+    for node1, node2 in pairs:
+        if node1 not in deg1_nodes1 and node2 not in deg1_nodes2:
+            new_pairs.append((node1, node2))
+
+    return new_pairs
 
 def create_node_pair_voting(m2m_pairs):
     def add_to_voting(node1, node2):
