@@ -1,5 +1,0 @@
-/home/wangph1/plant/scripts/run_blant_default_custom_algo.sh: line 10: 19734 Killed                  ~/BLANT/blant$1 -k8 -lDEG$lDEG -mi -sINDEX -a$alph $el_file 2>&1 > $out_file
-
-real	47m59.936s
-user	46m29.008s
-sys	0m35.802s
