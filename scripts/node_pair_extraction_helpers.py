@@ -4,13 +4,14 @@ from turtle import left, right
 from file_helpers import *
 from ortholog_helpers import *
 
-def add_valid_edges(list_of_species_nodes, lines):
+# Valid edges are chosen as they appear in the sets (denoted as lines) from the alignment; each .el file's nodes are checked once for such edges.
+def add_valid_edges(list_of_species_nodes, set_of_one_species_from_mapping):
     num_edges = 0
     edges = set()
-    for i in list_of_species_nodes:
-        if(i[0] in lines and i[1] in lines):
+    for ii, ij in list_of_species_nodes:
+        if(ii in set_of_one_species_from_mapping and ij in set_of_one_species_from_mapping):
             num_edges += 1
-            edges.add((i[0], i[1]))
+            edges.add((ii, ij))
     return [edges, num_edges]
 
 def bifurcate_mapping_into_dictionaries(preprocessed_nodes, left_node_frequencies, right_node_frequencies):
@@ -32,7 +33,7 @@ def remove_duplicate_mappings_from_dictionary(preprocessed_nodes, left_node_freq
         counter += 1
     return processed_list_of_nodes
 
-def remove_dupes(list_of_nodes):
+def remove_dupes_from_list(list_of_nodes):
 
     left_node_frequencies = defaultdict(int) # Using Python's defaultdict
     right_node_frequencies = defaultdict(int) # Using Python's defaultdict
@@ -55,8 +56,10 @@ def filtering_lists(name):
     reformatted_nodes = []
     for i in temporary_list:
         reformatted_nodes.append(map(str, i))
+
     result = list(map(list, zip(*reformatted_nodes)))
-    processed_list = remove_dupes(result)
+
+    processed_list = remove_dupes_from_list(result)
 
     return processed_list
 

@@ -3,20 +3,14 @@ from collections import defaultdict
 from all_helpers import *
 
 def check_consistent(ui, vi, uj, vj, mapping):
-    if (((ui, vi) in mapping and (uj, vj) in mapping) or ((ui, vj) in mapping and (uj, vi) in mapping)):
-        return True
-    return False
+    return (((ui, vi) in mapping and (uj, vj) in mapping) or ((ui, vj) in mapping and (uj, vi) in mapping))
 
 # Check for consistency using mapList1 and mapList2.
 def num_consistent_edges(left_edges, right_edges, mapping):
     consistent_edges = 0
     counter = 0
-    for i in left_edges[0]:
-        for j in right_edges[0]:
-            ui = i[0]
-            uj = i[1]
-            vi = j[0]
-            vj = j[1]
+    for ui, uj in left_edges[0]:
+        for vi, vj in right_edges[0]:
             if (check_consistent(ui, vi, uj, vj, mapping)):
                 consistent_edges += 1
             counter += 1
