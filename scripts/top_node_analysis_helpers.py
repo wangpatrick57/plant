@@ -15,7 +15,7 @@ def get_top_nodes(adj_set, n):
     degrees.sort(key=(lambda data : data[1]), reverse=True)
     return degrees[:n]
 
-def get_top_nodes_el(gtag, n):
+def get_top_nodes_el(gtag, n, output_as_nodes):
     adj_set = cache_read_in_adj_set(gtag)
     top_nodes = get_top_nodes(adj_set, n)
     top_nodes_dict = {node: i for i, (node, degree) in enumerate(top_nodes)}
@@ -24,9 +24,14 @@ def get_top_nodes_el(gtag, n):
     for node, degree in top_nodes:
         for neigh in adj_set[node]:
             if neigh in top_nodes_dict:
-                node1 = f'{gtag[0:3]}{top_nodes_dict[node]}'
-                node2 = f'{gtag[0:3]}{top_nodes_dict[neigh]}'
-                el.append((node1, node2))
+                if (output_as_nodes):
+                    node1 = node
+                    node2 = neigh
+                    el.append((node1, node2))
+                else:
+                    node1 = f'{gtag[0:3]}{top_nodes_dict[node]}'
+                    node2 = f'{gtag[0:3]}{top_nodes_dict[neigh]}'
+                    el.append((node1, node2))
 
     el = clean_el(el)
     return el

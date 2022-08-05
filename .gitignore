@@ -1,2 +1,3 @@
 data/odvsim/
 networks/snap/
+*.pyc 

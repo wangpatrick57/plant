@@ -7,7 +7,7 @@ from collections import defaultdict
 from file_helpers import *
 from el_conv import *
 
-NETWORKS_DIR = '/home/wangph1/plant/networks'
+NETWORKS_DIR = '../networks'
 
 def gtag_to_real_name(gtag):
     if gtag in get_all_iid_mammals():

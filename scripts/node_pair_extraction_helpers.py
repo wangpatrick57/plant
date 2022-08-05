@@ -1,5 +1,6 @@
 #!/pkg/python/3.7.4/bin/python3
 from collections import defaultdict
+from turtle import left, right
 from file_helpers import *
 from ortholog_helpers import *
 
@@ -26,7 +27,7 @@ def remove_duplicate_mappings_from_dictionary(preprocessed_nodes, left_node_freq
     counter = 0
     for i in preprocessed_nodes[0]:
         if i != "0" and preprocessed_nodes[1][counter] != "0":
-            if not(left_node_frequencies[i] >= 1 or int(right_node_frequencies[preprocessed_nodes[1][counter]]) >= 1):
+            if not(left_node_frequencies[i] > 1 or int(right_node_frequencies[preprocessed_nodes[1][counter]]) > 1):
                 processed_list_of_nodes.append((i, preprocessed_nodes[1][counter]))
         counter += 1
     return processed_list_of_nodes
@@ -37,9 +38,10 @@ def remove_dupes(list_of_nodes):
     right_node_frequencies = defaultdict(int) # Using Python's defaultdict
     final_list = list()
 
-    left_node_frequencies = bifurcate_mapping_into_dictionaries(list_of_nodes, left_node_frequencies, right_node_frequencies)[0]
-    right_node_frequencies = bifurcate_mapping_into_dictionaries(list_of_nodes, left_node_frequencies, right_node_frequencies)[1]
-    
+    finalBifurcation = bifurcate_mapping_into_dictionaries(list_of_nodes, left_node_frequencies, right_node_frequencies)
+    left_node_frequencies = finalBifurcation[0]
+    right_node_frequencies = finalBifurcation[1]
+
     final_list = remove_duplicate_mappings_from_dictionary(list_of_nodes, left_node_frequencies, right_node_frequencies)
 
     return final_list
@@ -54,7 +56,6 @@ def filtering_lists(name):
     for i in temporary_list:
         reformatted_nodes.append(map(str, i))
     result = list(map(list, zip(*reformatted_nodes)))
-
     processed_list = remove_dupes(result)
 
     return processed_list
