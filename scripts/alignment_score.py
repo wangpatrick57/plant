@@ -2,7 +2,8 @@ from re import I
 import sys
 import os
 
-def scrapeIndexes(path: str, delim: str)-> list: 
+# get indexes from file paths given a delimeter, default space
+def scrapeIndexes(path: str, delim: str = " ")-> list: 
     fileA = open(path, "r")
     lines = fileA.readlines()
     indexes = []
@@ -12,8 +13,10 @@ def scrapeIndexes(path: str, delim: str)-> list:
         ))
     return indexes
 
+# calculate alignment score using needleman-wunsch algorithm given
+# 2 index files, match, mismatch, and gap penalty values
 def alignmentScore(indexA: list, indexB: list, match: int, miss: int, gap: int):
-    matrix = [[0]*(len(indexA) + 1) for i in range(0, len(indexB) + 1)]
+    matrix = [[0]*(len(indexA) + 1) for i in range(0, len(indexB) + 1)] # empty matrix
     rowval = [x for x in indexB]
     rowval.insert(0, -1)
     colval = [x for x in indexA]
@@ -21,14 +24,13 @@ def alignmentScore(indexA: list, indexB: list, match: int, miss: int, gap: int):
     left = 0
     up = 0
     diag = 0
+    
+    # create matrix for all possibilites
     for i in range(0, len(indexB) + 1):
         for j in range(0, len(indexA) + 1):
-            #print(rowval)
             if rowval[i] == -1 and colval[j] == -1:
                 matrix[i][j] = 0
             elif rowval[i] == -1 or colval[j] == -1:
-                # print(rowval)
-                # print(colval)
                 matrix[i][j] = gap*j if rowval[i] == -1 else gap*i
             else:
                 left = matrix[i][j-1] + gap
@@ -41,6 +43,7 @@ def alignmentScore(indexA: list, indexB: list, match: int, miss: int, gap: int):
     score = 0
     alist = []
     blist = []
+    # start in bottom right corner and move up / left / diagonal
     while i >= 0 and j >= 0:
         left = matrix[i][j-1]
         up = matrix[i-1][j]
@@ -52,7 +55,6 @@ def alignmentScore(indexA: list, indexB: list, match: int, miss: int, gap: int):
             i -= 1
             j -= 1
             # print("match")
-            
         else:
             temp = sorted([left, up, diag], reverse=True)
             if temp[0] == up:
@@ -78,6 +80,8 @@ def alignmentScore(indexA: list, indexB: list, match: int, miss: int, gap: int):
     alist = alist[1:]
     blist.reverse()
     blist = blist[1:]
+
+    # display alignment
     print(alist)
     print(blist)
 
