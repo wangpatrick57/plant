@@ -1,21 +1,22 @@
-from re import I
 import sys
 import os
 
-# get indexes from file paths given a delimeter, default space
-def scrapeIndexes(path: str, delim: str = " ")-> list: 
-    fileA = open(path, "r")
-    lines = fileA.readlines()
-    indexes = []
+def scrape_input(path: str, delim: str = " ", get_nodes: bool = False)-> list: 
+    file = open(path, "r")
+    lines = file.readlines()
+    rlist = []
     for line in lines:
-        indexes.append(int(
-            line.strip("\n").split(delim)[0]
-        ))
-    return indexes
+        if get_nodes:
+            rlist.extend(
+                line.strip("\n").split(delim)[1:] # get all the nodes and discard the index value
+            )
+        else:
+            rlist.append(
+                line.strip("\n").split(delim)[0] # only get index value
+            )
+    return rlist
 
-# calculate alignment score using needleman-wunsch algorithm given
-# 2 index files, match, mismatch, and gap penalty values
-def alignmentScore(indexA: list, indexB: list, match: int, miss: int, gap: int):
+def alignment_score(indexA: list, indexB: list, match: int, miss: int, gap: int):
     matrix = [[0]*(len(indexA) + 1) for i in range(0, len(indexB) + 1)] # empty matrix
     rowval = [x for x in indexB]
     rowval.insert(0, -1)
@@ -37,7 +38,7 @@ def alignmentScore(indexA: list, indexB: list, match: int, miss: int, gap: int):
                 up = matrix[i-1][j] + gap
                 diag = (match if rowval[i] == colval[j] else miss) + matrix[i-1][j-1]
                 matrix[i][j] = max(left, up, diag)
-    printMat(matrix)
+    print_matrix(matrix)
     i = len(indexB)
     j = len(indexA)
     score = 0
@@ -88,7 +89,7 @@ def alignmentScore(indexA: list, indexB: list, match: int, miss: int, gap: int):
     return score - 1
 
 
-def printMat(matrix: list):
+def print_matrix(matrix: list):
     for i in range(0, len(matrix)):
         for j in range(0, len(matrix[0])):
             end = "\n" if j == len(matrix[0]) - 1 else " "
@@ -100,7 +101,7 @@ def printMat(matrix: list):
 if __name__ == "__main__":
     # pathA = sys.argv[1]
     # pathB = sys.argv[2]
-    print(alignmentScore(
+    print(alignment_score(
         "A T G C T".split(" "),
         "A G C T".split(" "),
         match=1,
