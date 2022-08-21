@@ -16,19 +16,19 @@ def scrape_input(path: str, delim: str = " ", get_nodes: bool = False)-> list:
             )
     return rlist
 
-def alignment_score(indexA: list, indexB: list, match: int, miss: int, gap: int):
-    matrix = [[0]*(len(indexA) + 1) for i in range(0, len(indexB) + 1)] # empty matrix
-    rowval = [x for x in indexB]
+def create_alignment(index_A: list, index_B: list, match: int, miss: int, gap: int):
+    matrix = [[0]*(len(index_A) + 1) for i in range(0, len(index_B) + 1)] # empty matrix
+    rowval = [x for x in index_B]
     rowval.insert(0, -1)
-    colval = [x for x in indexA]
+    colval = [x for x in index_A]
     colval.insert(0, -1)
     left = 0
     up = 0
     diag = 0
     
     # create matrix for all possibilites
-    for i in range(0, len(indexB) + 1):
-        for j in range(0, len(indexA) + 1):
+    for i in range(0, len(index_B) + 1):
+        for j in range(0, len(index_A) + 1):
             if rowval[i] == -1 and colval[j] == -1:
                 matrix[i][j] = 0
             elif rowval[i] == -1 or colval[j] == -1:
@@ -38,9 +38,9 @@ def alignment_score(indexA: list, indexB: list, match: int, miss: int, gap: int)
                 up = matrix[i-1][j] + gap
                 diag = (match if rowval[i] == colval[j] else miss) + matrix[i-1][j-1]
                 matrix[i][j] = max(left, up, diag)
-    print_matrix(matrix)
-    i = len(indexB)
-    j = len(indexA)
+    # print_matrix(matrix)
+    i = len(index_B)
+    j = len(index_A)
     score = 0
     alist = []
     blist = []
@@ -83,8 +83,8 @@ def alignment_score(indexA: list, indexB: list, match: int, miss: int, gap: int)
     blist = blist[1:]
 
     # display alignment
-    print(alist)
-    print(blist)
+    # print(alist)
+    # print(blist)
 
     return score - 1
 
@@ -99,9 +99,7 @@ def print_matrix(matrix: list):
 
 
 if __name__ == "__main__":
-    # pathA = sys.argv[1]
-    # pathB = sys.argv[2]
-    print(alignment_score(
+    print(create_alignment(
         "A T G C T".split(" "),
         "A G C T".split(" "),
         match=1,
