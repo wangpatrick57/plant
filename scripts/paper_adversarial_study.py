@@ -31,7 +31,7 @@ def print_adv_report_line(gtag, advis, include_base):
 
     for gtag2 in adv_gtags:
         run_info = get_gtag_run_info(gtag1, gtag2, algo=algo, lDEG=lDEG)
-        _, _, (extr_vol, extr_nc) = low_param_one_run(*run_info)
+        _, _, (extr_vol, extr_nc) = raw_full_low_param_run(*run_info)
         extr_vols.append(extr_vol)
         extr_ncs.append(extr_nc)
         print(f'done with {gtag1}, {gtag2}', file=sys.stderr)

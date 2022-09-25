@@ -53,7 +53,7 @@ if __name__ == '__main__':
     g1_to_g2_orts = get_s1_to_s2_orthologs(gtag1, gtag2)
     adj_set1 = read_in_adj_set(get_graph_path(gtag1))
     adj_set2 = read_in_adj_set(get_graph_path(gtag2))
-    seeds, _, _ = low_param_one_run(*get_gtag_run_info(gtag1, gtag2))
+    seeds, _, _ = raw_full_low_param_run(*get_gtag_run_info(gtag1, gtag2))
     orthoseeds = get_orthoseeds_list(seeds, g1_to_g2_orts)
     deg_distr = get_deg_distr(orthoseeds, adj_set1, adj_set2)
     print(len(seeds))

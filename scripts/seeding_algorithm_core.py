@@ -12,7 +12,7 @@ class SeedingAlgorithmSettings:
         self.speedup = speedup
 
 # takes in necessary inputs and settings and returns a list of all found seeds
-def find_seeds(s1_index, s2_index, s1_odv_dir, s2_odv_dir, settings=SeedingAlgorithmSettings(), print_progress=False):
+def find_seeds(s1_index, s2_index, settings=SeedingAlgorithmSettings(), s1_odv_dir=None, s2_odv_dir=None, print_progress=False):
     total_pairs_to_process = estimate_total_pairs_to_process(s1_index, s2_index, settings)
     all_seeds_list = []
     percent_printed = 0
@@ -77,7 +77,7 @@ def estimate_total_pairs_to_process(s1_index, s2_index, settings):
     return total_pairs_to_process
 
 def should_be_seed(s1_entry_nodes, s2_entry_nodes, s1_odv_dir, s2_odv_dir, threshold):
-    # speedup for special cases
+    # speedup for a special case
     if threshold == 0:
         return True
 

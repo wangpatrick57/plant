@@ -3,7 +3,7 @@ import sys
 from all_helpers import *
 
 LDEG = 2
-ALGO = 'stairs'
+ALGO = 'bno'
 
 # problematic gtags:
 #  * deezer stopped at 68% for some advs on circ32 but worked on circ16. deezer_10v1a stoped at 2% on circ27 many days later
@@ -23,11 +23,14 @@ def print_gtags_status(gtags):
 
 if __name__ == '__main__':
     gtag_dir = dict()
-    gtag_dir['c20'] = ['cat']
+    gtag_dir['c7'] = ['human']
+    gtag_dir['c8'] = ['mouse']
+    gtag_dir['c9'] = ['rat']
 
     machine = sys.argv[1]
     gtags = gtag_dir[machine]
     print_gtags_status(gtags)
+    print(f'algo: {ALGO}, lDEG: {LDEG}')
     cont = input('Continue? ')
 
     while cont != 'y':

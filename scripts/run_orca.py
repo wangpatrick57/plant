@@ -2,4 +2,4 @@
 from all_helpers import *
 import sys
 
-print(get_paper_tprl_snap())
+run_orca_for_gtag(sys.argv[1])
