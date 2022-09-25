@@ -2,6 +2,7 @@
 from collections import defaultdict
 from file_helpers import *
 from ortholog_helpers import *
+from graph_helpers import *
 
 def extract_node_pairs(all_seeds_list, ignore_deg_1=False, gtag1='', gtag2=''):
     m2m_pairs = seeds_to_m2m(all_seeds_list)

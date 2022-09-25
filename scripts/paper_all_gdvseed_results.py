@@ -10,7 +10,7 @@ pairs = pairs[start:]
 all_all_results = get_all_all_results()
 
 for gtag1, gtag2 in pairs:
-    seeds, seed_metrics, extr_metrics = money_maker(gtag1, gtag2, algo='bno', silent=True)
+    seeds, seed_metrics, extr_metrics = simplified_run_with_metrics(gtag1, gtag2, algo='bno', silent=True)
     extr_vol = extr_metrics[0]
     extr_ort_vol = extr_metrics[1]
     k = two_gtags_to_k(gtag1, gtag2)

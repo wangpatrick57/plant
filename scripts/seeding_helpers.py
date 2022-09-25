@@ -19,7 +19,7 @@ if __name__ == '__main__':
     gtag2 = 'syeast15'
     adj_set1 = read_in_adj_set(get_graph_path(gtag1))
     adj_set2 = read_in_adj_set(get_graph_path(gtag2))
-    seeds, seed_metrics, extr_metrics = low_param_one_run(*get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo='stairs'))
+    seeds, seed_metrics, extr_metrics = raw_full_low_param_run(*get_gtag_run_info(gtag1, gtag2, s1_alph=True, s2_alph=True, algo='stairs'))
     pairs = extract_node_pairs(seeds)
     mdpairs = add_max_degree_to_pairs(pairs, adj_set1, adj_set2)
     write_to_file(get_max_degree_pairs_str(mdpairs), f'{gtag1}-{gtag2}-pairswdeg.out')
