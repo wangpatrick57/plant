@@ -47,6 +47,67 @@ def get_avg_size(seeds):
     sizes = [len(nodes1) for gid, nodes1, nodes2 in seeds]
     return sum(sizes) / len(sizes)
 
+def get_alignment_repeats(alignment):
+    saw1 = set()
+    saw2 = set()
+    num_repeats1 = 0
+    num_repeats2 = 0
+
+    for node1, node2 in alignment:
+        if node1 in saw1:
+            num_repeats1 += 1
+        else:
+            saw1.add(node1)
+
+        if node2 in saw2:
+            num_repeats2 += 1
+        else:
+            saw2.add(node2)
+
+    return (num_repeats1, num_repeats2)
+
+def get_injective_alignment(alignment):
+    added1 = set()
+    added2 = set()
+    injective_alignment = []
+
+    # one notable edge case is that if you have 01 02 12 it'll take 01 and 12. it skips over 02 even though it's the first appearance of 2 on the right side, because 02 has a 0 on the left side
+    # in other words, added is the nodes in the order of being added, not in the order of being seen
+    for node1, node2 in alignment:
+        if node1 in added1:
+            continue
+
+        if node2 in added2:
+            continue
+
+        # we only add to saw when we add both nodes to the actual alignment
+        injective_alignment.append((node1, node2))
+        added1.add(node1)
+        added2.add(node2)
+
+    if len(set(alignment)) != len(alignment):
+        print(f'alignment has {len(alignment) - len(set(alignment))} duplicate pairs')
+        
+    if len(injective_alignment) != len(set(alignment)):
+        print(f'alignment has {len(set(alignment)) - len(injective_alignment)} non-injective pairs')
+        
+    return injective_alignment
+
+def alignment_to_mapping(alignment):
+    # if there are a lot of repeats in alignmcl, we'll also need to remove them with a separate function
+    # this one does not remove repeats perfectly since there still could be repeats in the values
+    alignment = get_injective_alignment(alignment)
+    align_mapping = dict()
+    num_repeats = 0
+
+    for node1, node2 in alignment:
+        align_mapping[node1] = node2
+
+    return align_mapping
+
+def get_s3(alignment, adj_set1, adj_set2):
+    align_mapping = alignment_to_mapping(alignment)
+
 if __name__ == '__main__':
     gtag1 = 'syeast0'
     gtag2 = 'syeast05'
