@@ -108,6 +108,27 @@ def alignment_to_mapping(alignment):
 def get_s3(alignment, adj_set1, adj_set2):
     align_mapping = alignment_to_mapping(alignment)
 
+    num_total_edges = 0
+    num_common_edges = 0
+    nodes1 = list(align_mapping.keys())
+
+    for i in range(len(nodes1)):
+        for j in range(i + 1, len(nodes1)):
+            edge1 = (nodes1[i], nodes1[j])
+            edge2 = (align_mapping[edge1[0]], align_mapping[edge1[1]])
+            # my adj_sets are symmetric by convention
+            edge1_exists = edge1[1] in adj_set1[edge1[0]]
+            edge2_exists = edge2[1] in adj_set2[edge2[0]]
+
+            if edge1_exists and edge2_exists:
+                num_common_edges += 1
+
+            if edge1_exists or edge2_exists:
+                num_total_edges += 1
+
+    s3 = num_common_edges / num_total_edges
+    return s3
+
 if __name__ == '__main__':
     gtag1 = 'syeast0'
     gtag2 = 'syeast05'
