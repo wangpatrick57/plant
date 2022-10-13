@@ -83,7 +83,7 @@ def simplified_run_with_metrics(gtag1, gtag2, algo='bno', overwrite=False, silen
         write_to_file(seeds_str, seeds_path)
     else:
         if not silent:
-            print(f'using old seeds file for {gtag1}-{gtag2}')
+            print(f'using old seeds file for {gtag1}-{gtag2}', file=sys.stderr)
 
         seeds = read_in_seeds(seeds_path)
 

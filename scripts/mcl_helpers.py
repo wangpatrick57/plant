@@ -1,5 +1,36 @@
 #!/pkg/python/3.7.4/bin/python3
 import sys
+from collections import defaultdict
+
+def read_in_slashes_m2m(m2m_path):
+    from graph_helpers import unmark_node
+    
+    m2m_pairs = []
+
+    with open(m2m_path, 'r') as f:
+        for alignment in f:
+            for line in alignment.strip().split('\t'):
+                node1, node2 = line.split('/')
+                m2m_pairs.append((unmark_node(node1), unmark_node(node2)))
+
+    return m2m_pairs
+
+def read_in_slashes_alignments(path):
+    from graph_helpers import unmark_node
+    
+    alignments = []
+
+    with open(path, 'r') as f:
+        for alignment in f:
+            new_alignment = []
+
+            for line in alignment.strip().split('\t'):
+                node1, node2 = line.split('/')
+                new_alignment.append((unmark_node(node1), unmark_node(node2)))
+
+            alignments.append(new_alignment)
+
+    return alignments
 
 def get_nif_str(el):
     return('\n'.join([f'{node1}\t{node2}\t1' for node1, node2 in el]))
@@ -20,7 +51,7 @@ def gen_odv_ort_file(gtag1, gtag2, overwrite=False, notes=''):
     from graph_helpers import gtag_to_mark, read_in_adj_set, get_graph_path
     from odv_helpers import get_odv_orthologs, odv_ort_to_str, get_odv_ort_path, two_gtags_to_k, two_gtags_to_n, ODV, odv_ort_to_nodes
     from file_helpers import file_exists, write_to_file
-    from analysis_helpers import get_deg_distr, deg_distr_to_str
+    from analysis_helpers import get_deg_distr
 
     k = two_gtags_to_k(gtag1, gtag2)
     n = two_gtags_to_n(gtag1, gtag2)
@@ -76,22 +107,59 @@ def take_from_out(gtag1, gtag2, notes=''):
     here_path = get_mcl_out_path(gtag1, gtag2, k, n, notes=notes)
     run_outtake(out_fname, here_path) # note: the out here means the output file of mcl, while the out param of run_outtake refers to the remote git repo called "out" (which is named vmcopy lol)
 
-def evaluate_alignment(gtag1, gtag2, notes=''):
-    from node_pair_extraction_helpers import SelfOrthos, read_in_slashes_m2m, extract_node_pairs_from_m2m, get_orthopairs_list, get_g1_to_g2_orthologs
+def process_mcl(gtag1, gtag2, notes=''):
     from odv_helpers import two_gtags_to_k, two_gtags_to_n
-    from file_helpers import write_to_file
+    from analysis_helpers import print_distr, get_s3, get_alignment_nc
+    from graph_helpers import get_graph_path, read_in_adj_set
+    from ortholog_helpers import get_g1_to_g2_orthologs
 
     k = two_gtags_to_k(gtag1, gtag2)
     n = two_gtags_to_n(gtag1, gtag2)
+    adj_set1 = read_in_adj_set(get_graph_path(gtag1))
+    adj_set2 = read_in_adj_set(get_graph_path(gtag2))
+    g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
     out_path = get_mcl_out_path(gtag1, gtag2, k, n, notes=notes)
-    print(out_path)
-    m2m_pairs = read_in_slashes_m2m(out_path)
-    node_pairs = extract_node_pairs_from_m2m(m2m_pairs)
-    node_pairs_str = '\n'.join(f'{node1}\t{node2}' for node1, node2 in node_pairs)
-    orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
-    orthopairs = get_orthopairs_list(node_pairs, orthologs)
-    return len(orthopairs), len(node_pairs)
+    print(f'evaluating {out_path}')
+    alignments = read_in_slashes_alignments(out_path)
 
+    if False:
+        lens = defaultdict(int)
+            
+        for alignment in alignments:
+            lens[len(alignment)] += 1
+    
+        print_distr(lens, 'alignment size')
+
+    if False:
+        for alignment in alignments:
+            alignment_size = len(alignment)
+            s3 = get_s3(alignment, adj_set1, adj_set2)
+
+            if alignment_size == 1 or s3 == 0:
+                continue
+            
+            print(alignment_size, s3)
+
+    if False:
+        for alignment in alignments:
+            alignment_size = len(alignment)
+            s3 = get_s3(alignment, adj_set1, adj_set2)
+            nc = get_alignment_nc(alignment, g1_to_g2_ort)
+
+            if alignment_size < 8 or s3 == 0:
+                continue
+            
+            print(s3, nc)
+
+def get_mcl_tfp_stats(alignments, g1_to_g2_ort, adj_set1, adj_set2):
+    from analysis_helpers import get_topofunc_perfect_alignments
+    
+    alignments = [alignment for alignment in alignments if len(alignment) >= 8]
+    tfp_aligns = get_topofunc_perfect_alignments(alignments, g1_to_g2_ort, adj_set1, adj_set2)
+    lens = [len(align) for align in tfp_aligns]
+    max_len = max(lens) if len(lens) > 0 else 0
+    return len(tfp_aligns), max_len
+        
 def prepare_mcl(gtag1, gtag2, notes=''):
     from bash_helpers import run_orca_for_gtag
 
@@ -100,10 +168,6 @@ def prepare_mcl(gtag1, gtag2, notes=''):
     run_orca_for_gtag(gtag1)
     run_orca_for_gtag(gtag2)
     gen_odv_ort_file(gtag1, gtag2, notes=notes)
-
-def process_mcl(gtag1, gtag2, notes=''):
-    num_ort, num_pairs = evaluate_alignment(gtag1, gtag2, notes=notes)
-    print(f'{num_ort} / {num_pairs}')
 
 def full_local_run_mcl(gtag1, gtag2, notes=''):
     from bash_helpers import run_align_mcl
@@ -131,7 +195,7 @@ if __name__ == '__main__':
     mode = sys.argv[1]
     gtag1 = sys.argv[2]
     gtag2 = sys.argv[3]
-    notes = sys.argv[4]
+    notes = sys.argv[4] if len(sys.argv) > 4 else ''
 
     if mode == 'prep':
         prepare_mcl(gtag1, gtag2, notes=notes)
@@ -141,6 +205,8 @@ if __name__ == '__main__':
         process_mcl(gtag1, gtag2, notes=notes)
     elif mode == 'full':
         full_local_run_mcl(gtag1, gtag2, notes=notes)
+    elif mode == 'clean':
+        clean_mcl(gtag1, gtag2, notes=notes)
     elif mode == 'wcpy':
         wayne_copy_mcl(gtag1, gtag2, notes=notes)
     else:
