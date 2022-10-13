@@ -47,32 +47,6 @@ def read_in_m2m(m2m_path):
 
     return m2m_pairs
 
-def read_in_slashes_m2m(m2m_path):
-    m2m_pairs = []
-
-    with open(m2m_path, 'r') as f:
-        for alignment in f:
-            for line in alignment.strip().split('\t'):
-                node1, node2 = line.split('/')
-                m2m_pairs.append((node1, node2))
-
-    return m2m_pairs
-
-def read_in_slashes_alignments(path):
-    alignments = []
-
-    with open(path, 'r') as f:
-        for alignment in f:
-            new_alignment = []
-
-            for line in alignment.split('\t'):
-                node1, node2 = line.split('/')
-                new_alignment.append((node1, node2))
-
-            alignments.append(new_alignment)
-
-    return alignments
-
 def alignments_to_str(alignments):
     s = ''
 

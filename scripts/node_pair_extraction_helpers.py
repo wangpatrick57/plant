@@ -4,8 +4,8 @@ from file_helpers import *
 from ortholog_helpers import *
 from graph_helpers import *
 
-def extract_node_pairs(all_seeds_list, ignore_deg_1=False, gtag1='', gtag2=''):
-    m2m_pairs = seeds_to_m2m(all_seeds_list)
+def extract_node_pairs(seeds, ignore_deg_1=False, gtag1='', gtag2=''):
+    m2m_pairs = seeds_to_m2m(seeds)
     pairs = extract_node_pairs_from_m2m(m2m_pairs)
 
     if ignore_deg_1:
@@ -13,12 +13,63 @@ def extract_node_pairs(all_seeds_list, ignore_deg_1=False, gtag1='', gtag2=''):
 
     return pairs
 
+def extract_big_patch_alignment(seeds, mindvs=1, minratio=1):
+    m2m_pairs = seeds_to_m2m(seeds)
+    node_pair_voting = create_node_pair_voting(m2m_pairs)
+    node_favorite_pairs = create_node_favorite_pairs(node_pair_voting)
+    
+    # remove nodes with more than one favorite
+    no_ties_node_favorite_pairs = dict()
+    for node, favorites in node_favorite_pairs.items():
+        if len(favorites) == 0:
+            raise AssertionError('len of favorites should never be 0')
+        elif len(favorites) == 1:
+            no_ties_node_favorite_pairs[node] = favorites
+    node_favorite_pairs = no_ties_node_favorite_pairs
+
+    # remove nodes whose favorites are not selective enough
+    # this is separate from removing ties. we want to remove ties no matter what, even if minratio is 0
+    selective_node_favorite_pairs = dict()
+    i = 0
+    for node, favorites in node_favorite_pairs.items():
+        assert len(favorites) == 1, 'ties weren\'t removed properly'
+        voting = node_pair_voting[node].items()
+        nodes_in_order = sorted(voting, key=(lambda data : data[1]), reverse=True)
+        if len(nodes_in_order) == 1: # there is no ratio between fav and second fav here
+            selective_node_favorite_pairs[node] = favorites
+        else:
+            fav_node = nodes_in_order[0]
+            second_fav_node = nodes_in_order[1]
+            assert fav_node[1] != second_fav_node[1], 'ties should have been removed'
+            assert fav_node[1] > second_fav_node[1], 'nodes in order not correct?'
+            ratio = fav_node[1] / second_fav_node[1]
+            if ratio >= minratio:
+                selective_node_favorite_pairs[node] = favorites
+    node_favorite_pairs = selective_node_favorite_pairs
+            
+    # create alignment while accounting for mindvs
+    alignment = []
+    
+    for node, favorites in node_favorite_pairs.items():
+        for fav in favorites:
+            if node == fav:
+                exit('node equals fav')
+
+            if node < fav: # only process in one direction to avoid duplicates
+                if fav in node_favorite_pairs and node in node_favorite_pairs[fav]:
+                    dvs = min(node_pair_voting[node][fav], node_pair_voting[fav][node])
+
+                    if dvs >= mindvs:
+                        alignment.append((deaug(node), deaug(fav)))
+
+    return alignment
+
 # extracts node pairs from many2many alignments (.aln files)
 def extract_node_pairs_from_m2m(m2m_pairs):
     node_pair_voting = create_node_pair_voting(m2m_pairs)
     node_favorite_pairs = create_node_favorite_pairs(node_pair_voting)
     output_pairs = create_output_pairs(node_favorite_pairs)
-    return output_pairs    
+    return output_pairs
 
 def aug(node, n):
     return f'{n}_{node}'
