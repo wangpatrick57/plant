@@ -17,10 +17,36 @@ def gtag_to_k(gtag):
     else:
         return 4
 
+def get_gtag_to_n_cache_path():
+    return get_data_path('caches/gtag_to_n_cache.txt')
+    
+def read_gtag_to_n_cache():
+    g2n_cache = dict()
+
+    with open(get_gtag_to_n_cache_path(), 'r') as f:
+        for line in f:
+            gtag, n = line.strip().split()
+            n = int(n)
+            g2n_cache[gtag] = n
+
+    return g2n_cache
+
+def write_gtag_to_n_cache(cache):
+    cache_str = '\n'.join([f'{gtag} {n}' for gtag, n in cache.items()])
+    write_to_file(cache_str, get_gtag_to_n_cache_path())
+
 def gtag_to_n(gtag):
     from graph_helpers import read_in_nodes, get_graph_path
-    nodes = read_in_nodes(get_graph_path(gtag))
-    return len(nodes)
+    
+    g2n_cache = read_gtag_to_n_cache()
+
+    if gtag in g2n_cache:
+        return g2n_cache[gtag]
+    else:    
+        nodes = read_in_nodes(get_graph_path(gtag))
+        g2n_cache[gtag] = len(nodes)
+        write_gtag_to_n_cache(g2n_cache)
+        return len(nodes)
 
 def two_gtags_to_k(gtag1, gtag2):
     assert gtag_to_k(gtag1) == gtag_to_k(gtag2)
