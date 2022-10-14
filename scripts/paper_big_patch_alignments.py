@@ -3,7 +3,7 @@ from all_helpers import *
 import sys
 import os
 
-for gtag1, gtag2 in get_paper_all_pairs():
+for gtag1, gtag2 in get_paper_all_pairs()[60:]:
     pair = f'{gtag1}-{gtag2}'
     adj_set1 = read_in_adj_set(get_graph_path(gtag1))
     adj_set2 = read_in_adj_set(get_graph_path(gtag2))

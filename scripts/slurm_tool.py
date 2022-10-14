@@ -6,9 +6,12 @@ from all_helpers import *
 # run ./slurm_tool.py | /home/sana/bin/distrib_slurm [jobName] --ntasks-per-node 1
 # use squeue (after module load slurm) to see currently running jobs
 
-jobname = 'oct11test'
-notes = 'no1'
+# SLURM BEHAVIOR
+# sometimes the log files contain partial output before the program is actually done. don't be surprised by this
 
-for gtag1, gtag2 in get_tprl_pairs():
-    print(f'./mcl_wrapper.sh {jobname} {gtag1} {gtag2} {notes}')
+jobname = 'oct13nn3'
+algo = 'bno'
+
+for gtag in get_tprl_gtags()[4:24]:
+    print(f'./blant_wrapper.sh {jobname} {gtag} {algo}')
 

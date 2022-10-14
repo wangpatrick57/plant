@@ -74,7 +74,7 @@ def get_seed_nc(seeds, g1_to_g2_ort):
 
         weighted_squared_sum += seed_num_ort ** 2 / seed_size # simplified from size * ort ^ 2 / size ^ 2
 
-    weighted_squared_mean = weighted_squared_sum / total_nodes
+    weighted_squared_mean = 0 if total_nodes == 0 else weighted_squared_sum / total_nodes
     return weighted_squared_mean
 
 def get_disjoint_alignments(alignments):
@@ -184,7 +184,7 @@ def get_topofunc_perfect_seeds(seeds, g1_to_g2_ort, adj_set1, adj_set2):
 
 def get_avg_size(seeds):
     sizes = [len(nodes1) for gid, nodes1, nodes2 in seeds]
-    return sum(sizes) / len(sizes)
+    return 0 if len(sizes) == 0 else sum(sizes) / len(sizes)
 
 def get_alignment_repeats(alignment):
     saw1 = set()

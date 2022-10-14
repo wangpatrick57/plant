@@ -2,4 +2,4 @@
 from all_helpers import *
 import sys
 
-run_orca_for_gtag(sys.argv[1])
+print_orca_cmd_for_gtag(sys.argv[1])

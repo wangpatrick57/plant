@@ -1,5 +1,6 @@
 #!/pkg/python/3.7.4/bin/python3
 import sys
+import os
 from collections import defaultdict
 
 def read_in_slashes_m2m(m2m_path):
@@ -161,12 +162,12 @@ def get_mcl_tfp_stats(alignments, g1_to_g2_ort, adj_set1, adj_set2):
     return len(tfp_aligns), max_len
         
 def prepare_mcl(gtag1, gtag2, notes=''):
-    from bash_helpers import run_orca_for_gtag
+    from bash_helpers import print_orca_cmd_for_gtag
 
     gen_nif_file(gtag1)
     gen_nif_file(gtag2)
-    run_orca_for_gtag(gtag1)
-    run_orca_for_gtag(gtag2)
+    print_orca_cmd_for_gtag(gtag1)
+    print_orca_cmd_for_gtag(gtag2)
     gen_odv_ort_file(gtag1, gtag2, notes=notes)
 
 def full_local_run_mcl(gtag1, gtag2, notes=''):
@@ -191,6 +192,44 @@ def wayne_copy_mcl(gtag1, gtag2, notes=''):
     new_path = get_wayne_path(f'mcl/{gtag1}-{gtag2}-mclseeds.txt')
     p = run_cmd(f'cp {old_path} {new_path}')
 
+def clean_mcl_single(gtag, notes=''):
+    from odv_helpers import gtag_to_k, get_odv_path
+    from graph_helpers import get_nif_path
+
+    k = gtag_to_k(gtag)
+    nif_path = get_nif_path(gtag)
+    odv_path = get_odv_path(gtag, k)
+
+    for path in [nif_path, odv_path]:
+        try:
+            os.remove(path)
+            print(f'removed {path}')
+        except Exception as e:
+            print(f'failed to remove {path} because of {e}')
+
+def clean_mcl_pair(gtag1, gtag2, notes=''):
+    from odv_helpers import two_gtags_to_k, two_gtags_to_n, get_odv_ort_path
+    
+    k = two_gtags_to_k(gtag1, gtag2)
+    n = two_gtags_to_n(gtag1, gtag2)
+    ort_path = get_odv_ort_path(gtag1, gtag2, k, n, notes=notes)
+    mcl_out_path = get_mcl_out_path(gtag1, gtag2, k, n, notes=notes)
+    mcl_out_path_base = '.'.join(mcl_out_path.split('.')[:-1])
+    ag_path = mcl_out_path_base + '.ag'
+    time_path = mcl_out_path_base + '.time'
+
+    for path in [ort_path, mcl_out_path, ag_path, time_path]:
+        try:
+            os.remove(path)
+            print(f'removed {path}')
+        except Exception as e:
+            print(f'failed to remove {path} because of {e}')
+
+def clean_mcl(gtag1, gtag2, notes=''):
+    clean_mcl_single(gtag1, notes=notes)
+    clean_mcl_single(gtag2, notes=notes)
+    clean_mcl_pair(gtag1, gtag2, notes=notes)
+    
 if __name__ == '__main__':
     mode = sys.argv[1]
     gtag1 = sys.argv[2]

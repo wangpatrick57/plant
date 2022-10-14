@@ -1,7 +1,7 @@
 #!/bin/sh
 USAGE="$0 k net.el"
 die() { echo "$@" >&2; exit 1
-}
+      }
 echo "$1" | egrep '^[45]$' || die "k must be 4 or 5; USAGE: $USAGE"
 [ $# -eq 2 ] || die "USAGE: $USAGE"
 TMPDIR=/tmp/orca.$$

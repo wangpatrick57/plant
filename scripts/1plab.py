@@ -3,7 +3,24 @@ from all_helpers import *
 import sys
 import os
 
-adj_set1 = read_in_adj_set(get_graph_path('reddit_s0'))
-adj_set2 = read_in_adj_set(get_graph_path('reddit_s1'))
-print('hamcraft' in adj_set1)
-print('hamcraft' in adj_set2)
+def remove_self_edges(graph_path):
+    tel = []
+    
+    with open(graph_path, 'r') as graph_file:
+        num_edges = 0
+
+        for i, line in enumerate(graph_file):
+            node1, node2, time = re.split('[\s\t]', line.strip())
+
+            if node1 == node2:
+                continue
+            
+            time = int(time)
+            tel.append((node1, node2, time))
+            num_edges += 1
+
+    with open(graph_path, 'w') as graph_file:
+        write_to_file(tel_to_str(tel), graph_path)
+
+for gtag in ['sxso', 'math', 'super', 'ubuntu']:
+    remove_self_edges(get_tgraph_path(gtag))

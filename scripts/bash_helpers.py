@@ -36,27 +36,26 @@ def run_outtake(out_fname, here_path):
     cmd = f'outtake {out_fname} {here_path}'
     subprocess.run(cmd.split())
 
-def run_orca_raw(k, el_path):
-    cmd = f'orca.sh {k} {el_path}'
-    p = subprocess.run(cmd.split(), capture_output=True)
-    return p
+def print_orca_cmd_raw(k, el_path, odv_path):
+    print(f'orca.sh {k} {el_path} >{odv_path}')
 
 def run_cmd(cmd):
     p = subprocess.run(cmd.split())
     return p
 
-def run_orca_for_gtag(gtag, overwrite=False):
+def print_orca_cmd_for_gtag(gtag, throw_error=True):
     from graph_helpers import get_graph_path
     from file_helpers import write_to_file, file_exists
     from odv_helpers import get_odv_path, gtag_to_k
     k = gtag_to_k(gtag)
     odv_path = get_odv_path(gtag, k)
 
-    if overwrite or not file_exists(odv_path):
-        el_path = get_graph_path(gtag)
-        p = run_orca_raw(k, el_path)
-        out_str = p.stdout.decode()
-        write_to_file(out_str, odv_path)
+    if not file_exists(odv_path):
+        if throw_error:
+            raise AssertionError('odv file doesn\'t exist')
+        else:
+            el_path = get_graph_path(gtag)
+            print_orca_cmd_raw(k, el_path, odv_path)
     else:
         print(f'using old odv file for {gtag}', file=sys.stderr)
 
@@ -89,15 +88,6 @@ def run_align_mcl(gtag1, gtag2, overwrite=False, notes=''):
 
 if __name__ == '__main__':
     from odv_helpers import two_gtags_to_n
-    notes = sys.argv[1]
-    gtag1 = 'mouse'
-    gtag2 = 'rat'
-    n = two_gtags_to_n(gtag1, gtag2)
-    print(f'will run for n = {n}')
-    cont = input('Continue? ')
 
-    if cont == 'n':
-        quit()
-
-    p = run_align_mcl(gtag1, gtag2, notes=notes, overwrite=True)
-    p.wait()
+    for gtag in get_tprl_gtags():
+        print_orca_cmd_for_gtag(gtag, throw_error=False)
