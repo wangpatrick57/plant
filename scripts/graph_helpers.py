@@ -187,6 +187,9 @@ def get_paper_base_gtags():
 def is_paper_snap(gtag):
     return gtag in get_paper_nontprl_snap() or gtag in get_paper_tprl_snap()
 
+def get_canon_edge(node1, node2):
+    return (min(node1, node2), max(node1, node2))
+
 def get_marked_node(gtag, node):
     return f'{gtag_to_mark(gtag)}_{node}'
 

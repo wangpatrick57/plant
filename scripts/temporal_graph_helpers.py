@@ -8,15 +8,46 @@ from graph_helpers import *
 NODE_LIMIT=20_000
 EDGE_LIMIT=400_000
 
-def read_in_temporal_el(graph_path, edge_limit=None):
+def clean_tel(graph_path):
+    from graph_helpers import get_canon_edge
+    
+    tel = []
+    
     with open(graph_path, 'r') as graph_file:
-        tel = []
-        num_edges = 0
+        added_canon_edges = set()
 
         for i, line in enumerate(graph_file):
             node1, node2, time = re.split('[\s\t]', line.strip())
-            assert node1 != node2
             time = int(time)
+
+            if node1 == node2:
+                continue
+
+            if get_canon_edge(node1, node2) in added_canon_edges:
+                continue
+            
+            tel.append((node1, node2, time))
+            added_canon_edges.add(get_canon_edge(node1, node2))
+
+    with open(graph_path, 'w') as graph_file:
+        write_to_file(tel_to_str(tel), graph_path)
+
+def read_in_temporal_el(graph_path, edge_limit=None):
+    from graph_helpers import get_canon_edge
+    
+    with open(graph_path, 'r') as graph_file:
+        tel = []
+        num_edges = 0
+        added_canon_edges = set()
+
+        for i, line in enumerate(graph_file):
+            node1, node2, time = re.split('[\s\t]', line.strip())
+            time = int(time)
+            
+            assert node1 != node2
+            assert get_canon_edge(node1, node2) not in added_canon_edges
+
+            added_canon_edges.add(get_canon_edge(node1, node2))
             tel.append((node1, node2, time))
             num_edges += 1
 

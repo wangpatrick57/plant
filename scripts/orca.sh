@@ -17,7 +17,5 @@ do
 	print n,m;
 	for(u in edge)for(v in edge[u])print id[u]-1,id[v]-1}' "$NET" > $TMPDIR/orca.in
 
-    cat -v $TMPDIR/names.txt
-
     orca.g $k $TMPDIR/orca.in | awk 'ARGIND==1{name[FNR]=$1}ARGIND==2{print name[FNR], $0}' $TMPDIR/names.txt -
 done

@@ -36,26 +36,27 @@ def run_outtake(out_fname, here_path):
     cmd = f'outtake {out_fname} {here_path}'
     subprocess.run(cmd.split())
 
-def print_orca_cmd_raw(k, el_path, odv_path):
-    print(f'orca.sh {k} {el_path} >{odv_path}')
+def run_orca_cmd_raw(k, el_path):
+    cmd = f'orca.sh {k} {el_path}'
+    p = subprocess.run(cmd.split(), capture_output=True)
+    return p
 
 def run_cmd(cmd):
     p = subprocess.run(cmd.split())
     return p
 
-def print_orca_cmd_for_gtag(gtag, throw_error=True):
+def run_orca_cmd_for_gtag(gtag, overwrite=False):
     from graph_helpers import get_graph_path
     from file_helpers import write_to_file, file_exists
     from odv_helpers import get_odv_path, gtag_to_k
     k = gtag_to_k(gtag)
     odv_path = get_odv_path(gtag, k)
 
-    if not file_exists(odv_path):
-        if throw_error:
-            raise AssertionError('odv file doesn\'t exist')
-        else:
-            el_path = get_graph_path(gtag)
-            print_orca_cmd_raw(k, el_path, odv_path)
+    if overwrite or not file_exists(odv_path):
+        el_path = get_graph_path(gtag)
+        p = run_orca_cmd_raw(k, el_path)
+        out = p.stdout.decode('utf-8')
+        write_to_file(out, odv_path)
     else:
         print(f'using old odv file for {gtag}', file=sys.stderr)
 
@@ -90,4 +91,6 @@ if __name__ == '__main__':
     from odv_helpers import two_gtags_to_n
 
     for gtag in get_tprl_gtags():
-        print_orca_cmd_for_gtag(gtag, throw_error=False)
+        print(f'starting {gtag}')
+        run_orca_cmd_for_gtag(gtag)
+        print(f'done with {gtag}')

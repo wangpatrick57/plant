@@ -7,6 +7,9 @@ from statistics import mean
 from bash_helpers import *
 from graph_helpers import *
 
+# WEIRD ORCA BEHAVIOR
+# it seems to output all the nodes with nothing and then all the nodes with the right ODV values?
+
 def get_odv_path(gtag, k):
     return get_data_path(f'odv/{gtag}-k{k}.odv')
 
