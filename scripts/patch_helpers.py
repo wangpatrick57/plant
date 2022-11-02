@@ -110,7 +110,7 @@ def get_matching_poses_list(entry_list, prox, target_num_matching):
 
     return matching_poses_list
 
-def get_patched_index(k, index_path, graph_path, prox=3, target_num_matching=4):
+def get_patched_index(k, index_path, graph_path, prox=2, target_num_matching=1):
     entry_list = read_in_entry_list(index_path, k)
     matching_poses_list = get_matching_poses_list(entry_list, prox, target_num_matching)
     adj_set = read_in_adj_set(graph_path)

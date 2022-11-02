@@ -1,26 +1,13 @@
 #!/pkg/python/3.7.4/bin/python3
 from all_helpers import *
-import sys
-import os
 
-def remove_self_edges(graph_path):
-    tel = []
-    
-    with open(graph_path, 'r') as graph_file:
-        num_edges = 0
+adj_set1 = read_in_adj_set('test1.el')
+adj_set2 = read_in_adj_set('test2.el')
+alignment1 = [('a', 'A'), ('b', 'B'), ('c', 'C'), ('d', 'D')]
+alignment2 = [('a', 'E'), ('b', 'F'), ('c', 'G'), ('d', 'H')]
+alignment3 = [('a', 'E'), ('b', 'F'), ('c', 'G'), ('e', 'H')]
 
-        for i, line in enumerate(graph_file):
-            node1, node2, time = re.split('[\s\t]', line.strip())
-
-            if node1 == node2:
-                continue
-            
-            time = int(time)
-            tel.append((node1, node2, time))
-            num_edges += 1
-
-    with open(graph_path, 'w') as graph_file:
-        write_to_file(tel_to_str(tel), graph_path)
-
-for gtag in ['sxso', 'math', 'super', 'ubuntu']:
-    remove_self_edges(get_tgraph_path(gtag))
+for alignment in [alignment1, alignment2, alignment3]:
+    print()
+    print(f'starting {alignment}')
+    lca = get_largest_conn_alignment(alignment, adj_set1, adj_set2)

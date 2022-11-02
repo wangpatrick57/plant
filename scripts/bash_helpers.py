@@ -45,7 +45,7 @@ def run_cmd(cmd):
     p = subprocess.run(cmd.split())
     return p
 
-def run_orca_cmd_for_gtag(gtag, overwrite=False):
+def run_orca_for_gtag(gtag, overwrite=False):
     from graph_helpers import get_graph_path
     from file_helpers import write_to_file, file_exists
     from odv_helpers import get_odv_path, gtag_to_k
@@ -92,5 +92,5 @@ if __name__ == '__main__':
 
     for gtag in get_tprl_gtags():
         print(f'starting {gtag}')
-        run_orca_cmd_for_gtag(gtag)
+        run_orca_for_gtag(gtag)
         print(f'done with {gtag}')

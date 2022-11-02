@@ -3,7 +3,7 @@ from all_helpers import *
 import sys
 
 pairs = get_paper_all_pairs()
-algo = 'bno'
+algo = 'stairs'
 
 for gtag1, gtag2 in pairs[63:]:
     seeds, seed_metrics, extr_metrics = simplified_run_with_metrics(gtag1, gtag2, algo=algo, silent=True)

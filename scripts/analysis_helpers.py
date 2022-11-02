@@ -1,6 +1,7 @@
 #!/pkg/python/3.7.4/bin/python3
 from collections import defaultdict
 from all_helpers import *
+import networkx as nx
 
 def get_seeds_deg_distr(seeds, adj_set, use_first_species=True):
     flattened_nodes = []
@@ -44,10 +45,10 @@ def print_distr(distr, name):
 def print_deg_distr(deg_distr):
     print_distr(deg_distr, 'degree')
 
-def get_alignment_nc(alignment, g1_to_g2_ort):
+def get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2):
     from ortholog_helpers import is_ortholog
 
-    alignment = get_injective_alignment(alignment)
+    alignment = get_clean_alignment(alignment, adj_set1, adj_set2)
     num_orts = 0
 
     for node1, node2 in alignment:
@@ -144,26 +145,37 @@ def get_best_scoring_alignment(alignments, g1_to_g2_ort, adj_set1, adj_set2):
 
     return (best_alignment, best_size, best_acc, best_score)
 
-def get_size_acc_points(alignments, g1_to_g2_ort, adj_set1, adj_set2):
-    all_size_acc_points = []
+def get_med_frontier_alignment(alignments, g1_to_g2_ort, adj_set1, adj_set2):
+    frontier_alignments = get_frontier_alignments(alignments, g1_to_g2_ort, adj_set1, adj_set2)
+    median_index = len(frontier_alignments) // 2
+    medfron_alignment, size, acc = frontier_alignments[median_index]
+    score = get_size_acc_score(size, acc)
+    return (medfron_alignment, size, acc, score)
+
+def get_frontier_alignments(alignments, g1_to_g2_ort, adj_set1, adj_set2):
+    all_alignments_wstats = []
     
     for alignment in alignments:
         nc = get_alignment_nc(alignment, g1_to_g2_ort)
         s3 = get_s3(alignment, adj_set1, adj_set2)
         size = len(alignment)
         acc = get_topofunc_acc(nc, s3)
-        all_size_acc_points.append((size, acc))
+        all_alignments_wstats.append((alignment, size, acc))
 
-    all_size_acc_points.sort(key=(lambda data : (data[1], data[0])), reverse=True)
-    size_acc_points = []
+    all_alignments_wstats.sort(key=(lambda data : (data[2], data[1])), reverse=True)
+    frontier_alignments = []
     max_size = -1
 
-    for size, acc in all_size_acc_points:
+    for alignment, size, acc in all_alignments_wstats:
         if size > max_size:
-            size_acc_points.append((size, acc))
+            frontier_alignments.append((alignment, size, acc))
             max_size = size
 
-    return size_acc_points
+    return frontier_alignments
+
+def get_size_acc_points(alignments, g1_to_g2_ort, adj_set1, adj_set2):
+    frontier_alignments = get_frontier_alignments(alignments, g1_to_g2_ort, adj_set1, adj_set2)
+    return [(size, acc) for _, size, acc in frontier_alignments]
 
 def get_topofunc_perfect_alignments(alignments, g1_to_g2_ort, adj_set1, adj_set2):
     tfp_aligns = []
@@ -205,6 +217,56 @@ def get_alignment_repeats(alignment):
 
     return (num_repeats1, num_repeats2)
 
+def get_clean_alignment(alignment, adj_set1, adj_set2):
+    injective_alignment = get_injective_alignment(alignment)
+    largest_conn_alignment = get_largest_conn_alignment(injective_alignment, adj_set1, adj_set2)
+    return largest_conn_alignment
+
+def get_nx_subgraph(nodes, adj_set):
+    g = nx.Graph()
+
+    for node in nodes:
+        g.add_node(node)
+
+    nodes_set = set(nodes)
+        
+    for node in nodes:
+        for neigh in adj_set[node]:
+            if neigh in nodes_set:
+                g.add_edge(node, neigh)
+
+    return g
+
+# the definition of this is the alignment of the larger of the two respective largest connective components in the two graphs. I chose to do it this way rather than find the largest connected "alignment" (where connection is measured by an edge that exists between both pairs of nodes in both networks) because this first less strict definition is enough to solve the phantom 1.0 s3 problem (where 98 completely unconnected nodes and 2 connected ones can get an s3 score of 1.0)
+def get_largest_conn_alignment(alignment, adj_set1, adj_set2):
+    subgraph1 = get_nx_subgraph([node1 for node1, node2 in alignment], adj_set1)
+    subgraph2 = get_nx_subgraph([node2 for node1, node2 in alignment], adj_set2)
+    cc1 = list(nx.connected_components(subgraph1))
+    cc2 = list(nx.connected_components(subgraph2))
+
+    if len(cc1) > 0:
+        largest_cc1 = max(cc1, key=len)
+    else:
+        largest_cc1 = set()
+
+    if len(cc2) > 0:
+        largest_cc2 = max(cc2, key=len)
+    else:
+        largest_cc2 = set()
+        
+    largest_conn_alignment = []
+
+    if len(largest_cc1) > len(largest_cc2):
+        for node1, node2 in alignment:
+            if node1 in largest_cc1:
+                largest_conn_alignment.append((node1, node2))
+    else:
+        for node1, node2 in alignment:
+            if node2 in largest_cc2:
+                largest_conn_alignment.append((node1, node2))
+
+    return largest_conn_alignment
+    
 def get_injective_alignment(alignment):
     added1 = set()
     added2 = set()
@@ -237,7 +299,6 @@ def get_injective_alignment(alignment):
 def alignment_to_mapping(alignment):
     # if there are a lot of repeats in alignmcl, we'll also need to remove them with a separate function
     # this one does not remove repeats perfectly since there still could be repeats in the values
-    alignment = get_injective_alignment(alignment)
     align_mapping = dict()
     num_repeats = 0
 
@@ -247,6 +308,7 @@ def alignment_to_mapping(alignment):
     return align_mapping
 
 def get_s3(alignment, adj_set1, adj_set2):
+    alignment = get_clean_alignment(alignment, adj_set1, adj_set2)
     align_mapping = alignment_to_mapping(alignment)
 
     num_total_edges = 0

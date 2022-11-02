@@ -263,9 +263,6 @@ def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=1):
 
     return sorted(top_n, reverse=True)
 
-def get_odv_orthologs_balanced_method(gtag1, gtag2, k, n):
-    pass
-
 def get_odv_orthologs(gtag1, gtag2, k, n):
     return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=True, alpha=1)
 
@@ -420,6 +417,24 @@ def validate_sim_function(gtag1, gtag2):
 
 def odv_ort_to_str(odv_ort, mark1, mark2):
     return '\n'.join([f'{mark1}_{node1}\t{mark2}_{node2}\t{score}' for score, node1, node2 in odv_ort])
+
+def get_odv_alignment(odv_ort, adj_set1, adj_set2):
+    from analysis_helpers import get_s3
+    
+    alignment = []
+    step_size = len(odv_ort) // 10
+    n = step_size
+
+    while n <= len(odv_ort):
+        alignment = odv_ort[:n]
+        s3 = get_s3(alignment, adj_set1, adj_set2)
+
+        if s3 < 0.8:
+            break
+        
+        n += step_size
+
+    return alignment
 
 
 if __name__ == '__main__':

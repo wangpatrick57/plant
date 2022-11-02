@@ -8,7 +8,7 @@ from all_helpers import *
 # SLURM BEHAVIOR
 # sometimes the log files contain partial output before the program is actually done. don't be surprised by this
 
-jobname = 'oct13mn2'
+jobname = 'oct15mn2'
 notes = 'no1'
 
 for gtag1, gtag2 in get_tprl_pairs():

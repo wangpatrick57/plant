@@ -162,12 +162,12 @@ def get_mcl_tfp_stats(alignments, g1_to_g2_ort, adj_set1, adj_set2):
     return len(tfp_aligns), max_len
         
 def prepare_mcl(gtag1, gtag2, notes=''):
-    from bash_helpers import print_orca_cmd_for_gtag
+    from bash_helpers import run_orca_for_gtag
 
     gen_nif_file(gtag1)
     gen_nif_file(gtag2)
-    print_orca_cmd_for_gtag(gtag1)
-    print_orca_cmd_for_gtag(gtag2)
+    run_orca_for_gtag(gtag1)
+    run_orca_for_gtag(gtag2)
     gen_odv_ort_file(gtag1, gtag2, notes=notes)
 
 def full_local_run_mcl(gtag1, gtag2, notes=''):

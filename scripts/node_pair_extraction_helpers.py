@@ -13,8 +13,7 @@ def extract_node_pairs(seeds, ignore_deg_1=False, gtag1='', gtag2=''):
 
     return pairs
 
-def extract_big_patch_alignment(seeds, mindvs=1, minratio=1):
-    m2m_pairs = seeds_to_m2m(seeds)
+def extract_big_patch_alignment_from_m2m(m2m_pairs, mindvs=1, minratio=1):
     node_pair_voting = create_node_pair_voting(m2m_pairs)
     node_favorite_pairs = create_node_favorite_pairs(node_pair_voting)
     
@@ -63,6 +62,10 @@ def extract_big_patch_alignment(seeds, mindvs=1, minratio=1):
                         alignment.append((deaug(node), deaug(fav)))
 
     return alignment
+    
+def extract_big_patch_alignment_from_seeds(seeds, mindvs=1, minratio=1):
+    m2m_pairs = seeds_to_m2m(seeds)
+    return extract_big_patch_alignment_from_m2m(m2m_pairs, mindvs=mindvs, minratio=minratio)
 
 # extracts node pairs from many2many alignments (.aln files)
 def extract_node_pairs_from_m2m(m2m_pairs):

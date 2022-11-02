@@ -8,8 +8,8 @@ from all_helpers import *
 # SLURM BEHAVIOR
 # sometimes the log files contain partial output before the program is actually done. don't be surprised by this
 
-jobname = 'oct15mn'
-algo = 'bno'
+jobname = 'oct15mn3'
+algo = 'stairs'
 
 for gtag in get_tprl_gtags():
     print(f'./blant_wrapper.sh {jobname} {gtag} {algo}')
