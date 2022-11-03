@@ -5,6 +5,9 @@ from file_helpers import *
 
 CanonListLine = namedtuple('CanonListLine', ['connected', 'num_edges', 'edges'])
 
+def get_connected_bvs(canon_list):
+    return [bv for bv, data in canon_list.items() if data.connected]
+
 def get_canon_list_path(k):
     return get_blant_path(f'canon_maps/canon_list{k}.txt')
 

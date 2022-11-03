@@ -2,8 +2,9 @@
 from all_helpers import *
 import sys
 
-for k in range(1, 9):
-    print(k)
-    print(get_num_orbits(k))
-    print(get_num_orbits_cum(k))
-    print()
+k = int(sys.argv[1])
+orbit_counts = calc_orbit_counts_autogen_graphlets(k)
+print(orbit_counts)
+print(len(orbit_counts))
+print(get_num_orbits_cum(k))
+

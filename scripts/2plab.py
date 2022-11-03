@@ -3,4 +3,6 @@ from all_helpers import *
 import sys
 import os
 
-print_orca_cmd_for_gtag(sys.argv[1])
+canon_list = read_in_canon_list(int(sys.argv[1]))
+bvs = get_connected_bvs(canon_list)
+print(len(bvs))

@@ -8,9 +8,16 @@ from bash_helpers import *
 from graph_helpers import *
 from file_helpers import *
 from general_helpers import *
+from canonmaps_helpers import *
+from orbit_mapping_helpers import *
 
 # WEIRD ORCA BEHAVIOR
 # it seems to output all the nodes with nothing and then all the nodes with the right ODV values?
+
+CACHED_CUM_ORBIT_COUNTS = dict()
+CACHED_CUM_ORBIT_COUNTS[6] = [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3, 4, 6, 5, 4, 5, 6, 6, 4, 4, 5, 5, 8, 4, 6, 6, 7, 5, 6, 6, 6, 5, 6, 7, 7, 5, 7, 7, 7, 6, 5, 5, 6, 8, 8, 6, 6, 8, 6, 9, 6, 6, 4, 6, 6, 8, 9, 6, 6, 8, 8, 6, 7, 7, 8, 5, 6, 6, 4, 5, 5, 7, 5, 8, 8, 7, 8, 8, 7, 9, 7, 5, 8, 8, 9, 9, 7, 8, 12, 12, 8, 10, 8, 10, 8, 10, 10, 10, 7, 9, 11, 8, 9, 13, 7, 10, 9, 10, 7, 10, 10, 10, 8, 8, 8, 8, 7, 8, 10, 9, 9, 8, 12, 12, 7, 9, 9, 6, 6, 10, 8, 8, 6, 10, 10, 11, 6, 10, 8, 6, 10, 5, 8, 8, 8, 11, 12, 7, 6, 8, 11, 10, 12, 9, 8, 11, 11, 14, 14, 7, 11, 10, 10, 10, 11, 13, 12, 14, 15, 7, 13, 14, 10, 7, 10, 12, 7, 8, 12, 5, 8, 8, 10, 8, 7, 8, 10, 11, 12, 9, 13, 10, 14, 14, 14, 10, 13, 12, 14, 13, 16, 9, 11, 14, 12, 14, 8, 11, 12, 12, 12, 11, 6, 10, 8, 10, 11, 6, 10, 10, 12, 11, 10, 8, 12, 11, 10, 10, 10, 10, 7, 11, 11, 10, 7, 12, 12, 11, 11, 12, 11, 13, 15, 14, 11, 14, 13, 14, 14, 13, 14, 14, 11, 10, 12, 12, 10, 11, 11, 7, 12, 13, 12, 9, 10, 11, 15, 15, 6, 13, 9, 6, 8, 11, 12, 10, 9, 12, 13, 14, 13, 16, 8, 10, 10, 14, 14, 7, 13, 12, 11, 9, 15, 12, 11, 15, 7, 11, 11, 11, 9, 9, 12, 9, 14, 12, 11, 16, 12, 13, 11, 13, 14, 16, 13, 14, 16, 14, 13, 16, 10, 11, 13, 14, 13, 15, 12, 14, 14, 16, 17, 15, 17, 14, 11, 16, 11, 10, 12, 10, 14, 10, 14, 13, 16, 13, 13, 15, 13, 16, 15, 15, 11, 10, 14, 11, 14, 10, 12, 12, 12, 9, 12, 9, 12, 12, 12, 8, 9, 9, 5, 9, 10, 8, 7, 11, 13, 12, 7, 9, 12, 12, 5, 8, 8, 8, 10, 10, 8, 12, 11, 8, 9, 8, 9, 16, 13, 16, 15, 11, 12, 13, 11, 16, 15, 14, 14, 12, 10, 14, 12, 14, 15, 14, 11, 10, 15, 11, 15, 13, 17, 11, 17, 12, 16, 12, 12, 16, 15, 15, 12, 13, 15, 15, 11, 8, 12, 12, 8, 10, 10, 12, 10, 11, 9, 14, 7, 14, 17, 17, 16, 12, 17, 17, 10, 15, 14, 12, 13, 14, 10, 12, 15, 12, 14, 14, 10, 9, 10, 10, 10, 12, 8, 8, 8, 5]
+CACHED_CUM_ORBIT_COUNTS[5] = [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3, 4, 6, 5, 4, 5, 6, 6, 4, 4, 5, 5, 8, 4, 6, 6, 7, 5, 6, 6, 6, 5, 6, 7, 7, 5, 7, 7, 7, 6, 5, 5, 6, 8, 8, 6, 6, 8, 6, 9, 6, 6, 4, 6, 6, 8, 9, 6, 6, 8, 8, 6, 7, 7, 8, 5, 6, 6, 4]
+CACHED_CUM_ORBIT_COUNTS[4] = [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3]
 
 def get_odv_path(gtag, k):
     return get_data_path(f'odv/{gtag}-k{k}.odv')
@@ -69,7 +76,13 @@ def two_gtags_to_n(gtag1, gtag2):
     return min(gtag_to_n(gtag1), gtag_to_n(gtag2))
 
 def get_num_graphlets(k):
-    if k == 5:
+    if k == 8:
+        return 11117
+    elif k == 7:
+        return 853
+    elif k == 6:
+        return 112
+    elif k == 5:
         return 21
     elif k == 4:
         return 6
@@ -113,42 +126,80 @@ def get_num_orbits_cum(k):
         return get_num_orbits(k)
     else:
         return get_num_orbits(k) + get_num_orbits_cum(k - 1)
+
+def calc_orbit_counts_autogen_graphlets(k):
+    assert k in [6] # the orca method only works for k=6
+    canon_list, orbit_map = read_in_canon_list_and_orbit_map(k)
+    justk_orbit_counts = [None] * get_num_orbits(k)
+    bvs = get_connected_bvs(canon_list)
+    assert len(bvs) == get_num_graphlets(k)
+
+    for bv in bvs:
+        blantitl_el = get_bv_el_with_blantitl_orbit_nodes(bv, canon_list, orbit_map)
+        blantitl_graph_path = get_tmp_path(f'graphlet_k{k}_bv{bv}.el')
+        write_el_to_file(blantitl_el, blantitl_graph_path)
+        p = run_orca_raw(5, blantitl_graph_path) # just run orca until 5, and run BLANT sample from 6 and up
+        os.remove(blantitl_graph_path)
+        orbit_lines = p.stdout.decode().strip().split('\n')[1:]
+
+        for line in orbit_lines:
+            splitted = line.split()
+            node_name = splitted[0]
+            blantitl_orbit_num = int(node_name[:-1])
+            blantout_orbit_num = BLANTITL_TO_BLANTOUT_MAPPING[k][blantitl_orbit_num]
+            orbits = splitted[1:]
+            orbit_count = sum([1 if n != '0' else 0 for n in orbits])
+            orbit_count += 1 # to include the orbit itself, since we'll only run blant or orca or whatever on k - 1
+
+            if justk_orbit_counts[blantout_orbit_num] == None:
+                justk_orbit_counts[blantout_orbit_num] = orbit_count
+            else:
+                assert justk_orbit_counts[blantout_orbit_num] == orbit_count
+
+    # append justk to k5 one
+    return CACHED_CUM_ORBIT_COUNTS[k - 1] + justk_orbit_counts
+    
+# directly use the graphlets directory which has the correct orbits
+def calc_orbit_counts_direct(k):
+    assert k in [4, 5]
+    orbit_counts = [None] * get_num_orbits_cum(k)
+
+    for graphlet_num in range(get_num_graphlets_cum(k)):
+        p = run_orca_raw(k, get_base_graph_path(f'graphlets/graphlet{graphlet_num}'))
+        orbit_lines = p.stdout.decode().strip().split('\n')[1:]
+
+        for line in orbit_lines:
+            splitted = line.split()
+            node_name = splitted[0]
+            orbit_num = int(node_name[:-1])
+            orbits = splitted[1:]
+
+            # we can't just sum all the orbits, we need to count how many are not zero (because if a node has a degree of 5 we only count that once for "an appearance of orbit 0)
+            # we include the orbits effect on itself too
+            orbit_count = sum([1 if n != '0' else 0 for n in orbits])
+
+            if orbit_counts[orbit_num] == None:
+                orbit_counts[orbit_num] = orbit_count
+            else:
+                assert orbit_counts[orbit_num] == orbit_count
+
+        return orbit_counts
     
 def calc_orbit_counts(k):
     USE_CACHE = True
 
     if USE_CACHE:
-        if k == 6:
-            return [1] * get_num_orbits_cum(6)
-        elif k == 5:
-            return [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3, 4, 6, 5, 4, 5, 6, 6, 4, 4, 5, 5, 8, 4, 6, 6, 7, 5, 6, 6, 6, 5, 6, 7, 7, 5, 7, 7, 7, 6, 5, 5, 6, 8, 8, 6, 6, 8, 6, 9, 6, 6, 4, 6, 6, 8, 9, 6, 6, 8, 8, 6, 7, 7, 8, 5, 6, 6, 4]
-        elif k == 4:
-            return [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3]
+        if k in CACHED_CUM_ORBIT_COUNTS:
+            return CACHED_CUM_ORBIT_COUNTS[k]
         else:
             return None
     else:
-        orbit_counts = [None] * get_num_orbits_cum(k)
-
-        for graphlet_num in range(get_num_graphlets_cum(k)):
-            p = run_orca_raw(k, get_base_graph_path(f'graphlets/graphlet{graphlet_num}'))
-            orbit_lines = p.stdout.decode().strip().split('\n')[1:]
-
-            for line in orbit_lines:
-                splitted = line.split()
-                node_name = splitted[0]
-                orbit_num = int(node_name[:-1])
-                orbits = splitted[1:]
-
-                # we can't just sum all the orbits, we need to count how many are not zero (because if a node has a degree of 5 we only count that once for "an appearance of orbit 0)
-                # we include the orbits effect on itself too
-                orbit_count = sum([1 if n != '0' else 0 for n in orbits])
-
-                if orbit_counts[orbit_num] == None:
-                    orbit_counts[orbit_num] = orbit_count
-                else:
-                    assert orbit_counts[orbit_num] == orbit_count
-
-        return orbit_counts
+        if k in [6]:
+            return calc_orbit_counts_autogen_graphlets(k)
+        if k in [4, 5]:
+            return calc_orbit_counts_direct(k)
+        else:
+            return None
 
 def calc_weights(k):
     orbit_counts = calc_orbit_counts(k)
