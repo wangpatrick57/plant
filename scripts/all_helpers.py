@@ -12,3 +12,4 @@ from temporal_graph_helpers import *
 from mcl_helpers import *
 from top_node_analysis_helpers import *
 from paper_helpers import *
+from canonmaps_helpers import *

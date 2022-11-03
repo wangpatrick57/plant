@@ -4,12 +4,19 @@ from graph_helpers import *
 
 HOME_DIR = '/home/wangph1'
 PLANT_DIR = f'{HOME_DIR}/plant'
+BLANT_DIR = f'{HOME_DIR}/BLANT'
 
 def get_seeds_path(gtag1, gtag2, algo='bno'):
     return get_data_path(f'seeds/{gtag1}-{gtag2}-{algo}.seeds')
 
 def get_plant_path(path):
     return f'{PLANT_DIR}/{path}'
+
+def get_blant_path(path):
+    return f'{BLANT_DIR}/{path}'
+
+def get_wayne_path(path):
+    return get_data_path(f'wayne/{path}')
 
 def file_exists(path):
     exists = os.path.exists(path)

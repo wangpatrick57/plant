@@ -28,6 +28,21 @@ def run_blant(gtag, lDEG=2, alph=True, algo='bno', overwrite=False):
 
     return p, out_path
 
+def run_blant_sample(gtag, k, n, overwrite=False):
+    from odv_helpers import get_blantspl_path
+    
+    graph_path = get_graph_path(gtag)
+    out_path = get_blantspl_path(gtag, k, n)
+
+    if overwrite or not file_exists(out_path):
+        cmd = f'run_blant_sample.sh {graph_path} {k} {n} {out_path}'
+        p = subprocess.Popen(cmd.split())
+    else:
+        p = None
+        print(f'using old index file for {gtag}', file=sys.stderr)
+
+    return p, out_path
+
 def run_outsend(path):
     cmd = f'outsend {path}'
     subprocess.run(cmd.split())
@@ -36,7 +51,7 @@ def run_outtake(out_fname, here_path):
     cmd = f'outtake {out_fname} {here_path}'
     subprocess.run(cmd.split())
 
-def run_orca_cmd_raw(k, el_path):
+def run_orca_raw(k, el_path):
     cmd = f'orca.sh {k} {el_path}'
     p = subprocess.run(cmd.split(), capture_output=True)
     return p
@@ -55,7 +70,7 @@ def run_orca_for_gtag(gtag, override_k=None, overwrite=False):
 
     if overwrite or not file_exists(odv_path):
         el_path = get_graph_path(gtag)
-        p = run_orca_cmd_raw(k, el_path)
+        p = run_orca_raw(k, el_path)
         out = p.stdout.decode('utf-8')
         write_to_file(out, odv_path)
     else:

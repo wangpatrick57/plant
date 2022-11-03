@@ -2,16 +2,20 @@
 import sys
 import math
 import heapq
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from statistics import mean
 from bash_helpers import *
 from graph_helpers import *
+from file_helpers import *
 
 # WEIRD ORCA BEHAVIOR
 # it seems to output all the nodes with nothing and then all the nodes with the right ODV values?
 
 def get_odv_path(gtag, k):
     return get_data_path(f'odv/{gtag}-k{k}.odv')
+
+def get_blantspl_path(gtag, k, n):
+    return get_data_path(f'odv/{gtag}-k{k}-n{n}.splodv')
 
 def gtag_to_k(gtag, override_k=None):
     from graph_helpers import is_syeast
@@ -65,25 +69,41 @@ def two_gtags_to_n(gtag1, gtag2):
 
 def num_graphlets(k):
     if k == 5:
-        return 30
+        return num_graphlets(4) + 21
     elif k == 4:
-        return 9
+        return num_graphlets(3) + 6
+    elif k == 3:
+        return num_graphlets(2) + 2
+    elif k == 2:
+        return 1
     else:
         return None
 
 def num_orbits(k):
-    if k == 5:
-        return 73
+    if k == 8:
+        return num_orbits(4) + 72489
+    elif k == 7:
+        return num_orbits(4) + 4306
+    elif k == 6:
+        return num_orbits(4) + 407
+    elif k == 5:
+        return num_orbits(4) + 58
     elif k == 4:
-        return 15
+        return num_orbits(3) + 11
+    elif k == 3:
+        return num_orbits(2) + 3
+    elif k == 2:
+        return 1
     else:
         return None
-
+    
 def calc_orbit_counts(k):
     USE_CACHE = True
 
     if USE_CACHE:
-        if k == 5:
+        if k == 6:
+            return [1] * num_orbits(6)
+        elif k == 5:
             return [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3, 4, 6, 5, 4, 5, 6, 6, 4, 4, 5, 5, 8, 4, 6, 6, 7, 5, 6, 6, 6, 5, 6, 7, 7, 5, 7, 7, 7, 6, 5, 5, 6, 8, 8, 6, 6, 8, 6, 9, 6, 6, 4, 6, 6, 8, 9, 6, 6, 8, 8, 6, 7, 7, 8, 5, 6, 6, 4]
         elif k == 4:
             return [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3]
@@ -421,6 +441,21 @@ def validate_sim_function(gtag1, gtag2):
 
 def odv_ort_to_str(odv_ort, mark1, mark2):
     return '\n'.join([f'{mark1}_{node1}\t{mark2}_{node2}\t{score}' for score, node1, node2 in odv_ort])
+
+def make_odv_ort_1to1(odv_ort):
+    odv_ort_1to1 = []
+    used_nodes1 = set()
+    used_nodes2 = set()
+
+    for node1, node2 in odv_ort:
+        if node1 in used_nodes1 or node2 in used_nodes2:
+            continue
+
+        odv_ort_1to1.append((node1, node2))
+        used_nodes1.add(node1)
+        used_nodes2.add(node2)
+
+    return odv_ort_1to1
 
 def get_odv_alignment(odv_ort, adj_set1, adj_set2):
     from analysis_helpers import get_s3

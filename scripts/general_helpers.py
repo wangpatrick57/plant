@@ -41,10 +41,5 @@ def order_gtags(gtag1, gtag2):
         else:
             return (gtag2, gtag1)
 
-def get_wayne_path(path):
-    from file_helpers import get_data_path
-
-    return get_data_path(f'wayne/{path}')
-
 if __name__ == '__main__':
     assert_with_prints(5, 5, 'foo')
