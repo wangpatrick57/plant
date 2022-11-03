@@ -13,8 +13,12 @@ from graph_helpers import *
 def get_odv_path(gtag, k):
     return get_data_path(f'odv/{gtag}-k{k}.odv')
 
-def gtag_to_k(gtag):
+def gtag_to_k(gtag, override_k=None):
     from graph_helpers import is_syeast
+
+    if override_k != None:
+        return override_k
+    
     if is_syeast(gtag):
         return 5
     else:
@@ -51,9 +55,9 @@ def gtag_to_n(gtag):
         write_gtag_to_n_cache(g2n_cache)
         return len(nodes)
 
-def two_gtags_to_k(gtag1, gtag2):
-    assert gtag_to_k(gtag1) == gtag_to_k(gtag2)
-    k = gtag_to_k(gtag1)
+def two_gtags_to_k(gtag1, gtag2, override_k=None):
+    assert gtag_to_k(gtag1, override_k=override_k) == gtag_to_k(gtag2, override_k=override_k)
+    k = gtag_to_k(gtag1, override_k=override_k)
     return k
 
 def two_gtags_to_n(gtag1, gtag2):

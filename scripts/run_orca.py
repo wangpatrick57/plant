@@ -2,4 +2,6 @@
 from all_helpers import *
 import sys
 
-print_orca_cmd_for_gtag(sys.argv[1])
+gtag = sys.argv[1]
+override_k = int(sys.argv[2]) if len(sys.argv) > 2 else None
+run_orca_for_gtag(gtag, override_k=override_k)

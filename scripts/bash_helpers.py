@@ -45,11 +45,12 @@ def run_cmd(cmd):
     p = subprocess.run(cmd.split())
     return p
 
-def run_orca_for_gtag(gtag, overwrite=False):
+def run_orca_for_gtag(gtag, override_k=None, overwrite=False):
     from graph_helpers import get_graph_path
     from file_helpers import write_to_file, file_exists
     from odv_helpers import get_odv_path, gtag_to_k
-    k = gtag_to_k(gtag)
+    
+    k = gtag_to_k(gtag, override_k=override_k)
     odv_path = get_odv_path(gtag, k)
 
     if overwrite or not file_exists(odv_path):

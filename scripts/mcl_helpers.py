@@ -48,13 +48,13 @@ def gen_nif_file(gtag, overwrite=False):
     else:
         print(f'using old nif file for {gtag}', file=sys.stderr)
 
-def gen_odv_ort_file(gtag1, gtag2, overwrite=False, notes=''):
+def gen_odv_ort_file(gtag1, gtag2, override_k=None, overwrite=False, notes=''):
     from graph_helpers import gtag_to_mark, read_in_adj_set, get_graph_path
     from odv_helpers import get_odv_orthologs, odv_ort_to_str, get_odv_ort_path, two_gtags_to_k, two_gtags_to_n, ODV, odv_ort_to_nodes
     from file_helpers import file_exists, write_to_file
     from analysis_helpers import get_deg_distr
 
-    k = two_gtags_to_k(gtag1, gtag2)
+    k = two_gtags_to_k(gtag1, gtag2, override_k=override_k)
     n = two_gtags_to_n(gtag1, gtag2)
     ODV.set_weights_vars(k)
     ort_path = get_odv_ort_path(gtag1, gtag2, k, n, notes=notes)
