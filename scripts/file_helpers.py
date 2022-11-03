@@ -6,6 +6,9 @@ HOME_DIR = '/home/wangph1'
 PLANT_DIR = f'{HOME_DIR}/plant'
 BLANT_DIR = f'{HOME_DIR}/BLANT'
 
+def get_tmp_path(path):
+    return f'/tmp/{path}'
+
 def get_seeds_path(gtag1, gtag2, algo='bno'):
     return get_data_path(f'seeds/{gtag1}-{gtag2}-{algo}.seeds')
 

@@ -1,4 +1,26 @@
 #!/bin/python3
+def get_abbr_num_str(n):
+    big_numbers_to_letters = {
+        1: '',
+        1000: 'K',
+        1000000: 'M',
+        1000000000: 'B',
+        1000000000000: 'T',
+        1000000000000000: 'Q'
+    }
+
+    big_number = 1
+    factor = 1000
+    base = n
+
+    while base >= factor:
+        base = base // factor
+        big_number *= factor
+    
+    assert base * big_number == n
+    letter = big_numbers_to_letters[big_number]
+    return f'{base}{letter}'
+
 def assert_with_prints(value, target, value_title):
     assert value == target, f'{value_title} is not {target}'
     print(f'success, {value_title} = {target}')

@@ -7,6 +7,7 @@ from statistics import mean
 from bash_helpers import *
 from graph_helpers import *
 from file_helpers import *
+from general_helpers import *
 
 # WEIRD ORCA BEHAVIOR
 # it seems to output all the nodes with nothing and then all the nodes with the right ODV values?
@@ -15,7 +16,7 @@ def get_odv_path(gtag, k):
     return get_data_path(f'odv/{gtag}-k{k}.odv')
 
 def get_blantspl_path(gtag, k, n):
-    return get_data_path(f'odv/{gtag}-k{k}-n{n}.splodv')
+    return get_data_path(f'odv/{gtag}-k{k}-n{get_abbr_num_str(n)}.splodv')
 
 def gtag_to_k(gtag, override_k=None):
     from graph_helpers import is_syeast
@@ -67,42 +68,58 @@ def two_gtags_to_k(gtag1, gtag2, override_k=None):
 def two_gtags_to_n(gtag1, gtag2):
     return min(gtag_to_n(gtag1), gtag_to_n(gtag2))
 
-def num_graphlets(k):
+def get_num_graphlets(k):
     if k == 5:
-        return num_graphlets(4) + 21
+        return 21
     elif k == 4:
-        return num_graphlets(3) + 6
+        return 6
     elif k == 3:
-        return num_graphlets(2) + 2
+        return 2
     elif k == 2:
         return 1
     else:
         return None
 
-def num_orbits(k):
+def get_num_graphlets_cum(k):
+    if k < 2:
+        return None
+    elif k == 2:
+        return get_num_graphlets(k)
+    else:
+        return get_num_graphlets(k) + get_num_graphlets_cum(k - 1)
+
+def get_num_orbits(k):
     if k == 8:
-        return num_orbits(4) + 72489
+        return 72489
     elif k == 7:
-        return num_orbits(4) + 4306
+        return 4306
     elif k == 6:
-        return num_orbits(4) + 407
+        return 407
     elif k == 5:
-        return num_orbits(4) + 58
+        return 58
     elif k == 4:
-        return num_orbits(3) + 11
+        return 11
     elif k == 3:
-        return num_orbits(2) + 3
+        return 3
     elif k == 2:
         return 1
     else:
         return None
+
+def get_num_orbits_cum(k):
+    if k < 2:
+        return None
+    elif k == 2:
+        return get_num_orbits(k)
+    else:
+        return get_num_orbits(k) + get_num_orbits_cum(k - 1)
     
 def calc_orbit_counts(k):
     USE_CACHE = True
 
     if USE_CACHE:
         if k == 6:
-            return [1] * num_orbits(6)
+            return [1] * get_num_orbits_cum(6)
         elif k == 5:
             return [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3, 4, 6, 5, 4, 5, 6, 6, 4, 4, 5, 5, 8, 4, 6, 6, 7, 5, 6, 6, 6, 5, 6, 7, 7, 5, 7, 7, 7, 6, 5, 5, 6, 8, 8, 6, 6, 8, 6, 9, 6, 6, 4, 6, 6, 8, 9, 6, 6, 8, 8, 6, 7, 7, 8, 5, 6, 6, 4]
         elif k == 4:
@@ -110,9 +127,9 @@ def calc_orbit_counts(k):
         else:
             return None
     else:
-        orbit_counts = [None] * num_orbits(k)
+        orbit_counts = [None] * get_num_orbits_cum(k)
 
-        for graphlet_num in range(num_graphlets(k)):
+        for graphlet_num in range(get_num_graphlets_cum(k)):
             p = run_orca_raw(k, get_base_graph_path(f'graphlets/graphlet{graphlet_num}'))
             orbit_lines = p.stdout.decode().strip().split('\n')[1:]
 
@@ -135,7 +152,7 @@ def calc_orbit_counts(k):
 
 def calc_weights(k):
     orbit_counts = calc_orbit_counts(k)
-    weights = [1 - math.log(orbit_count) / math.log(num_orbits(k)) for orbit_count in orbit_counts]
+    weights = [1 - math.log(orbit_count) / math.log(get_num_orbits_cum(k)) for orbit_count in orbit_counts]
     return weights
 
 class ODVDirectory:

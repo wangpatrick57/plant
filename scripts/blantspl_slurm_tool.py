@@ -8,12 +8,10 @@ from all_helpers import *
 # SLURM BEHAVIOR
 # sometimes the log files contain partial output before the program is actually done. don't be surprised by this
 
-jobname = 'nov2nt3'
-n = 2_000_000
-gtags = get_all_syeasts()
-gtags += ['mouse', 'rat', 'cat', 'horse', 'human']
+jobname = 'nov3aft1'
 
-for gtag in gtags:
-    for k in range(4, 9):
-        print(f'./blantspl_wrapper.sh {jobname} {gtag} {k} {n}')
-
+for gtag in get_all_syeasts():
+    for k in range(4, 7):
+        print(f'./blantspl_wrapper.sh {jobname} {gtag} {k} {100_000_000}')
+        print(f'./blantspl_wrapper.sh {jobname} {gtag} {k} {1_000_000_000}')
+        print(f'./blantspl_wrapper.sh {jobname} {gtag} {k} {2_000_000_000}')

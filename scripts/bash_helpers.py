@@ -1,6 +1,7 @@
 #!/pkg/python/3.7.4/bin/python3
 from graph_helpers import *
 from index_helpers import *
+from file_helpers import *
 import subprocess
 import time
 import sys
@@ -28,6 +29,19 @@ def run_blant(gtag, lDEG=2, alph=True, algo='bno', overwrite=False):
 
     return p, out_path
 
+def run_blant_sample_raw(k, n, graph_path):
+    out_path = get_tmp_path(f'blantspl-k{k}-n{n}.out')
+    # we need to call run_blant_sample.sh because it takes care of cd for us
+    cmd = f'run_blant_sample.sh {graph_path} {k} {n} {out_path}'
+    p = subprocess.run(cmd.split(), capture_output=True)
+
+    with open(out_path, 'r') as f:
+        out = ''.join(f.readlines())
+
+    os.remove(out_path)
+    return out
+
+# should be modified to call run_blant_sample_raw to be consistent with orca, but I'm too lazy to do so
 def run_blant_sample(gtag, k, n, overwrite=False):
     from odv_helpers import get_blantspl_path
     
@@ -51,13 +65,13 @@ def run_outtake(out_fname, here_path):
     cmd = f'outtake {out_fname} {here_path}'
     subprocess.run(cmd.split())
 
-def run_orca_raw(k, el_path):
-    cmd = f'orca.sh {k} {el_path}'
-    p = subprocess.run(cmd.split(), capture_output=True)
-    return p
-
 def run_cmd(cmd):
     p = subprocess.run(cmd.split())
+    return p
+
+def run_orca_raw(k, graph_path):
+    cmd = f'orca.sh {k} {graph_path}'
+    p = subprocess.run(cmd.split(), capture_output=True)
     return p
 
 def run_orca_for_gtag(gtag, override_k=None, overwrite=False):
@@ -69,8 +83,8 @@ def run_orca_for_gtag(gtag, override_k=None, overwrite=False):
     odv_path = get_odv_path(gtag, k)
 
     if overwrite or not file_exists(odv_path):
-        el_path = get_graph_path(gtag)
-        p = run_orca_raw(k, el_path)
+        graph_path = get_graph_path(gtag)
+        p = run_orca_raw(k, graph_path)
         out = p.stdout.decode('utf-8')
         write_to_file(out, odv_path)
     else:
