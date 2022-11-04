@@ -2,9 +2,8 @@
 from all_helpers import *
 import sys
 
-k = int(sys.argv[1])
-orbit_counts = calc_orbit_counts_autogen_graphlets(k)
-print(orbit_counts)
-print(len(orbit_counts))
-print(get_num_orbits_cum(k))
-
+gtag = sys.argv[1]
+k = int(sys.argv[2])
+nstr = sys.argv[3]
+odv_dir = get_combined_odv_file(gtag, k, nstr)
+print(odv_dir.get_odv(list(odv_dir.get_nodes())[0]))

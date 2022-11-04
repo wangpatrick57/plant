@@ -22,8 +22,14 @@ CACHED_CUM_ORBIT_COUNTS[4] = [1, 2, 2, 2, 3, 4, 3, 3, 4, 3, 4, 4, 4, 4, 3]
 def get_odv_path(gtag, k):
     return get_data_path(f'odv/{gtag}-k{k}.odv')
 
+def get_blantspl_path_nstr(gtag, k, nstr):
+    return get_data_path(f'odv/{gtag}-k{k}-n{nstr}.splodv')
+
 def get_blantspl_path(gtag, k, n):
     return get_data_path(f'odv/{gtag}-k{k}-n{get_abbr_num_str(n)}.splodv')
+
+def get_combined_odv_path(gtag, k, nstr):
+    return get_data_path(f'odv/{gtag}-k{k}-n{nstr}.cbodv')
 
 def gtag_to_k(gtag, override_k=None):
     from graph_helpers import is_syeast
@@ -206,6 +212,30 @@ def calc_weights(k):
     weights = [1 - math.log(orbit_count) / math.log(get_num_orbits_cum(k)) for orbit_count in orbit_counts]
     return weights
 
+def get_combined_odv_file(gtag, k, nstr, overwrite=True):
+    cbodv_path = get_combined_odv_path(gtag, k, nstr)
+
+    if overwrite or not file_exists(cbodv_path):
+        base_k = min(5, k - 1)
+        assert base_k >= 4
+        base_odv_dir = ODVDirectory(get_odv_path(gtag, base_k))
+        assert k == base_k + 1 # since we hardcoded to read one splodv file for now
+        spl_odv_dir = ODVDirectory(get_blantspl_path_nstr(gtag, k, nstr))
+        assert base_odv_dir.get_nodes() == spl_odv_dir.get_nodes(), f'nodes not equal. base_odv_dir has {len(base_odv_dir.get_nodes())} nodes while spl_odv_dir has {len(spl_odv_dir.get_nodes())} nodes'
+        out_odv = dict()
+
+        for node in base_odv_dir.get_nodes():
+            base_odv_list = base_odv_dir.get_odv(node).get_odv_list()
+            spl_odv_list = spl_odv_dir.get_odv(node).get_odv_list()
+            odv_list = base_odv_list + spl_odv_list
+            assert len(odv_list) == get_num_orbits_cum(k)
+            out_odv[node] = odv_list
+
+        out_str = '\n'.join([f'{node} {" ".join(map(str, odv_list))}' for node, odv_list in out_odv.items()])
+        write_to_file(out_str, cbodv_path)
+
+    return ODVDirectory(cbodv_path)
+
 class ODVDirectory:
     # file format: every line has node name, followed by orbit counts, separated by spaces
     # NODENAME 23 1 250 37 4 0 ...
@@ -214,6 +244,10 @@ class ODVDirectory:
 
         for line in open(fname, 'r'):
             line_split = line.strip().split()
+
+            if len(line_split) == 1:
+                continue # this is the initial first line of the .odv file that contains k
+            
             node = line_split[0]
             odv_list = [int(s) for s in line_split[1:]]
             odv = ODV(node, odv_list)
@@ -226,7 +260,7 @@ class ODVDirectory:
             return None
 
     def get_nodes(self):
-        return self._directory.keys()
+        return set(self._directory.keys())
 
     def __str__(self):
         return '\n'.join([f'{node}: {odv}' for node, odv in self._directory.items()])
@@ -270,6 +304,9 @@ class ODV:
 
     def get_odv_val(self, num):
         return self._odv_list[num]
+
+    def get_odv_list(self):
+        return self._odv_list
 
     def __str__(self):
         return ' '.join([str(n) for n in self._odv_list])
