@@ -5,6 +5,7 @@
 # disallow moves that send the s3 below the threshold
 from all_helpers import *
 import sys
+import copy
 import unittest
 
 # blocks are the building block alignments
@@ -77,7 +78,7 @@ class TestSimAnnealGrow(unittest.TestCase):
             'D': {},
             'F': {},
             'X': {},
-        })
+        }, s3_threshold=None) # set threshold to None so all moves are valid
         
     def test_no_remove_last(self):
         self.assertTrue(self.blocks_sagrow._move_is_valid(0))
@@ -141,7 +142,7 @@ class TestSimAnnealGrow(unittest.TestCase):
             'C': {'B', 'D', 'E'},
             'D': {'B', 'C'},
             'E': {'B', 'C'},
-        }, s3_threshold=0) # set threshold to 0 so all moves are valid
+        }, s3_threshold=None) # set threshold to None so all moves are valid
         
     def test_s3_initial(self):
         self.assertEqual(self.s3_sagrow._s3_frac, [0, 0])
@@ -186,6 +187,28 @@ class TestSimAnnealGrow(unittest.TestCase):
         self.s3_sagrow._make_move(0)
         self.assertEqual(self.s3_sagrow._s3_frac, [1, 2])
 
+    def test_s3_frac_denom_zero(self):
+        self.s3_sagrow._s3_threshold = None
+        self.assertTrue(self.s3_sagrow._move_is_valid(2))
+        self.s3_sagrow._make_move(2)
+        self.assertTrue(self.s3_sagrow._move_is_valid(3))
+        self.s3_sagrow._s3_threshold = 0
+        self.assertFalse(self.s3_sagrow._move_is_valid(3))
+        
+    def test_s3_threshold_adding(self):
+        self.s3_sagrow._s3_threshold = 1.0
+        self.assertTrue(self.s3_sagrow._move_is_valid(0))
+        self.s3_sagrow._make_move(0)
+        self.assertTrue(self.s3_sagrow._move_is_valid(1))
+        self.s3_sagrow._make_move(1)
+        self.assertTrue(self.s3_sagrow._move_is_valid(2))
+        self.s3_sagrow._make_move(2)
+        self.assertFalse(self.s3_sagrow._move_is_valid(3))
+        self.s3_sagrow._s3_threshold = 0.55
+        self.assertTrue(self.s3_sagrow._move_is_valid(3))
+        self.s3_sagrow._s3_threshold = 0.6
+        self.assertFalse(self.s3_sagrow._move_is_valid(3))
+
 class SimAnnealGrow:
     # blocks are the building block alignments
     def __init__(self, blocks, adj_set1, adj_set2, s3_threshold=1):
@@ -213,6 +236,13 @@ class SimAnnealGrow:
 
         return block_i
 
+    @staticmethod
+    def s3_frac_to_s3(s3_frac):
+        if s3_frac[1] == 0:
+            return None
+        else:
+            return s3_frac[0] / s3_frac[1]
+    
     def _move_is_valid(self, block_i):
         is_adding = not self._use_block[block_i]
         
@@ -232,6 +262,17 @@ class SimAnnealGrow:
                 if self._reverse_mapping[node2] != node1:
                     return False
 
+        # we can't go below the threshold
+        updated_s3_frac = self._get_updated_s3_frac(block_i, is_adding)
+        updated_s3 = SimAnnealGrow.s3_frac_to_s3(updated_s3_frac)
+        
+        # even the first move has to have good enough s3, so we don't have a special case for that. moves add blocks at a time not nodes, so we don't treat the first move differently
+        if self._s3_threshold == None:
+            pass # if the threshold is None, we'll even allow moves that give undefined s3 scores
+        else:
+            if updated_s3 == None or updated_s3 < self._s3_threshold:
+                return False
+
         return True
 
     def _get_random_block_i(self):
@@ -247,10 +288,10 @@ class SimAnnealGrow:
 
         # s3 should be updated before the bookkeeping stuff
         if is_adding:
-            self._update_s3(block_i, True)
+            self._s3_frac = self._get_updated_s3_frac(block_i, True)
             self._update_block_bookkeeping_after_add(block_i)
         else:
-            self._update_s3(block_i, False)
+            self._s3_frac = self._get_updated_s3_frac(block_i, False)
             self._update_block_bookkeeping_after_remove(block_i)
 
     def _update_block_bookkeeping_after_add(self, block_i):
@@ -280,10 +321,12 @@ class SimAnnealGrow:
                 del self._forward_mapping[node1]
                 del self._reverse_mapping[node2]
                 
-    def _update_s3(self, block_i, is_adding):
+    def _get_updated_s3_frac(self, block_i, is_adding):
+        # this function does not update any internal fields
         block = self._blocks[block_i]
         curr_aligned_pairs = set(self._pair_multiset.keys())
         delta = 1 if is_adding else -1
+        updated_s3_frac = copy.copy(self._s3_frac)
 
         for node1, node2 in block:
             for curr_node1, curr_node2 in curr_aligned_pairs:
@@ -291,15 +334,17 @@ class SimAnnealGrow:
                 has_edge2 = node2 in self._adj_set2[curr_node2]
 
                 if has_edge1 and has_edge2:
-                    self._s3_frac[0] += delta
+                    updated_s3_frac[0] += delta
                 
                 if has_edge1 or has_edge2:
-                    self._s3_frac[1] += delta
+                    updated_s3_frac[1] += delta
 
             if is_adding:
                 curr_aligned_pairs.add((node1, node2))
             else:
                 curr_aligned_pairs.remove((node1, node2))
+
+        return updated_s3_frac
 
     def _reset(self):
         self._use_block = [False] * len(self._blocks)
