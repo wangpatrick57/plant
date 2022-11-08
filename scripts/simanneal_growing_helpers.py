@@ -21,6 +21,7 @@ class TestSimAnnealGrow(unittest.TestCase):
     def setUp(self):
         self.blocks_sagrow = self.get_blocks_sagrow()
         self.s3_sagrow = self.get_s3_sagrow()
+        self.blank_sagrow = self.get_blank_sagrow()
         
     def test_null_params(self):
         try:
@@ -209,6 +210,16 @@ class TestSimAnnealGrow(unittest.TestCase):
         self.s3_sagrow._s3_threshold = 0.6
         self.assertFalse(self.s3_sagrow._move_is_valid(3))
 
+    def get_blank_sagrow(self):
+        return SimAnnealGrow(list(), dict(), dict(), s3_threshold=None)
+        
+    def test_p(self):
+        self.assertEqual(self.blank_sagrow._temperature, 1)
+        self.assertEqual(self.blank_sagrow._P(5, 3), 1)
+        self.assertEqual(self.blank_sagrow._P(3, 5), math.exp(-2))
+        self.blank_sagrow._temperature = 0.5
+        self.assertEqual(self.blank_sagrow._P(3, 5), math.exp(-4))
+
 class SimAnnealGrow:
     # blocks are the building block alignments
     def __init__(self, blocks, adj_set1, adj_set2, s3_threshold=1):
@@ -236,6 +247,15 @@ class SimAnnealGrow:
 
         return block_i
 
+    def _temperature(self, k, k_max):
+        return 1 - (k + 1) / k_max
+    
+    def _P(self, e, e_new):
+        if e_new < e:
+            return 1.0
+        else:
+            return math.exp(-(e_new - e) / self._temperature)
+
     @staticmethod
     def s3_frac_to_s3(s3_frac):
         if s3_frac[1] == 0:
@@ -245,22 +265,22 @@ class SimAnnealGrow:
     
     def _move_is_valid(self, block_i):
         is_adding = not self._use_block[block_i]
-        
-        # we can't remove the last block
-        if self._num_used_blocks == 1 and not is_adding:
-            return False
-
-        # we can't make the mapping non-injective
         block = self._blocks[block_i]
         
-        for node1, node2 in block:
-            if node1 in self._forward_mapping:
-                if self._forward_mapping[node1] != node2:
-                    return False
-                
-            if node2 in self._reverse_mapping:
-                if self._reverse_mapping[node2] != node1:
-                    return False
+        # we can't remove the last block
+        if not is_adding and self._num_used_blocks == 1:
+            return False
+
+        # we can't make the mapping non-injective with an add
+        if is_adding:
+            for node1, node2 in block:
+                if node1 in self._forward_mapping:
+                    if self._forward_mapping[node1] != node2:
+                        return False
+
+                if node2 in self._reverse_mapping:
+                    if self._reverse_mapping[node2] != node1:
+                        return False
 
         # we can't go below the threshold
         updated_s3_frac = self._get_updated_s3_frac(block_i, is_adding)
@@ -349,6 +369,7 @@ class SimAnnealGrow:
     def _reset(self):
         self._use_block = [False] * len(self._blocks)
         self._num_used_blocks = 0
+        self._temperature = 1
                     
     def run(self):
         self._make_move(self._get_random_block_i())
