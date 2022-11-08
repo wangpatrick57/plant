@@ -2,14 +2,15 @@
 from all_helpers import *
 import sys
 
-notes = 'a80'
+notes = sys.argv[1]
+bnstr = '2B'
 pairs = get_syeast_pairs()
 
-for gtag1, gtag2 in pairs:
-    for k in range(2, 6):
+for k in [5, 6]:
+    for gtag1, gtag2 in pairs:
         n = two_gtags_to_n(gtag1, gtag2)
         to_print = [f'{gtag1}-{gtag2}', f'{k}']
-        path = get_odv_ort_path(gtag1, gtag2, k, n, notes)
+        path = get_odv_ort_path(gtag1, gtag2, k, n, bnstr=bnstr, notes=notes)
 
         try:
             odv_orts = read_in_odv_orts(path, include_score=False)

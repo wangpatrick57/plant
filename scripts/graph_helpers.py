@@ -8,6 +8,9 @@ from file_helpers import *
 from el_conv import *
 
 NETWORKS_DIR = '/home/wangph1/plant/networks'
+SYEAST = 'syeast'
+IID = 'iid'
+TPRL = 'tprl'
 
 def gtag_to_real_name(gtag):
     if gtag in get_all_iid_mammals():
@@ -38,14 +41,20 @@ def gtag_to_real_name(gtag):
             # return f'{base_name}-{percent_str}'
             return base_name
 
+def get_group_gtags(group):
+    assert group in [SYEAST, IID, TPRL]
+
+    if group == SYEAST:
+        return get_all_syeasts()
+    elif group == IID:
+        return get_all_iid_mammals()
+    elif group == TPRL:
+        return get_tprl_gtags()
+    else:
+        raise AssertionError()
+        
 def get_all_iid_mammals():
     return ['cat', 'cow', 'dog', 'guineapig', 'horse', 'human', 'mouse', 'pig', 'rabbit', 'rat', 'sheep']
-
-def get_all_iid_nonmammals():
-    return ['fly', 'worm']
-
-def get_all_iid_species():
-    return get_all_iid_mammals() + get_all_iid_nonmammals()
 
 def get_all_syeasts():
     return ['syeast0', 'syeast05', 'syeast10', 'syeast15', 'syeast20', 'syeast25']
@@ -105,6 +114,18 @@ def get_biogrid_induced_pairs():
         bgind_pairs.append((gtag1, gtag2))
 
     return bgind_pairs
+
+def get_group_pairs(group):
+    assert group in [SYEAST, IID, TPRL]
+
+    if group == SYEAST:
+        return get_syeast_pairs()
+    elif group == IID:
+        return get_iid_mammal_pairs()
+    elif group == TPRL:
+        return get_tprl_pairs()
+    else:
+        raise AssertionError()
 
 def get_syeast_pairs():
     pairs = []
@@ -179,7 +200,7 @@ def get_paper_all_gtags(base_tprl_only=True):
     return get_all_iid_mammals() + get_all_syeasts() + tprl
 
 def get_paper_base_gtags():
-    iid_species = get_all_iid_species()
+    iid_species = get_all_iid_mammals()
     syeasts = get_all_syeasts()
     tprl_snap = get_paper_tprl_snap()
     return iid_mammals + syeasts + tprl_snap
@@ -240,7 +261,7 @@ def check_all_marks_unique(gtags):
 
 def is_species(gtag):
     base_gtag = gtag.split('_')[0]
-    return base_gtag in get_all_iid_species() or 'syeast' in base_gtag
+    return base_gtag in get_all_iid_mammals() or 'syeast' in base_gtag
 
 def is_biogrid(gtag):
     base_gtag = gtag.split('_')[0]
@@ -250,8 +271,8 @@ def is_biogrid_induced(gtag):
     base_gtag = gtag.split('_')[0]
     return base_gtag in get_biogrid_induced_gtags()
 
-def is_iid_species(gtag):
-    return gtag in get_all_iid_species()
+def is_iid_mammal(gtag):
+    return gtag in get_all_iid_mammals()
 
 def get_graph_path(gtag):
     from noise_helpers import is_noisy_gtag, get_noisy_graph_path
@@ -304,7 +325,7 @@ def base_gtag_to_mark(gtag):
         return 'sy20'
     elif gtag == 'syeast25':
         return 'sy25'
-    elif is_iid_species(gtag):
+    elif is_iid_mammal(gtag):
         return gtag[:3]
     elif is_paper_snap(gtag):
         if gtag == 'hepph':

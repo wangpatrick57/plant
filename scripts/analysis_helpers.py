@@ -48,7 +48,7 @@ def print_deg_distr(deg_distr):
 def get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2):
     from ortholog_helpers import is_ortholog
 
-    alignment = get_clean_alignment(alignment, adj_set1, adj_set2)
+    assert_is_clean_alignment(alignment, adj_set1, adj_set2)
     num_orts = 0
 
     for node1, node2 in alignment:
@@ -118,7 +118,12 @@ def get_disjoint_alignments(alignments):
 
     return disjoint_alignments
 
-def get_topofunc_acc(nc, s3):
+def get_alignment_acc(alignment, g1_to_g2_ort, adj_set1, adj_set2):
+    nc = get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2)
+    s3 = get_s3(alignment, adj_set1, adj_set2)
+    return convert_nc_s3_to_acc(nc, s3)
+
+def convert_nc_s3_to_acc(nc, s3):
     return (nc + s3) / 2
 
 def get_size_acc_score(size, acc):
@@ -134,7 +139,7 @@ def get_best_scoring_alignment(alignments, g1_to_g2_ort, adj_set1, adj_set2):
         nc = get_alignment_nc(alignment, g1_to_g2_ort)
         s3 = get_s3(alignment, adj_set1, adj_set2)
         size = len(alignment)
-        acc = get_topofunc_acc(nc, s3)
+        acc = convert_nc_s3_to_acc(nc, s3)
         score = get_size_acc_score(size, acc)
         
         if score > best_score:
@@ -152,30 +157,24 @@ def get_med_frontier_alignment(alignments, g1_to_g2_ort, adj_set1, adj_set2):
     score = get_size_acc_score(size, acc)
     return (medfron_alignment, size, acc, score)
 
-def get_frontier_alignments(alignments, g1_to_g2_ort, adj_set1, adj_set2):
+def get_frontier_alignments(alignments, score_fn):
     all_alignments_wstats = []
     
     for alignment in alignments:
-        nc = get_alignment_nc(alignment, g1_to_g2_ort)
-        s3 = get_s3(alignment, adj_set1, adj_set2)
         size = len(alignment)
-        acc = get_topofunc_acc(nc, s3)
-        all_alignments_wstats.append((alignment, size, acc))
+        score = score_fn(alignment)
+        all_alignments_wstats.append((alignment, size, score))
 
     all_alignments_wstats.sort(key=(lambda data : (data[2], data[1])), reverse=True)
     frontier_alignments = []
     max_size = -1
 
-    for alignment, size, acc in all_alignments_wstats:
+    for alignment, size, score in all_alignments_wstats:
         if size > max_size:
-            frontier_alignments.append((alignment, size, acc))
+            frontier_alignments.append((alignment, size, score))
             max_size = size
 
     return frontier_alignments
-
-def get_size_acc_points(alignments, g1_to_g2_ort, adj_set1, adj_set2):
-    frontier_alignments = get_frontier_alignments(alignments, g1_to_g2_ort, adj_set1, adj_set2)
-    return [(size, acc) for _, size, acc in frontier_alignments]
 
 def get_topofunc_perfect_alignments(alignments, g1_to_g2_ort, adj_set1, adj_set2):
     tfp_aligns = []
@@ -217,8 +216,31 @@ def get_alignment_repeats(alignment):
 
     return (num_repeats1, num_repeats2)
 
+def get_clean_alignments(alignments, adj_set1, adj_set2):
+    return [get_clean_alignment(alignment, adj_set1, adj_set2) for alignment in alignments]
+
+def assert_is_injective_alignment(alignment):
+    nodes1 = [node1 for node1, node2 in alignment]
+    nodes2 = [node2 for node1, node2 in alignment]
+    assert len(set(nodes1)) == len(nodes1)
+    assert len(set(nodes2)) == len(nodes2)
+
+def assert_is_connected_alignment(alignment, adj_set1, adj_set2):
+    if len(alignment) == 0:
+        return
+    
+    subgraph1 = get_nx_subgraph([node1 for node1, node2 in alignment], adj_set1)
+    subgraph2 = get_nx_subgraph([node2 for node1, node2 in alignment], adj_set2)
+    cc1 = list(nx.connected_components(subgraph1))
+    cc2 = list(nx.connected_components(subgraph2))
+    assert len(cc1) == 1 or len(cc2) == 1, f'alignment {alignment} isn\'t connected' # at least one side has to be fully connected
+    
+def assert_is_clean_alignment(alignment, adj_set1, adj_set2):
+    assert_is_injective_alignment(alignment)
+    assert_is_connected_alignment(alignment, adj_set1, adj_set2)
+
 def get_clean_alignment(alignment, adj_set1, adj_set2):
-    injective_alignment = get_injective_alignment(alignment)
+    injective_alignment = get_voting_injective_alignment(alignment)
     largest_conn_alignment = get_largest_conn_alignment(injective_alignment, adj_set1, adj_set2)
     return largest_conn_alignment
 
@@ -266,8 +288,13 @@ def get_largest_conn_alignment(alignment, adj_set1, adj_set2):
                 largest_conn_alignment.append((node1, node2))
 
     return largest_conn_alignment
+
+def get_voting_injective_alignment(alignment):
+    voted_node_pairs = extract_node_pairs_from_m2m(alignment) # makes it mostly injective but keeps overlapping node pairs if there are ties in voting
+    injective_alignment = get_simple_injective_alignment(voted_node_pairs) # uses a simple random algorithm to remove overlapping node pairs
+    return injective_alignment
     
-def get_injective_alignment(alignment):
+def get_simple_injective_alignment(alignment):
     added1 = set()
     added2 = set()
     injective_alignment = []
@@ -308,7 +335,7 @@ def alignment_to_mapping(alignment):
     return align_mapping
 
 def get_s3(alignment, adj_set1, adj_set2):
-    alignment = get_clean_alignment(alignment, adj_set1, adj_set2)
+    assert_is_clean_alignment(alignment, adj_set1, adj_set2)
     align_mapping = alignment_to_mapping(alignment)
 
     num_total_edges = 0

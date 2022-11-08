@@ -48,7 +48,7 @@ def gen_nif_file(gtag, overwrite=False):
     else:
         print(f'using old nif file for {gtag}', file=sys.stderr)
 
-def gen_odv_ort_file(gtag1, gtag2, override_k=None, overwrite=False, notes=''):
+def gen_odv_ort_file(gtag1, gtag2, override_k=None, bnstr=None, overwrite=False, notes=''):
     from graph_helpers import gtag_to_mark, read_in_adj_set, get_graph_path
     from odv_helpers import get_odv_orthologs, odv_ort_to_str, get_odv_ort_path, two_gtags_to_k, two_gtags_to_n, ODV, odv_ort_to_nodes
     from file_helpers import file_exists, write_to_file
@@ -57,10 +57,20 @@ def gen_odv_ort_file(gtag1, gtag2, override_k=None, overwrite=False, notes=''):
     k = two_gtags_to_k(gtag1, gtag2, override_k=override_k)
     n = two_gtags_to_n(gtag1, gtag2)
     ODV.set_weights_vars(k)
-    ort_path = get_odv_ort_path(gtag1, gtag2, k, n, notes=notes)
+    ort_path = get_odv_ort_path(gtag1, gtag2, k, n, bnstr=bnstr, notes=notes)
 
     if overwrite or not file_exists(ort_path):
-        odv_ort = get_odv_orthologs(gtag1, gtag2, k, n)
+        if notes == 'no1':
+            no1 = True
+            alpha = 1
+        elif notes == 'a80':
+            no1 = False
+            alpha = 0.8
+        elif notes == 'norm':
+            no1 = False
+            alpha = 1
+            
+        odv_ort = get_odv_orthologs(gtag1, gtag2, k, n, bnstr=bnstr, no1=no1, alpha=alpha)
         mark1 = gtag_to_mark(gtag1)
         mark2 = gtag_to_mark(gtag2)
         ort_str = odv_ort_to_str(odv_ort, mark1, mark2)

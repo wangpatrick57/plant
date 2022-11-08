@@ -9,8 +9,8 @@ BLANT_DIR = f'{HOME_DIR}/BLANT'
 def get_tmp_path(path):
     return f'/tmp/{path}'
 
-def get_seeds_path(gtag1, gtag2, algo='bno'):
-    return get_data_path(f'seeds/{gtag1}-{gtag2}-{algo}.seeds')
+def get_seeds_path(gtag1, gtag2, algo='bno', prox=1, target_num_matching=1):
+    return get_data_path(f'seeds/{gtag1}-{gtag2}-{algo}-px{prox}-tnm{target_num_matching}.seeds')
 
 def get_plant_path(path):
     return f'{PLANT_DIR}/{path}'

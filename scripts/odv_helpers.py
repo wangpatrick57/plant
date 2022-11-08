@@ -28,7 +28,7 @@ def get_blantspl_path_nstr(gtag, k, nstr):
 def get_blantspl_path(gtag, k, n):
     return get_data_path(f'odv/{gtag}-k{k}-n{get_abbr_num_str(n)}.splodv')
 
-def get_combined_odv_path(gtag, k, nstr):
+def get_cbodv_path(gtag, k, nstr):
     return get_data_path(f'odv/{gtag}-k{k}-n{nstr}.cbodv')
 
 def gtag_to_k(gtag, override_k=None):
@@ -213,7 +213,7 @@ def calc_weights(k):
     return weights
 
 def get_combined_odv_file(gtag, k, nstr, overwrite=True):
-    cbodv_path = get_combined_odv_path(gtag, k, nstr)
+    cbodv_path = get_cbodv_path(gtag, k, nstr)
 
     if overwrite or not file_exists(cbodv_path):
         base_k = min(5, k - 1)
@@ -334,7 +334,10 @@ def get_deg_sim(node1, node2, adj_set1, adj_set2, max_deg1, max_deg2):
     deg2 = len(adj_set2[node2])
     return (deg1 + deg2) / (max_deg1 + max_deg2)
 
-def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=1):
+# n is the number of orthologs to generate
+# bn stands for "BLANT n" and is the number of samples
+# if using bn, we're assuming that we're using a combined odv file over a normal odv file
+def get_odv_orthologs(gtag1, gtag2, k, n, bnstr=None, no1=False, alpha=1):
     graph_path1 = get_graph_path(gtag1)
     graph_path2 = get_graph_path(gtag2)
 
@@ -345,8 +348,13 @@ def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=1):
         nodes1 = list(read_in_nodes(graph_path1))
         nodes2 = list(read_in_nodes(graph_path2))
 
-    odv_path1 = get_odv_path(gtag1, k)
-    odv_path2 = get_odv_path(gtag2, k)
+    if bnstr == None:
+        odv_path1 = get_odv_path(gtag1, k)
+        odv_path2 = get_odv_path(gtag2, k)
+    else:
+        odv_path1 = get_cbodv_path(gtag1, k, bnstr)
+        odv_path2 = get_cbodv_path(gtag2, k, bnstr)
+        
     odv_dir1 = ODVDirectory(odv_path1)
     odv_dir2 = ODVDirectory(odv_path2)
     adj_set1 = read_in_adj_set(graph_path1)
@@ -392,9 +400,6 @@ def get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=False, alpha=1):
 
     return sorted(top_n, reverse=True)
 
-def get_odv_orthologs(gtag1, gtag2, k, n):
-    return get_odv_orthologs_lvg_method(gtag1, gtag2, k, n, no1=True, alpha=1)
-
 def analyze_mcl_test_data():
     nif1_path = get_data_path('mcl/mcl_test/ppi1.nif')
     nif2_path = get_data_path('mcl/mcl_test/ppi2.nif')
@@ -433,9 +438,12 @@ def analyze_mcl_test_data():
 def get_fake_ort_path(base, ext):
     return get_data_path(f'mcl/fake_ort/{base}.{ext}')
 
-def get_odv_ort_path(gtag1, gtag2, k, n, notes=''):
+def get_odv_ort_path(gtag1, gtag2, k, n, bnstr=None, notes=''):
     base = f'{gtag1}-{gtag2}-k{k}-n{n}'
 
+    if bnstr != None:
+        base += f'-bn{bnstr}'
+    
     if notes != '':
         base += f'-{notes}'
 
