@@ -20,28 +20,41 @@ class TestSimAnnealGrow(unittest.TestCase):
     def setUp(self):
         self.blocks_sagrow = self.get_blocks_sagrow()
         self.s3_sagrow = self.get_s3_sagrow()
-            
-    def test_well_formed_alignment_assertion(self):
-        try:
-            sagrow = SimAnnealGrow([], dict(), dict())
-            print('A')
-            self.assertTrue(False, 'Non-well-formed alignment got through')
-            print('Z')
-        except:
-            print('B')
-            pass
-
-        print('C')
-
+        
     def test_null_params(self):
         try:
             sagrow = SimAnnealGrow([], dict(), dict())
-            print('a')
+            found_error = False
         except:
-            self.assertTrue(False, 'Null params should get through')
-            print('b')
+            found_error = True
 
-        print('c')
+        self.assertFalse(found_error, 'Null params didn\'t get through')
+        
+    def test_well_formed_alignment_assertion(self):
+        try:
+            sagrow = SimAnnealGrow([('a', 'b'), ('a', 'b', 'c')], dict(), dict())
+            found_error = False
+        except:
+            found_error = True
+
+        self.assertTrue(found_error, 'Non-well-formed alignment got through')
+
+    def test_symmetric_adj_set_assertion(self):
+        try:
+            sagrow = SimAnnealGrow([], {'a': {'b'}}, dict())
+            found_error = False
+        except:
+            found_error = True
+
+        self.assertTrue(found_error, 'Asymmetric adj_set got through')
+
+        try:
+            sagrow = SimAnnealGrow([], dict(), {'a': {'b', 'c'}, 'b': {'c'}, 'c': {'a'}})
+            found_error = False
+        except:
+            found_error = True
+
+        self.assertTrue(found_error, 'Asymmetric adj_set got through')
         
     def get_blocks_sagrow(self):
         # used to test block behavior

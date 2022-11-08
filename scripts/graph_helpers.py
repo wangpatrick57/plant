@@ -377,6 +377,14 @@ def read_in_adj_set(graph_path):
     return adj_set_of_el(read_in_el(graph_path))
 
 def is_symmetric_adj_set(adj_set):
+    for node, neighs in adj_set.items():
+        for neigh in neighs:
+            if neigh not in adj_set:
+                return False
+
+            if node not in adj_set[neigh]:
+                return False
+
     return True
 
 def get_max_deg(adj_set):
