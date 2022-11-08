@@ -1,1 +1,0 @@
-MAKE SURE to run rm *s3* before rerunning a80, no1, and norm
