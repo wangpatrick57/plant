@@ -376,6 +376,9 @@ def get_biogrid_induced_graph_path(bg):
 def read_in_adj_set(graph_path):
     return adj_set_of_el(read_in_el(graph_path))
 
+def is_symmetric_adj_set(adj_set):
+    return True
+
 def get_max_deg(adj_set):
     return max([len(neighs) for neighs in adj_set.values()])
 

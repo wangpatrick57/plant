@@ -154,6 +154,9 @@ def create_output_pairs(node_favorite_pairs):
 
     return output_pairs
 
+def is_well_formed_alignment(alignment):
+    return all(len(pair) == 2 for pair in alignment)
+
 if __name__ == '__main__':
     path = get_data_path('mcl/alignments/syeast0-syeast25-5000.txt')
     print(path)
