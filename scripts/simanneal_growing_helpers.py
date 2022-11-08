@@ -147,14 +147,44 @@ class TestSimAnnealGrow(unittest.TestCase):
         self.assertEqual(self.s3_sagrow._s3_frac, [0, 0])
 
     def test_add_s3_update(self):
-        self.s3_sagrow._make_move(1)
-        self.assertEqual(self.s3_sagrow._s3_frac, [0, 0])
         self.s3_sagrow._make_move(0)
+        self.assertEqual(self.s3_sagrow._s3_frac, [1, 1])
+        self.s3_sagrow._make_move(1)
         self.assertEqual(self.s3_sagrow._s3_frac, [2, 2])
         self.s3_sagrow._make_move(2)
         self.assertEqual(self.s3_sagrow._s3_frac, [4, 4])
         self.s3_sagrow._make_move(3)
         self.assertEqual(self.s3_sagrow._s3_frac, [4, 7])
+
+    def test_add_multiple_s3_update(self):
+        self.s3_sagrow._make_move(1)
+        self.s3_sagrow._make_move(2)
+        self.s3_sagrow._make_move(3)
+        self.assertEqual(self.s3_sagrow._s3_frac, [1, 2])
+        self.s3_sagrow._make_move(0)
+        self.assertEqual(self.s3_sagrow._s3_frac, [4, 7])
+
+    def test_remove_s3_update(self):
+        self.s3_sagrow._make_move(0)
+        self.s3_sagrow._make_move(1)
+        self.s3_sagrow._make_move(2)
+        self.s3_sagrow._make_move(3)
+        self.assertEqual(self.s3_sagrow._s3_frac, [4, 7])
+        self.s3_sagrow._make_move(2)
+        self.assertEqual(self.s3_sagrow._s3_frac, [2, 5])
+        self.s3_sagrow._make_move(3)
+        self.assertEqual(self.s3_sagrow._s3_frac, [2, 2])
+        self.s3_sagrow._make_move(1)
+        self.assertEqual(self.s3_sagrow._s3_frac, [1, 1])
+
+    def test_remove_multiple_s3_update(self):
+        self.s3_sagrow._make_move(0)
+        self.s3_sagrow._make_move(1)
+        self.s3_sagrow._make_move(2)
+        self.s3_sagrow._make_move(3)
+        self.assertEqual(self.s3_sagrow._s3_frac, [4, 7])
+        self.s3_sagrow._make_move(0)
+        self.assertEqual(self.s3_sagrow._s3_frac, [1, 2])
 
 class SimAnnealGrow:
     # blocks are the building block alignments
@@ -215,11 +245,12 @@ class SimAnnealGrow:
         is_adding = not self._use_block[block_i]
         self._use_block[block_i] = not self._use_block[block_i]
 
+        # s3 should be updated before the bookkeeping stuff
         if is_adding:
-            # s3 should be updated before the bookkeeping stuff for efficiency
-            self._update_s3_after_add(block_i)
+            self._update_s3(block_i, True)
             self._update_block_bookkeeping_after_add(block_i)
         else:
+            self._update_s3(block_i, False)
             self._update_block_bookkeeping_after_remove(block_i)
 
     def _update_block_bookkeeping_after_add(self, block_i):
@@ -249,9 +280,10 @@ class SimAnnealGrow:
                 del self._forward_mapping[node1]
                 del self._reverse_mapping[node2]
                 
-    def _update_s3_after_add(self, block_i):
+    def _update_s3(self, block_i, is_adding):
         block = self._blocks[block_i]
         curr_aligned_pairs = set(self._pair_multiset.keys())
+        delta = 1 if is_adding else -1
 
         for node1, node2 in block:
             for curr_node1, curr_node2 in curr_aligned_pairs:
@@ -259,12 +291,15 @@ class SimAnnealGrow:
                 has_edge2 = node2 in self._adj_set2[curr_node2]
 
                 if has_edge1 and has_edge2:
-                    self._s3_frac[0] += 1
+                    self._s3_frac[0] += delta
                 
                 if has_edge1 or has_edge2:
-                    self._s3_frac[1] += 1
+                    self._s3_frac[1] += delta
 
-            curr_aligned_pairs.add((node1, node2))
+            if is_adding:
+                curr_aligned_pairs.add((node1, node2))
+            else:
+                curr_aligned_pairs.remove((node1, node2))
 
     def _reset(self):
         self._use_block = [False] * len(self._blocks)
