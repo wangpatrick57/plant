@@ -8,6 +8,7 @@ import sys
 import copy
 import unittest
 import random
+import curses
 
 STANDARD_P_FUNC = 'standard_p_func'
 ALWAYS_P_FUNC = 'always_p_func'
@@ -69,6 +70,8 @@ class SimAnnealGrow:
                 return 0 if self._temperature == 0 else math.exp(-(e_new - e) / self._temperature)
         elif self._p_func == ALWAYS_P_FUNC:
             return 1.0
+        else:
+            raise AssertionError()
     
     def _move_is_valid(self, block_i):
         is_adding = not self._use_block[block_i]
@@ -90,7 +93,7 @@ class SimAnnealGrow:
                         return False
 
         # we can't go below the threshold
-        updated_s3_frac = self._get_updated_s3_frac(block_i, is_adding)
+        updated_s3_frac = self._get_updated_s3_frac(block_i)
         updated_s3 = s3_frac_to_s3(updated_s3_frac)
         
         # even the first move has to have good enough s3, so we don't have a special case for that. moves add blocks at a time not nodes, so we don't treat the first move differently
@@ -109,17 +112,19 @@ class SimAnnealGrow:
     def _make_move(self, block_i):
         assert self._move_is_valid(block_i)
 
-        # modify use block
-        is_adding = not self._use_block[block_i]
-        self._use_block[block_i] = not self._use_block[block_i]
+        # s3 needs to be updated before the bookkeeping stuff
+        self._s3_frac = self._get_updated_s3_frac(block_i)
 
-        # s3 should be updated before the bookkeeping stuff
+        # update bookkeeping stuff
+        is_adding = not self._use_block[block_i]
+        
         if is_adding:
-            self._s3_frac = self._get_updated_s3_frac(block_i, True)
             self._update_block_bookkeeping_after_add(block_i)
         else:
-            self._s3_frac = self._get_updated_s3_frac(block_i, False)
             self._update_block_bookkeeping_after_remove(block_i)
+
+        # modify use block last since everything else depends on this value being old to calculate is_adding correctly
+        self._use_block[block_i] = not self._use_block[block_i]
 
     def _update_block_bookkeeping_after_add(self, block_i):
         block = self._blocks[block_i]
@@ -148,14 +153,18 @@ class SimAnnealGrow:
                 del self._forward_mapping[node1]
                 del self._reverse_mapping[node2]
                 
-    def _get_updated_s3_frac(self, block_i, is_adding):
+    def _get_updated_s3_frac(self, block_i):
         # this function does not update any internal fields
         block = self._blocks[block_i]
+        is_adding = not self._use_block[block_i]
+        delta_pairs = self._get_delta_pairs(block_i)
         curr_aligned_pairs = set(self._pair_multiset.keys())
         delta = 1 if is_adding else -1
         updated_s3_frac = copy.copy(self._s3_frac)
 
-        for node1, node2 in block:
+        for node1, node2 in delta_pairs:
+            pair = (node1, node2)
+            
             for curr_node1, curr_node2 in curr_aligned_pairs:
                 has_edge1 = node1 in self._adj_set1[curr_node1]
                 has_edge2 = node2 in self._adj_set2[curr_node2]
@@ -165,11 +174,11 @@ class SimAnnealGrow:
                 
                 if has_edge1 or has_edge2:
                     updated_s3_frac[1] += delta
-
+                    
             if is_adding:
-                curr_aligned_pairs.add((node1, node2))
+                curr_aligned_pairs.add(pair)
             else:
-                curr_aligned_pairs.remove((node1, node2))
+                curr_aligned_pairs.remove(pair)
 
         return updated_s3_frac
     
@@ -178,29 +187,48 @@ class SimAnnealGrow:
         self._num_used_blocks = 0
         self._temperature = 1
 
-    def _num_new_pairs(self, block_i):
+    def _get_delta_pairs(self, block_i):
         is_adding = not self._use_block[block_i]
         block = self._blocks[block_i]
 
         if is_adding:
-            return len({pair for pair in block if pair not in self._pair_multiset})
+            return {pair for pair in block if pair not in self._pair_multiset}
         else:
-            return -1 * len({pair for pair in block if self._pair_multiset[pair] == 1})
+            return {pair for pair in block if self._pair_multiset[pair] == 1}
         
-    def run(self, k_max):
+    def _get_num_delta_pairs(self, block_i):
+        is_adding = not self._use_block[block_i]
+        abs_num_delta_pairs = len(self._get_delta_pairs(block_i))
+
+        if is_adding:
+            return abs_num_delta_pairs
+        else:
+            return -1 * abs_num_delta_pairs
+        
+    def run(self, k_max, silent=False):
+        lowest_energy = None
+        best_alignment = None
+        
         for k in range(k_max):
+            if not silent:
+                if k % 100 == 0:
+                    print(f'{k} / {k_max}')
+            
             self._temperature = 1 - (k + 1) / k_max
             next_block_i = self._neighbor()
             num_pairs = len(self._pair_multiset)
-            num_new_pairs = self._num_new_pairs(next_block_i)
+            delta_pairs = self._get_num_delta_pairs(next_block_i)
             curr_energy = energy(num_pairs)
-            new_energy = energy(num_pairs + num_new_pairs)
+            new_energy = energy(num_pairs + delta_pairs)
 
             if self._p(curr_energy, new_energy) >= random.random():
                 self._make_move(next_block_i)
 
-    def get_alignment(self):
-        return list(self._pair_multiset.keys())
+                if lowest_energy == None or new_energy < lowest_energy:
+                    lowest_energy = new_energy
+                    best_alignment = list(self._pair_multiset)
+
+        return best_alignment
 
 class TestSimAnnealGrow(unittest.TestCase):
     def setUp(self):
@@ -280,39 +308,39 @@ class TestSimAnnealGrow(unittest.TestCase):
         self.assertFalse(self.blocks_sagrow._move_is_valid(4))
         self.assertFalse(self.blocks_sagrow._move_is_valid(5))
 
-    def test_add_num_new_pairs(self):
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(0), 1)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(1), 1)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), 2)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(3), 2)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(4), 1)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(5), 1)
+    def test_add_get_num_delta_pairs(self):
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(0), 1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(1), 1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(2), 2)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(3), 2)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(4), 1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(5), 1)
         self.blocks_sagrow._make_move(0)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(1), 1)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), 1)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(3), 2)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(1), 1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(2), 1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(3), 2)
         self.blocks_sagrow._make_move(3)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(1), 1)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), 0)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(1), 1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(2), 0)
 
-    def test_remove_num_new_pairs(self):
+    def test_remove_get_num_delta_pairs(self):
         self.blocks_sagrow._make_move(0)
         self.blocks_sagrow._make_move(1)
         self.blocks_sagrow._make_move(2)
         self.blocks_sagrow._make_move(3)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(0), 0)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(1), -1)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), 0)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(3), -1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(0), 0)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(1), -1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(2), 0)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(3), -1)
         self.blocks_sagrow._make_move(1)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(0), 0)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), 0)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(3), -1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(0), 0)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(2), 0)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(3), -1)
         self.blocks_sagrow._make_move(0)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), -1)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(3), -1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(2), -1)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(3), -1)
         self.blocks_sagrow._make_move(3)
-        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), -2)
+        self.assertEqual(self.blocks_sagrow._get_num_delta_pairs(2), -2)
         
     def test_add_bookkeeping_update(self):
         self.blocks_sagrow._make_move(0)
@@ -350,6 +378,7 @@ class TestSimAnnealGrow(unittest.TestCase):
             [('c', 'C')],
             [('d', 'D')],
             [('e', 'E')],
+            [('a', 'A'), ('c', 'C')],
         ], {
             'a': {'b', 'e'},
             'b': {'a', 'c', 'd'},
@@ -405,6 +434,25 @@ class TestSimAnnealGrow(unittest.TestCase):
         self.s3_sagrow._make_move(3)
         self.assertEqual(self.s3_sagrow._s3_frac, [4, 7])
         self.s3_sagrow._make_move(0)
+        self.assertEqual(self.s3_sagrow._s3_frac, [1, 2])
+
+    def test_double_add_s3_update(self):
+        self.s3_sagrow._make_move(0)
+        self.assertEqual(self.s3_sagrow._s3_frac, [1, 1])
+        self.s3_sagrow._make_move(3)
+        self.assertEqual(self.s3_sagrow._s3_frac, [1, 3])
+        # adding a node pair that already exists
+        self.s3_sagrow._make_move(4)
+        self.assertEqual(self.s3_sagrow._s3_frac, [2, 5])
+
+    def test_double_remove_s3_update(self):
+        # when removing a node pair that's covered by another block
+        self.s3_sagrow._make_move(1)
+        self.s3_sagrow._make_move(2)
+        self.s3_sagrow._make_move(3)
+        self.s3_sagrow._make_move(4)
+        self.assertEqual(self.s3_sagrow._s3_frac, [1, 3])
+        self.s3_sagrow._make_move(4)
         self.assertEqual(self.s3_sagrow._s3_frac, [1, 2])
 
     def test_s3_frac_denom_zero(self):

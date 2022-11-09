@@ -57,6 +57,9 @@ def read_in_m2m(m2m_path):
 
     return m2m_pairs
 
+def alignment_to_str(alignment):
+    return '\n'.join([','.join(pair) for pair in alignment])
+
 def alignments_to_str(alignments):
     s = ''
 
