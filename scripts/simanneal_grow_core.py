@@ -7,6 +7,10 @@ from all_helpers import *
 import sys
 import copy
 import unittest
+import random
+
+STANDARD_P_FUNC = 'standard_p_func'
+ALWAYS_P_FUNC = 'always_p_func'
 
 # blocks are the building block alignments
 def seeds_to_blocks(seeds):
@@ -16,6 +20,187 @@ def seeds_to_blocks(seeds):
         blocks.append(list(zip(nodes1, nodes2)))
 
     return blocks
+
+def energy(size, scale_down=100):
+    return -size / scale_down
+
+def s3_frac_to_s3(s3_frac):
+    if s3_frac[1] == 0:
+        return None
+    else:
+        return s3_frac[0] / s3_frac[1]
+
+class SimAnnealGrow:
+    # blocks are the building block alignments
+    def __init__(self, blocks, adj_set1, adj_set2, p_func=STANDARD_P_FUNC, s3_threshold=1):
+        assert all(is_well_formed_alignment(block) for block in blocks)
+        assert is_symmetric_adj_set(adj_set1)
+        assert is_symmetric_adj_set(adj_set2)
+        self._blocks = blocks
+        self._adj_set1 = adj_set1
+        self._adj_set2 = adj_set2
+        self._p_func = p_func
+        self._s3_threshold = s3_threshold
+        
+        self._pair_multiset = dict()
+        self._forward_mapping = dict()
+        self._reverse_mapping = dict()
+        self._s3_frac = [0, 0]
+        # store numer and denom for s3
+        self._reset()
+
+    # returns a valid move (without caring about the energy change)
+    def _neighbor(self):
+        block_i = self._get_random_block_i()
+        
+        while not self._move_is_valid(block_i):
+            block_i = self._get_random_block_i()
+
+        return block_i
+
+    def _temperature(self, k, k_max):
+        return 1 - (k + 1) / k_max
+    
+    def _p(self, e, e_new):
+        if self._p_func == STANDARD_P_FUNC:
+            if e_new < e:
+                return 1.0
+            else:
+                return 0 if self._temperature == 0 else math.exp(-(e_new - e) / self._temperature)
+        elif self._p_func == ALWAYS_P_FUNC:
+            return 1.0
+    
+    def _move_is_valid(self, block_i):
+        is_adding = not self._use_block[block_i]
+        block = self._blocks[block_i]
+        
+        # we can't remove the last block
+        if not is_adding and self._num_used_blocks == 1:
+            return False
+
+        # we can't make the mapping non-injective with an add
+        if is_adding:
+            for node1, node2 in block:
+                if node1 in self._forward_mapping:
+                    if self._forward_mapping[node1] != node2:
+                        return False
+
+                if node2 in self._reverse_mapping:
+                    if self._reverse_mapping[node2] != node1:
+                        return False
+
+        # we can't go below the threshold
+        updated_s3_frac = self._get_updated_s3_frac(block_i, is_adding)
+        updated_s3 = s3_frac_to_s3(updated_s3_frac)
+        
+        # even the first move has to have good enough s3, so we don't have a special case for that. moves add blocks at a time not nodes, so we don't treat the first move differently
+        if self._s3_threshold == None:
+            pass # if the threshold is None, we'll even allow moves that give undefined s3 scores
+        else:
+            if updated_s3 == None or updated_s3 < self._s3_threshold:
+                return False
+
+        return True
+
+    def _get_random_block_i(self):
+        return random.randrange(len(self._blocks))
+    
+    # call this to modify use block in order to do some bookkeeping
+    def _make_move(self, block_i):
+        assert self._move_is_valid(block_i)
+
+        # modify use block
+        is_adding = not self._use_block[block_i]
+        self._use_block[block_i] = not self._use_block[block_i]
+
+        # s3 should be updated before the bookkeeping stuff
+        if is_adding:
+            self._s3_frac = self._get_updated_s3_frac(block_i, True)
+            self._update_block_bookkeeping_after_add(block_i)
+        else:
+            self._s3_frac = self._get_updated_s3_frac(block_i, False)
+            self._update_block_bookkeeping_after_remove(block_i)
+
+    def _update_block_bookkeeping_after_add(self, block_i):
+        block = self._blocks[block_i]
+        self._num_used_blocks += 1
+                    
+        for node1, node2 in block:
+            pair = (node1, node2)
+
+            if pair not in self._pair_multiset:
+                self._pair_multiset[pair] = 1
+                self._forward_mapping[node1] = node2
+                self._reverse_mapping[node2] = node1
+            else:
+                self._pair_multiset[pair] += 1
+
+    def _update_block_bookkeeping_after_remove(self, block_i):
+        block = self._blocks[block_i]
+        self._num_used_blocks -= 1
+
+        for node1, node2 in block:
+            pair = (node1, node2)
+            self._pair_multiset[pair] -= 1
+
+            if self._pair_multiset[pair] == 0:
+                del self._pair_multiset[pair]
+                del self._forward_mapping[node1]
+                del self._reverse_mapping[node2]
+                
+    def _get_updated_s3_frac(self, block_i, is_adding):
+        # this function does not update any internal fields
+        block = self._blocks[block_i]
+        curr_aligned_pairs = set(self._pair_multiset.keys())
+        delta = 1 if is_adding else -1
+        updated_s3_frac = copy.copy(self._s3_frac)
+
+        for node1, node2 in block:
+            for curr_node1, curr_node2 in curr_aligned_pairs:
+                has_edge1 = node1 in self._adj_set1[curr_node1]
+                has_edge2 = node2 in self._adj_set2[curr_node2]
+
+                if has_edge1 and has_edge2:
+                    updated_s3_frac[0] += delta
+                
+                if has_edge1 or has_edge2:
+                    updated_s3_frac[1] += delta
+
+            if is_adding:
+                curr_aligned_pairs.add((node1, node2))
+            else:
+                curr_aligned_pairs.remove((node1, node2))
+
+        return updated_s3_frac
+    
+    def _reset(self):
+        self._use_block = [False] * len(self._blocks)
+        self._num_used_blocks = 0
+        self._temperature = 1
+
+    def _num_new_pairs(self, block_i):
+        is_adding = not self._use_block[block_i]
+        block = self._blocks[block_i]
+
+        if is_adding:
+            return len({pair for pair in block if pair not in self._pair_multiset})
+        else:
+            return -1 * len({pair for pair in block if self._pair_multiset[pair] == 1})
+        
+    def run(self, k_max):
+        for k in range(k_max):
+            self._temperature = 1 - (k + 1) / k_max
+            next_block_i = self._neighbor()
+            num_pairs = len(self._pair_multiset)
+            num_new_pairs = self._num_new_pairs(next_block_i)
+            curr_energy = energy(num_pairs)
+            new_energy = energy(num_pairs + num_new_pairs)
+
+            if self._p(curr_energy, new_energy) >= random.random():
+                self._make_move(next_block_i)
+
+    def get_alignment(self):
+        return list(self._pair_multiset.keys())
 
 class TestSimAnnealGrow(unittest.TestCase):
     def setUp(self):
@@ -247,207 +432,33 @@ class TestSimAnnealGrow(unittest.TestCase):
     def get_blank_sagrow(self):
         return SimAnnealGrow(list(), dict(), dict(), s3_threshold=None)
         
-    def test_p(self):
+    def test_standard_p_func(self):
+        self.assertEqual(self.blank_sagrow._p_func, STANDARD_P_FUNC)
         self.assertEqual(self.blank_sagrow._temperature, 1)
         self.assertEqual(self.blank_sagrow._p(5, 3), 1)
         self.assertEqual(self.blank_sagrow._p(3, 5), math.exp(-2))
         self.blank_sagrow._temperature = 0.5
+        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
         self.assertEqual(self.blank_sagrow._p(3, 5), math.exp(-4))
-
+        self.blank_sagrow._temperature = 0
+        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5), 0)
+        
+    def test_always_p_func(self):
+        self.blank_sagrow._p_func = ALWAYS_P_FUNC
+        self.assertEqual(self.blank_sagrow._temperature, 1)
+        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5), 1)
+        self.blank_sagrow._temperature = 0.5
+        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5), 1)
+        self.blank_sagrow._temperature = 0
+        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5), 1)
+        
     def test_energy(self):
-        self.assertEqual(SimAnnealGrow._energy(8, 1), -8)
-        self.assertEqual(SimAnnealGrow._energy(8, 2), -4)
-
-class SimAnnealGrow:
-    # blocks are the building block alignments
-    def __init__(self, blocks, adj_set1, adj_set2, s3_threshold=1):
-        assert all(is_well_formed_alignment(block) for block in blocks)
-        assert is_symmetric_adj_set(adj_set1)
-        assert is_symmetric_adj_set(adj_set2)
-        self._blocks = blocks
-        self._adj_set1 = adj_set1
-        self._adj_set2 = adj_set2
-        self._s3_threshold = s3_threshold
-        
-        self._pair_multiset = dict()
-        self._forward_mapping = dict()
-        self._reverse_mapping = dict()
-        self._s3_frac = [0, 0]
-        # store numer and denom for s3
-        self._reset()
-
-    # returns a valid move (without caring about the energy change)
-    def _neighbor(self):
-        block_i = self._get_random_block_i()
-        
-        while not self._move_is_valid(block_i):
-            block_i = self._get_random_block_i()
-
-        return block_i
-
-    def _temperature(self, k, k_max):
-        return 1 - (k + 1) / k_max
+        self.assertEqual(energy(8, 1), -8)
+        self.assertEqual(energy(8, 2), -4)
     
-    def _p(self, e, e_new):
-        if e_new < e:
-            return 1.0
-        else:
-            return math.exp(-(e_new - e) / self._temperature)
-
-    @staticmethod
-    def s3_frac_to_s3(s3_frac):
-        if s3_frac[1] == 0:
-            return None
-        else:
-            return s3_frac[0] / s3_frac[1]
-    
-    def _move_is_valid(self, block_i):
-        is_adding = not self._use_block[block_i]
-        block = self._blocks[block_i]
-        
-        # we can't remove the last block
-        if not is_adding and self._num_used_blocks == 1:
-            return False
-
-        # we can't make the mapping non-injective with an add
-        if is_adding:
-            for node1, node2 in block:
-                if node1 in self._forward_mapping:
-                    if self._forward_mapping[node1] != node2:
-                        return False
-
-                if node2 in self._reverse_mapping:
-                    if self._reverse_mapping[node2] != node1:
-                        return False
-
-        # we can't go below the threshold
-        updated_s3_frac = self._get_updated_s3_frac(block_i, is_adding)
-        updated_s3 = SimAnnealGrow.s3_frac_to_s3(updated_s3_frac)
-        
-        # even the first move has to have good enough s3, so we don't have a special case for that. moves add blocks at a time not nodes, so we don't treat the first move differently
-        if self._s3_threshold == None:
-            pass # if the threshold is None, we'll even allow moves that give undefined s3 scores
-        else:
-            if updated_s3 == None or updated_s3 < self._s3_threshold:
-                return False
-
-        return True
-
-    def _get_random_block_i(self):
-        return random.randrange(len(self._blocks))
-    
-    # call this to modify use block in order to do some bookkeeping
-    def _make_move(self, block_i):
-        assert self._move_is_valid(block_i)
-
-        # modify use block
-        is_adding = not self._use_block[block_i]
-        self._use_block[block_i] = not self._use_block[block_i]
-
-        # s3 should be updated before the bookkeeping stuff
-        if is_adding:
-            self._s3_frac = self._get_updated_s3_frac(block_i, True)
-            self._update_block_bookkeeping_after_add(block_i)
-        else:
-            self._s3_frac = self._get_updated_s3_frac(block_i, False)
-            self._update_block_bookkeeping_after_remove(block_i)
-
-    def _update_block_bookkeeping_after_add(self, block_i):
-        block = self._blocks[block_i]
-        self._num_used_blocks += 1
-                    
-        for node1, node2 in block:
-            pair = (node1, node2)
-
-            if pair not in self._pair_multiset:
-                self._pair_multiset[pair] = 1
-                self._forward_mapping[node1] = node2
-                self._reverse_mapping[node2] = node1
-            else:
-                self._pair_multiset[pair] += 1
-
-    def _update_block_bookkeeping_after_remove(self, block_i):
-        block = self._blocks[block_i]
-        self._num_used_blocks -= 1
-
-        for node1, node2 in block:
-            pair = (node1, node2)
-            self._pair_multiset[pair] -= 1
-
-            if self._pair_multiset[pair] == 0:
-                del self._pair_multiset[pair]
-                del self._forward_mapping[node1]
-                del self._reverse_mapping[node2]
-                
-    def _get_updated_s3_frac(self, block_i, is_adding):
-        # this function does not update any internal fields
-        block = self._blocks[block_i]
-        curr_aligned_pairs = set(self._pair_multiset.keys())
-        delta = 1 if is_adding else -1
-        updated_s3_frac = copy.copy(self._s3_frac)
-
-        for node1, node2 in block:
-            for curr_node1, curr_node2 in curr_aligned_pairs:
-                has_edge1 = node1 in self._adj_set1[curr_node1]
-                has_edge2 = node2 in self._adj_set2[curr_node2]
-
-                if has_edge1 and has_edge2:
-                    updated_s3_frac[0] += delta
-                
-                if has_edge1 or has_edge2:
-                    updated_s3_frac[1] += delta
-
-            if is_adding:
-                curr_aligned_pairs.add((node1, node2))
-            else:
-                curr_aligned_pairs.remove((node1, node2))
-
-        return updated_s3_frac
-
-    @staticmethod
-    def _energy(size, scale_down=100):
-        return -size / scale_down
-    
-    def _reset(self):
-        self._use_block = [False] * len(self._blocks)
-        self._num_used_blocks = 0
-        self._temperature = 1
-
-    def _num_new_pairs(self, block_i):
-        is_adding = not self._use_block[block_i]
-        block = self._blocks[block_i]
-
-        if is_adding:
-            return len({pair for pair in block if pair not in self._pair_multiset})
-        else:
-            return -1 * len({pair for pair in block if self._pair_multiset[pair] == 1})
-        
-    def run(self, k_max):
-        for k in range(k_max):
-            self._temperature = 1 - (k + 1) / k_max
-            next_block_i = self._neighbor()
-            num_pairs = len(self._pair_multiset)
-            num_new_pairs = self._num_new_pairs(block_i)
-            curr_energy = SimAnnealGrow._energy(num_pairs)
-            new_energy = SimAnnealGrow._energy(num_pairs + num_new_pairs)
-
-            if self._p(curr_energy(), self._new_energy(next_block_i)) >= random.random():
-                self._make_move(next_block_i)
-
-    def get_alignment(self):
-        return self._alignment
-
 if __name__ == '__main__':
     unittest.main()
-    quit()
-    gtag1 = sys.argv[1]
-    gtag2 = sys.argv[2]
-    algo = sys.argv[3]
-    adj_set1 = read_in_adj_set(get_graph_path(gtag1))
-    adj_set2 = read_in_adj_set(get_graph_path(gtag2))
-    seeds_path = get_seeds_path(gtag1, gtag2, algo=algo, prox=1, target_num_matching=1)
-    seeds = read_in_seeds(seeds_path)
-    blocks = seeds_to_blocks(seeds)
-    sagrow = SimAnnealGrow(blocks, adj_set1, adj_set2)
-    sagrow.run()
-    print(sagrow.get_alignment())
