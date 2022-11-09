@@ -95,6 +95,40 @@ class TestSimAnnealGrow(unittest.TestCase):
         self.assertFalse(self.blocks_sagrow._move_is_valid(4))
         self.assertFalse(self.blocks_sagrow._move_is_valid(5))
 
+    def test_add_num_new_pairs(self):
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(0), 1)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(1), 1)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), 2)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(3), 2)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(4), 1)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(5), 1)
+        self.blocks_sagrow._make_move(0)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(1), 1)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), 1)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(3), 2)
+        self.blocks_sagrow._make_move(3)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(1), 1)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), 0)
+
+    def test_remove_num_new_pairs(self):
+        self.blocks_sagrow._make_move(0)
+        self.blocks_sagrow._make_move(1)
+        self.blocks_sagrow._make_move(2)
+        self.blocks_sagrow._make_move(3)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(0), 0)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(1), -1)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), 0)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(3), -1)
+        self.blocks_sagrow._make_move(1)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(0), 0)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), 0)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(3), -1)
+        self.blocks_sagrow._make_move(0)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), -1)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(3), -1)
+        self.blocks_sagrow._make_move(3)
+        self.assertEqual(self.blocks_sagrow._num_new_pairs(2), -2)
+        
     def test_add_bookkeeping_update(self):
         self.blocks_sagrow._make_move(0)
         self.assertEqual(self.blocks_sagrow._pair_multiset, {('a', 'B'): 1})
@@ -215,10 +249,14 @@ class TestSimAnnealGrow(unittest.TestCase):
         
     def test_p(self):
         self.assertEqual(self.blank_sagrow._temperature, 1)
-        self.assertEqual(self.blank_sagrow._P(5, 3), 1)
-        self.assertEqual(self.blank_sagrow._P(3, 5), math.exp(-2))
+        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5), math.exp(-2))
         self.blank_sagrow._temperature = 0.5
-        self.assertEqual(self.blank_sagrow._P(3, 5), math.exp(-4))
+        self.assertEqual(self.blank_sagrow._p(3, 5), math.exp(-4))
+
+    def test_energy(self):
+        self.assertEqual(SimAnnealGrow._energy(8, 1), -8)
+        self.assertEqual(SimAnnealGrow._energy(8, 2), -4)
 
 class SimAnnealGrow:
     # blocks are the building block alignments
@@ -250,7 +288,7 @@ class SimAnnealGrow:
     def _temperature(self, k, k_max):
         return 1 - (k + 1) / k_max
     
-    def _P(self, e, e_new):
+    def _p(self, e, e_new):
         if e_new < e:
             return 1.0
         else:
@@ -366,13 +404,35 @@ class SimAnnealGrow:
 
         return updated_s3_frac
 
+    @staticmethod
+    def _energy(size, scale_down=100):
+        return -size / scale_down
+    
     def _reset(self):
         self._use_block = [False] * len(self._blocks)
         self._num_used_blocks = 0
         self._temperature = 1
-                    
-    def run(self):
-        self._make_move(self._get_random_block_i())
+
+    def _num_new_pairs(self, block_i):
+        is_adding = not self._use_block[block_i]
+        block = self._blocks[block_i]
+
+        if is_adding:
+            return len({pair for pair in block if pair not in self._pair_multiset})
+        else:
+            return -1 * len({pair for pair in block if self._pair_multiset[pair] == 1})
+        
+    def run(self, k_max):
+        for k in range(k_max):
+            self._temperature = 1 - (k + 1) / k_max
+            next_block_i = self._neighbor()
+            num_pairs = len(self._pair_multiset)
+            num_new_pairs = self._num_new_pairs(block_i)
+            curr_energy = SimAnnealGrow._energy(num_pairs)
+            new_energy = SimAnnealGrow._energy(num_pairs + num_new_pairs)
+
+            if self._p(curr_energy(), self._new_energy(next_block_i)) >= random.random():
+                self._make_move(next_block_i)
 
     def get_alignment(self):
         return self._alignment
