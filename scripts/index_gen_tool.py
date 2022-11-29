@@ -3,7 +3,7 @@ import sys
 from all_helpers import *
 
 LDEG = 2
-ALGO = 'bno'
+ALGO = 'stairs'
 
 # problematic gtags:
 #  * deezer stopped at 68% for some advs on circ32 but worked on circ16. deezer_10v1a stoped at 2% on circ27 many days later

@@ -25,7 +25,7 @@ def validate_range(k, species_list, percent_list=[0], orbit_list=[0]):
                 if not is_valid:
                     print(f'{species} p{percent} o{orbit} is not valid')
 
-def validate_paper_all(algo='bno'):
+def validate_paper_all(algo='stairs'):
     from graph_helpers import get_paper_all_gtags
 
     for gtag in get_paper_all_gtags():

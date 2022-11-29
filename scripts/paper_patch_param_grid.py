@@ -7,7 +7,7 @@ from ortholog_helpers import *
 
 gtag1 = sys.argv[1]
 gtag2 = sys.argv[2]
-algo = 'bno'
+algo = 'stairs'
 lDEG = 2
 
 extr_nc = []

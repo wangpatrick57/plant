@@ -8,7 +8,7 @@ from patch_helpers import *
 from index_validation_helpers import *
 from graph_helpers import *
 
-def get_gtag_run_info(gtag1, gtag2, g1_alph=True, g2_alph=True, algo='bno', lDEG=2):
+def get_gtag_run_info(gtag1, gtag2, g1_alph=True, g2_alph=True, algo='stairs', lDEG=2):
     g1_index_path = get_index_path(gtag1, alph=g1_alph, algo=algo, lDEG=lDEG)
     g2_index_path = get_index_path(gtag2, alph=g2_alph, algo=algo, lDEG=lDEG)
     g1_graph_path = get_graph_path(gtag1)
@@ -16,7 +16,7 @@ def get_gtag_run_info(gtag1, gtag2, g1_alph=True, g2_alph=True, algo='bno', lDEG
     g1_to_g2_orthologs = get_g1_to_g2_orthologs(gtag1, gtag2)
     return (g1_index_path, g1_graph_path, g2_index_path, g2_graph_path, g1_to_g2_orthologs)
 
-def get_alphrev_gtag_run_infos(gtag1, gtag2, algo='bno'):
+def get_alphrev_gtag_run_infos(gtag1, gtag2, algo='stairs'):
     infos = []
     
     for g1_alph in [True, False]:
@@ -41,8 +41,7 @@ def investigate_alphrev_effect(gtag1, gtag2):
         print(f'{gtag1}-{gtag2} ({alphrev_str}): {len(seeds)} {seed_metrics} {extr_metrics}')
 
 # low param means T=0, M=1, p=0, o=0 with only two index files (no combining)
-def raw_full_low_param_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=1, target_num_matching=1):
-    k = 8
+def raw_full_low_param_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=1, target_num_matching=1, k=8):
     s1_index = get_patched_index(k, s1_index_path, s1_graph_path, prox=prox, target_num_matching=target_num_matching)
     s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=prox, target_num_matching=target_num_matching)
     seeds = find_seeds(s1_index, s2_index, SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
@@ -68,10 +67,10 @@ def seeds_to_str(seeds):
     for gid, entry1, entry2 in seeds:
         lines.append(f'{gid}\t{",".join(entry1)}\t{",".join(entry2)}')
 
-    return '\n'.join(lines)
+    return '\n'.join(lines) + '\n'
 
 # does everything. period.
-def simplified_run_with_metrics(gtag1, gtag2, algo='bno', prox=1, target_num_matching=1, overwrite=False, silent=False):
+def simplified_run_with_metrics(gtag1, gtag2, algo='stairs', prox=1, target_num_matching=1, overwrite=False, silent=False):
     from file_helpers import file_exists
     from ortholog_helpers import get_g1_to_g2_orthologs
 

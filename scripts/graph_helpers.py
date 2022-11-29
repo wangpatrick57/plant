@@ -195,15 +195,9 @@ def OLD_get_paper_abbr_pairs():
     tprl_pairs = get_tprl_pairs()[2::3]
     return syeast_pairs + iid_pairs + tprl_pairs
 
-def get_paper_all_gtags(base_tprl_only=True):
+def get_paper_all_gtags(base_tprl_only=False):
     tprl = get_paper_tprl_snap() if base_tprl_only else get_tprl_gtags()
     return get_all_iid_mammals() + get_all_syeasts() + tprl
-
-def get_paper_base_gtags():
-    iid_species = get_all_iid_mammals()
-    syeasts = get_all_syeasts()
-    tprl_snap = get_paper_tprl_snap()
-    return iid_mammals + syeasts + tprl_snap
 
 def is_paper_snap(gtag):
     return gtag in get_paper_nontprl_snap() or gtag in get_paper_tprl_snap()

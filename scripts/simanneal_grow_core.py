@@ -22,9 +22,39 @@ def seeds_to_blocks(seeds):
 
     return blocks
 
-def energy(size, scale_down=100):
-    return -size / scale_down
+def get_mcl_blocks(gtag1, gtag2, min_size, min_s3, notes='no1'):
+    adj_set1 = read_in_adj_set(get_graph_path(gtag1))
+    adj_set2 = read_in_adj_set(get_graph_path(gtag2))
+    out_path = get_mcl_out_path(gtag1, gtag2, two_gtags_to_k(gtag1, gtag2), two_gtags_to_n(gtag1, gtag2), notes='no1')
+    alignments = read_in_slashes_alignments(out_path)
+    alignments = get_clean_alignments(alignments, adj_set1, adj_set2)
+    return [alignment for alignment in alignments if len(alignment) >= min_size and get_s3(alignment, adj_set1, adj_set2) >= min_s3]
 
+def energy(size):
+    return -size
+
+# bad means increase so it has to be positive
+def get_temperature_endpoints(avg_bad_energy_delta):
+    assert avg_bad_energy_delta >= 1 # just to keep the scale sane
+
+    start_t = 1
+
+    while math.exp(-avg_bad_energy_delta / start_t) < 0.99:
+        start_t *= 10
+
+    while math.exp(-avg_bad_energy_delta / start_t) > 0.99:
+        start_t /= 2
+
+    end_t = 1
+
+    while math.exp(-avg_bad_energy_delta / end_t) > 0.000001:
+        end_t /= 10
+
+    while math.exp(-avg_bad_energy_delta / end_t) < 0.000001:
+        end_t *= 2
+
+    return start_t, end_t
+        
 def s3_frac_to_s3(s3_frac):
     if s3_frac[1] == 0:
         return None
@@ -59,15 +89,12 @@ class SimAnnealGrow:
 
         return block_i
 
-    def _temperature(self, k, k_max):
-        return 1 - (k + 1) / k_max
-    
-    def _p(self, e, e_new):
+    def _p(self, e, e_new, temperature):
         if self._p_func == STANDARD_P_FUNC:
             if e_new < e:
                 return 1.0
             else:
-                return 0 if self._temperature == 0 else math.exp(-(e_new - e) / self._temperature)
+                return 0 if temperature == 0 else math.exp(-(e_new - e) / temperature)
         elif self._p_func == ALWAYS_P_FUNC:
             return 1.0
         else:
@@ -77,10 +104,6 @@ class SimAnnealGrow:
         is_adding = not self._use_block[block_i]
         block = self._blocks[block_i]
         
-        # we can't remove the last block
-        if not is_adding and self._num_used_blocks == 1:
-            return False
-
         # we can't make the mapping non-injective with an add
         if is_adding:
             for node1, node2 in block:
@@ -100,8 +123,11 @@ class SimAnnealGrow:
         if self._s3_threshold == None:
             pass # if the threshold is None, we'll even allow moves that give undefined s3 scores
         else:
-            if updated_s3 == None or updated_s3 < self._s3_threshold:
-                return False
+            is_removing_last_block = not is_adding and self._num_used_blocks == 1
+
+            if not is_removing_last_block:
+                if updated_s3 == None or updated_s3 < self._s3_threshold:
+                    return False
 
         return True
 
@@ -185,7 +211,6 @@ class SimAnnealGrow:
     def _reset(self):
         self._use_block = [False] * len(self._blocks)
         self._num_used_blocks = 0
-        self._temperature = 1
 
     def _get_delta_pairs(self, block_i):
         is_adding = not self._use_block[block_i]
@@ -208,20 +233,21 @@ class SimAnnealGrow:
     def run(self, k_max, silent=False):
         lowest_energy = None
         best_alignment = None
+        start_t, end_t = get_temperature_endpoints(10)
         
         for k in range(k_max):
             if not silent:
                 if k % 100 == 0:
-                    print(f'{k} / {k_max}')
+                    print(f'{k} / {k_max}', file=sys.stderr)
             
-            self._temperature = 1 - (k + 1) / k_max
+            temperature = (1 - k / (k_max - 1)) * (start_t - end_t) + end_t
             next_block_i = self._neighbor()
             num_pairs = len(self._pair_multiset)
             delta_pairs = self._get_num_delta_pairs(next_block_i)
             curr_energy = energy(num_pairs)
             new_energy = energy(num_pairs + delta_pairs)
 
-            if self._p(curr_energy, new_energy) >= random.random():
+            if self._p(curr_energy, new_energy, temperature) >= random.random():
                 self._make_move(next_block_i)
 
                 if lowest_energy == None or new_energy < lowest_energy:
@@ -293,13 +319,6 @@ class TestSimAnnealGrow(unittest.TestCase):
             'F': {},
             'X': {},
         }, s3_threshold=None) # set threshold to None so all moves are valid
-        
-    def test_no_remove_last(self):
-        self.assertTrue(self.blocks_sagrow._move_is_valid(0))
-        self.blocks_sagrow._make_move(0)
-        self.assertFalse(self.blocks_sagrow._move_is_valid(0))
-        self.blocks_sagrow._make_move(1)
-        self.assertTrue(self.blocks_sagrow._move_is_valid(0))
 
     def test_non_injective_add(self):
         self.assertTrue(self.blocks_sagrow._move_is_valid(4))
@@ -427,6 +446,11 @@ class TestSimAnnealGrow(unittest.TestCase):
         self.s3_sagrow._make_move(1)
         self.assertEqual(self.s3_sagrow._s3_frac, [1, 1])
 
+    def test_can_remove_last_block(self):
+        self.s3_sagrow._make_move(0)
+        self.assertEqual(self.s3_sagrow._s3_frac, [1, 1])
+        self.assertTrue(self.s3_sagrow._move_is_valid(0))
+
     def test_remove_multiple_s3_update(self):
         self.s3_sagrow._make_move(0)
         self.s3_sagrow._make_move(1)
@@ -482,31 +506,24 @@ class TestSimAnnealGrow(unittest.TestCase):
         
     def test_standard_p_func(self):
         self.assertEqual(self.blank_sagrow._p_func, STANDARD_P_FUNC)
-        self.assertEqual(self.blank_sagrow._temperature, 1)
-        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
-        self.assertEqual(self.blank_sagrow._p(3, 5), math.exp(-2))
-        self.blank_sagrow._temperature = 0.5
-        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
-        self.assertEqual(self.blank_sagrow._p(3, 5), math.exp(-4))
-        self.blank_sagrow._temperature = 0
-        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
-        self.assertEqual(self.blank_sagrow._p(3, 5), 0)
+        self.assertEqual(self.blank_sagrow._p(5, 3, 1), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5, 1), math.exp(-2))
+        self.assertEqual(self.blank_sagrow._p(5, 3, 0.5), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5, 0.5), math.exp(-4))
+        self.assertEqual(self.blank_sagrow._p(5, 3, 0), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5, 0), 0)
         
     def test_always_p_func(self):
         self.blank_sagrow._p_func = ALWAYS_P_FUNC
-        self.assertEqual(self.blank_sagrow._temperature, 1)
-        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
-        self.assertEqual(self.blank_sagrow._p(3, 5), 1)
-        self.blank_sagrow._temperature = 0.5
-        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
-        self.assertEqual(self.blank_sagrow._p(3, 5), 1)
-        self.blank_sagrow._temperature = 0
-        self.assertEqual(self.blank_sagrow._p(5, 3), 1)
-        self.assertEqual(self.blank_sagrow._p(3, 5), 1)
+        self.assertEqual(self.blank_sagrow._p(5, 3, 1), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5, 1), 1)
+        self.assertEqual(self.blank_sagrow._p(5, 3, 0.5), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5, 0.5), 1)
+        self.assertEqual(self.blank_sagrow._p(5, 3, 0), 1)
+        self.assertEqual(self.blank_sagrow._p(3, 5, 0), 1)
         
     def test_energy(self):
-        self.assertEqual(energy(8, 1), -8)
-        self.assertEqual(energy(8, 2), -4)
+        self.assertEqual(energy(8), -8)
     
 if __name__ == '__main__':
     unittest.main()
