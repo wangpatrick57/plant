@@ -31,12 +31,12 @@ def get_deg_distr(nodes, adj_set):
 
     return deg_distr
 
-def distr_to_str(distr, name):
+def distr_to_str(distr, name, delim=','):
     lines = []
     items = list(distr.items())
     items.sort(key=(lambda d: (-d[0], d[1])))
-    lines.append(f'{name}\tcount')
-    lines.extend([f'{val}\t{cnt}' for val, cnt in items])
+    lines.append(f'{name}{delim}count')
+    lines.extend([f'{val}{delim}{cnt}' for val, cnt in items])
     return '\n'.join(lines)
 
 def print_distr(distr, name):
