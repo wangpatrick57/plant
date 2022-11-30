@@ -108,6 +108,14 @@ def get_mcl_out_path(gtag1, gtag2, k, n, notes=''):
     from file_helpers import get_data_path
     return get_data_path(f'mcl/{get_mcl_out_fname(gtag1, gtag2, k, n, notes=notes)}')
 
+def get_mcl_paths(gtag1, gtag2, k, n, notes=''):
+    out_path = get_mcl_out_path(gtag1, gtag2, k, n, notes=notes)
+    out_path_base = '.'.join(out_path.split('.')[:-1])
+    ag_path = out_path_base + '.ag'
+    time_path = out_path_base + '.time'
+
+    return out_path, ag_path, time_path
+
 def take_from_out(gtag1, gtag2, notes=''):
     from bash_helpers import run_outtake
     from odv_helpers import two_gtags_to_k, two_gtags_to_n
@@ -216,17 +224,14 @@ def clean_mcl_single(gtag, notes=''):
             print(f'removed {path}')
         except Exception as e:
             print(f'failed to remove {path} because of {e}')
-
+            
 def clean_mcl_pair(gtag1, gtag2, notes=''):
     from odv_helpers import two_gtags_to_k, two_gtags_to_n, get_odv_ort_path
     
     k = two_gtags_to_k(gtag1, gtag2)
     n = two_gtags_to_n(gtag1, gtag2)
     ort_path = get_odv_ort_path(gtag1, gtag2, k, n, notes=notes)
-    mcl_out_path = get_mcl_out_path(gtag1, gtag2, k, n, notes=notes)
-    mcl_out_path_base = '.'.join(mcl_out_path.split('.')[:-1])
-    ag_path = mcl_out_path_base + '.ag'
-    time_path = mcl_out_path_base + '.time'
+    out_path, ag_path, time_path = get_mcl_paths(gtag1, gtag2, k, n, notes=notes)
 
     for path in [ort_path, mcl_out_path, ag_path, time_path]:
         try:

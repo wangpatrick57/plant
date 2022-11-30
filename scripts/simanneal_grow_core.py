@@ -63,7 +63,7 @@ def s3_frac_to_s3(s3_frac):
 
 class SimAnnealGrow:
     # blocks are the building block alignments
-    def __init__(self, blocks, adj_set1, adj_set2, p_func=STANDARD_P_FUNC, s3_threshold=1):
+    def __init__(self, blocks, adj_set1, adj_set2, p_func=STANDARD_P_FUNC, s3_threshold=1, write_progress_info=None):
         assert all(is_well_formed_alignment(block) for block in blocks)
         assert is_symmetric_adj_set(adj_set1)
         assert is_symmetric_adj_set(adj_set2)
@@ -72,6 +72,19 @@ class SimAnnealGrow:
         self._adj_set2 = adj_set2
         self._p_func = p_func
         self._s3_threshold = s3_threshold
+
+        if write_progress_info != None:
+            assert type(write_progress_info) is tuple and len(write_progress_info) == 2
+            assert type(write_progress_info[0]) is str
+            assert type(write_progress_info[1]) is int
+            self._write_progress = True
+            self._progress_path = write_progress_info[0]
+            self._write_every_k = write_progress_info[1]
+
+            with open(self._progress_path, 'w') as f:
+                pass
+        else:
+            self._write_progress = False
         
         self._pair_multiset = dict()
         self._forward_mapping = dict()
@@ -230,17 +243,62 @@ class SimAnnealGrow:
         else:
             return -1 * abs_num_delta_pairs
         
-    def run(self, k_max, silent=False):
-        lowest_energy = None
-        best_alignment = None
-        start_t, end_t = get_temperature_endpoints(10)
+    def run(self, k_max=None, auto_k=None, silent=False):
+        if k_max != None:
+            assert auto_k == None
+            assert type(k_max) is int
+        elif auto_k != None:
+            assert k_max == None
+            assert type(auto_k) is tuple
+            assert len(auto_k) == 2
+            assert type(auto_k[0]) == int
+            assert type(auto_k[1]) == float
+            auto_k_window = auto_k[0]
+            auto_k_inc_ratio = auto_k[1]
+            auto_k_granularity = 100
+            assert auto_k[0] % auto_k_granularity == 0
+            back_shift = auto_k_window // auto_k_granularity
+            auto_k_size_log = []
+        else:
+            raise AssertionError('either k_max or auto_k has to be set')
         
-        for k in range(k_max):
+        lowest_energy = None
+        size_after_last_move = 0
+        best_alignment = []
+        start_t, end_t = get_temperature_endpoints(10)
+        start_time = time.time()
+        k = 0
+        inc_ratio = None
+
+        while True:
             if not silent:
-                if k % 100 == 0:
-                    print(f'{k} / {k_max}', file=sys.stderr)
-            
-            temperature = (1 - k / (k_max - 1)) * (start_t - end_t) + end_t
+                if k % 1000 == 0:
+                    if k_max != None:
+                        print(f'{k} / {k_max}, {time.time() - start_time:.2f}s', file=sys.stderr)
+                    else:
+                        print(f'{k} iter, {inc_ratio} ratio, {time.time() - start_time:.2f}s', file=sys.stderr)
+
+            if k_max != None:
+                if k >= k_max:
+                    break
+            elif auto_k != None:
+                if k % auto_k_granularity == 0:
+                    auto_k_size_log.append(len(best_alignment))
+                    curr_log_i = k // auto_k_granularity
+
+                    if len(auto_k_size_log) > back_shift:
+                        curr_size = auto_k_size_log[curr_log_i]
+                        old_size = auto_k_size_log[curr_log_i - back_shift]
+                        inc_ratio = None if old_size == 0 else curr_size / old_size - 1
+
+                        if inc_ratio != None and inc_ratio < auto_k_inc_ratio:
+                            break
+
+            if k_max != None:
+                temperature = (1 - k / (k_max - 1)) * (start_t - end_t) + end_t
+            else:
+                temperature = 1
+                
             next_block_i = self._neighbor()
             num_pairs = len(self._pair_multiset)
             delta_pairs = self._get_num_delta_pairs(next_block_i)
@@ -249,10 +307,17 @@ class SimAnnealGrow:
 
             if self._p(curr_energy, new_energy, temperature) >= random.random():
                 self._make_move(next_block_i)
+                size_after_last_move = len(self._pair_multiset)
 
                 if lowest_energy == None or new_energy < lowest_energy:
                     lowest_energy = new_energy
                     best_alignment = list(self._pair_multiset)
+
+            # write regardless of whether we made a move or not
+            if self._write_progress and k % self._write_every_k == 0:
+                with open(self._progress_path, 'a') as f:
+                    f.write(f'{k}\t{size_after_last_move}\t{len(best_alignment)}\n')
+            k += 1
 
         return best_alignment
 

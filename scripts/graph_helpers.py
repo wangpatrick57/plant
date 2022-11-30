@@ -178,16 +178,14 @@ def get_tprl_pairs():
     return pairs
 
 def get_paper_all_pairs():
-    syeast_pairs = get_syeast_pairs()
     iid_pairs = get_iid_mammal_pairs()
     tprl_pairs = get_tprl_pairs()
-    return syeast_pairs + iid_pairs + tprl_pairs
+    return iid_pairs + tprl_pairs
 
 def get_paper_abbr_pairs():
-    syeast_pairs = get_syeast_pairs()[2:3]
     iid_pairs = get_iid_mammal_pairs()[::5]
     tprl_pairs = get_tprl_pairs()[1::3]
-    return syeast_pairs + iid_pairs + tprl_pairs
+    return iid_pairs + tprl_pairs
 
 def OLD_get_paper_abbr_pairs():
     syeast_pairs = get_syeast_pairs()[2:3]
