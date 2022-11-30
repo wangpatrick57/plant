@@ -15,6 +15,7 @@ ALWAYS_P_FUNC = 'always_p_func'
 
 # blocks are the building block alignments
 def seeds_to_blocks(seeds):
+    seeds.sort()
     blocks = []
 
     for sid, nodes1, nodes2 in seeds:
@@ -63,7 +64,11 @@ def s3_frac_to_s3(s3_frac):
 
 class SimAnnealGrow:
     # blocks are the building block alignments
-    def __init__(self, blocks, adj_set1, adj_set2, p_func=STANDARD_P_FUNC, s3_threshold=1, write_progress_info=None):
+    # WHEN TO PUT PARAMS IN INIT AND WHEN TO PUT THEM IN RUN
+    # if it's used only in run, put it in run
+    # if it's used in functions other than run, put it in init
+    # write_progress_info really should go in run but that's a todo for later
+    def __init__(self, blocks, adj_set1, adj_set2, p_func=STANDARD_P_FUNC, s3_threshold=1, write_progress_info=None, read_use_block_path=None):
         assert all(is_well_formed_alignment(block) for block in blocks)
         assert is_symmetric_adj_set(adj_set1)
         assert is_symmetric_adj_set(adj_set2)
@@ -72,6 +77,7 @@ class SimAnnealGrow:
         self._adj_set2 = adj_set2
         self._p_func = p_func
         self._s3_threshold = s3_threshold
+        self._read_use_block_path = read_use_block_path
 
         if write_progress_info != None:
             assert type(write_progress_info) is tuple and len(write_progress_info) == 2
@@ -224,7 +230,22 @@ class SimAnnealGrow:
     def _reset(self):
         self._use_block = [False] * len(self._blocks)
         self._num_used_blocks = 0
+        
+        if self._read_use_block_path != None:
+            read_use_block = []
+            
+            with open(self._read_use_block_path) as f:
+                for line in f:
+                    read_use_block.append(bool(int(line.strip())))
 
+            assert len(read_use_block) == len(self._use_block)
+
+            for block_i, use_block in enumerate(read_use_block):
+                if use_block:
+                    print(f'attempting {block_i}')
+                    self._make_move(block_i)
+                    print(f'did {block_i}')
+            
     def _get_delta_pairs(self, block_i):
         is_adding = not self._use_block[block_i]
         block = self._blocks[block_i]
@@ -243,7 +264,7 @@ class SimAnnealGrow:
         else:
             return -1 * abs_num_delta_pairs
         
-    def run(self, k_max=None, auto_k=None, silent=False):
+    def run(self, k_max=None, auto_k=None, silent=False, write_use_block_path=None):
         if k_max != None:
             assert auto_k == None
             assert type(k_max) is int
@@ -261,10 +282,13 @@ class SimAnnealGrow:
             auto_k_size_log = []
         else:
             raise AssertionError('either k_max or auto_k has to be set')
+
+        self._reset()
         
         lowest_energy = None
         size_after_last_move = 0
         best_alignment = []
+        best_use_block = self._use_block
         start_t, end_t = get_temperature_endpoints(10)
         start_time = time.time()
         k = 0
@@ -312,6 +336,7 @@ class SimAnnealGrow:
                 if lowest_energy == None or new_energy < lowest_energy:
                     lowest_energy = new_energy
                     best_alignment = list(self._pair_multiset)
+                    best_use_block = list(self._use_block)
 
             # write regardless of whether we made a move or not
             if self._write_progress and k % self._write_every_k == 0:
@@ -319,6 +344,9 @@ class SimAnnealGrow:
                     f.write(f'{k}\t{size_after_last_move}\t{len(best_alignment)}\n')
             k += 1
 
+        if write_use_block_path != None:
+            write_to_file('\n'.join(['1' if ub else '0' for ub in self._use_block]), write_use_block_path)
+            
         return best_alignment
 
 class TestSimAnnealGrow(unittest.TestCase):
