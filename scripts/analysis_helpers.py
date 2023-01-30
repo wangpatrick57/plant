@@ -176,6 +176,16 @@ def get_frontier_alignments(alignments, score_fn):
 
     return frontier_alignments
 
+def read_in_frontier_results(frontier_results_path):
+    frontier_dir = defaultdict(list)
+
+    with open(frontier_results_path) as f:
+        for line in f:
+            pair, size, acc = re.split('\s', line.strip())
+            frontier_dir[pair].append((size, acc))
+
+    return frontier_dir
+
 def get_topofunc_perfect_alignments(alignments, g1_to_g2_ort, adj_set1, adj_set2):
     tfp_aligns = []
     

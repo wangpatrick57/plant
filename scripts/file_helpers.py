@@ -1,6 +1,8 @@
 #!/pkg/python/3.7.4/bin/python3
 import os
+import re
 from graph_helpers import *
+from collections import namedtuple
 
 HOME_DIR = '/home/wangph1'
 PLANT_DIR = f'{HOME_DIR}/plant'
@@ -47,18 +49,50 @@ def get_home_path(home_path):
 def remove_extension(path):
     return '.'.join(path.split('.')[:-1])
 
-def read_in_m2m(m2m_path):
+def read_in_m2m(m2m_path, ignore_invalid_lines=False):
     m2m_pairs = []
 
     with open(m2m_path, 'r') as f:
         for line in f:
-            node1, node2 = line.strip().split('\t')
+            splitted = re.split('\s', line.strip())
+
+            if len(splitted) != 2:
+                if ignore_invalid_lines:
+                    continue
+                else:
+                    raise AssertionError(f'The line "{line.encode("unicode_escape")}" is invalid')
+
+            node1, node2 = splitted
             m2m_pairs.append((node1, node2))
 
     return m2m_pairs
 
+def read_in_alignment(alignment_path, adj_set1, adj_set2):
+    from analysis_helpers import assert_is_clean_alignment
+    alignment = read_in_m2m(alignment_path)
+    assert_is_clean_alignment(alignment, adj_set1, adj_set2)
+    return alignment
+
+def get_results_path(name):
+    return get_data_path(f'results/{name}_results.txt')
+
+SNSResult = namedtuple('SNSResult', ['size', 'nc', 's3'])
+
+def read_in_pair_sns_results(results_path):
+    results = dict()
+    
+    with open(results_path) as f:
+        for line in f:
+            pair, size, nc, s3 = re.split('\s', line.strip())
+            size = int(size)
+            nc = float(nc)
+            s3 = float(s3)
+            results[pair] = SNSResult(size, nc, s3)
+
+    return results
+
 def alignment_to_str(alignment):
-    return '\n'.join([','.join(pair) for pair in alignment])
+    return '\n'.join(['\t'.join(pair) for pair in alignment])
 
 def alignments_to_str(alignments):
     s = ''

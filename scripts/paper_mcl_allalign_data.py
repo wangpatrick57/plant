@@ -7,12 +7,13 @@ from functools import partial
 NC = 'nc'
 S3 = 's3'
 
-group = sys.argv[1]
-acc_type = sys.argv[2]
+acc_type = sys.argv[1]
 assert acc_type in [NC, S3]
 size_score_points = []
+# pairs = get_group_pairs(sys.argv[1])
+pairs = get_paper_all_pairs()
 
-for gtag1, gtag2 in get_group_pairs(group):
+for gtag1, gtag2 in pairs:
     k = two_gtags_to_k(gtag1, gtag2)
     n = two_gtags_to_n(gtag1, gtag2)
     adj_set1 = read_in_adj_set(get_graph_path(gtag1))
@@ -34,8 +35,8 @@ for gtag1, gtag2 in get_group_pairs(group):
         print(f'found {len(frontier_alignments)} frontier alignments for {gtag1}-{gtag2}', file=sys.stderr)
 
         for alignment, size, score in frontier_alignments:
-            size_score_points.append((size, score))
+            size_score_points.append((f'{gtag1}-{gtag2}', size, score))
     else:
         print(f'{gtag1}-{gtag2} missing', file=sys.stderr)
 
-    print('\n'.join(f'{size} {score}' for size, score in size_score_points))
+print('\n'.join(f'{pair} {size} {score}' for pair, size, score in size_score_points))
