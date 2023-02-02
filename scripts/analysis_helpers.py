@@ -254,6 +254,9 @@ def get_clean_alignment(alignment, adj_set1, adj_set2):
     largest_conn_alignment = get_largest_conn_alignment(injective_alignment, adj_set1, adj_set2)
     return largest_conn_alignment
 
+def get_largest_s3_1_alignment(alignment, adj_set1, adj_set2):
+    pass
+
 def get_nx_subgraph(nodes, adj_set):
     g = nx.Graph()
 

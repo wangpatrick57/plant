@@ -36,14 +36,14 @@ def build_faithmcs_package():
         
 def get_cytomcs_alignment_path(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_nonimproving=DEFAULT_MAX_NONIMPROVING, max_num_steps=DEFAULT_MAX_NUM_STEPS):
     return get_data_path(f'cytomcs/cytomcs-{gtag1}-{gtag2}-p{perturbation}-i{max_nonimproving}-s{max_num_steps}.out')
-            
-def run_cytomcs_for_pair(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_nonimproving=DEFAULT_MAX_NONIMPROVING, max_num_steps=DEFAULT_MAX_NUM_STEPS, overwrite=False):
-    def read_in_cytomcs_alignment(alignment_path, adj_set1, adj_set2):
-        alignment = read_in_m2m(alignment_path, ignore_invalid_lines=True)
-        alignment = get_clean_alignment(alignment, adj_set1, adj_set2)
-        assert_is_clean_alignment(alignment, adj_set1, adj_set2)
-        return alignment
 
+def read_in_cytomcs_alignment(alignment_path, adj_set1, adj_set2):
+    alignment = read_in_m2m(alignment_path, ignore_invalid_lines=True)
+    alignment = get_clean_alignment(alignment, adj_set1, adj_set2)
+    assert_is_clean_alignment(alignment, adj_set1, adj_set2)
+    return alignment
+
+def run_cytomcs_for_pair(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_nonimproving=DEFAULT_MAX_NONIMPROVING, max_num_steps=DEFAULT_MAX_NUM_STEPS, overwrite=False):
     sif_path1 = write_gtag_as_sif_file(gtag1)
     sif_path2 = write_gtag_as_sif_file(gtag2)
     alignment_path = get_cytomcs_alignment_path(gtag1, gtag2, perturbation=perturbation, max_nonimproving=max_nonimproving, max_num_steps=max_num_steps)
@@ -54,19 +54,22 @@ def run_cytomcs_for_pair(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_no
         r.check_returncode()
     else:
         print(f'using old alignment file for {gtag1}-{gtag2}')
-        
-    adj_set1 = read_in_adj_set(get_graph_path(gtag1))
-    adj_set2 = read_in_adj_set(get_graph_path(gtag2))
-    g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
-    alignment = read_in_cytomcs_alignment(alignment_path, adj_set1, adj_set2)
-    size = len(alignment)
-    nc = get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2)
-    s3 = get_s3(alignment, adj_set1, adj_set2)
-    print(f'{gtag1}-{gtag2}', size, nc, s3)
-            
+
+def print_cytomcs_results(pairs, perturbation=DEFAULT_PERTURBATION, max_nonimproving=DEFAULT_MAX_NONIMPROVING, max_num_steps=DEFAULT_MAX_NUM_STEPS):
+    for gtag1, gtag2 in pairs:
+        alignment_path = get_cytomcs_alignment_path(gtag1, gtag2, perturbation=perturbation, max_nonimproving=max_nonimproving, max_num_steps=max_num_steps)
+        adj_set1 = read_in_adj_set(get_graph_path(gtag1))
+        adj_set2 = read_in_adj_set(get_graph_path(gtag2))
+        g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
+        alignment = read_in_cytomcs_alignment(alignment_path, adj_set1, adj_set2)
+        size = len(alignment)
+        nc = get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2)
+        s3 = get_s3(alignment, adj_set1, adj_set2)
+        print(f'{gtag1}-{gtag2}', size, nc, s3)
+    
 if __name__ == '__main__':
-    # write_gtag_as_sif_file(sys.argv[1])
+    max_num_steps = 5
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
-    max_num_steps = sys.argv[3]
-    run_cytomcs_for_pair(gtag1, gtag2, max_num_steps=max_num_steps, overwrite=True)
+    run_cytomcs_for_pair(gtag1, gtag2, max_num_steps=max_num_steps, overwrite=False)
+    # print_cytomcs_results([('email_s0', 'email_s1'), ('email_s0', 'email_s3')], max_num_steps=max_num_steps)

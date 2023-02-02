@@ -1,0 +1,16 @@
+#!/bin/python3
+import sys
+
+def induced_subgraph(nodes_file, edges_file):
+    with open(nodes_file) as f:
+        nodes = set(map(str.strip, f.readlines()))
+        
+    with open(edges_file) as f:
+        edges = [tuple(map(str.strip, line.split())) for line in f.readlines()]
+        
+    induced_edges = [(u, v) for u, v in edges if u in nodes and v in nodes]
+    
+    for u, v in induced_edges:
+        print(u, v)
+
+induced_subgraph(sys.argv[1], sys.argv[2])
