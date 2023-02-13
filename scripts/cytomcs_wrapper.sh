@@ -13,7 +13,7 @@ endlogf=$LOG_DIR/$scrname-$jobname-ends.log
 
 # running
 echo $logf >>$startlogf
-cytomcs_helpers.py $gtag1 $gtag2 &>$logf
+./cytomcs_helpers.py $gtag1 $gtag2 &>$logf
 
 # end
 echo "JOBSFINISHED" >>$logf

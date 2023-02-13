@@ -2,14 +2,20 @@
 from all_helpers import *
 
 # all functions use certain global variables defined in if __name__ == '__main__'
-def e2e(k):
-    sagrow = SimAnnealGrow(blocks, adj_set1, adj_set2, p_func=p_func, s3_threshold=s3_threshold)
-    alignment = sagrow.run(k)
-    alignment = get_clean_alignment(alignment, adj_set1, adj_set2)
-    size = len(alignment)
-    nc = get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2)
-    s3 = get_s3(alignment, adj_set1, adj_set2)
-    print('generated', size, nc, s3, file=sys.stderr)
+def e2e():
+    sagrow = SimAnnealGrow(blocks, adj_set1, adj_set2, p_func=p_func, s3_threshold=0)
+    s3_threshold = starting_s3_threshold
+    
+    while s3_threshold >= ending_s3_threshold:
+        sagrow._s3_threshold = s3_threshold
+        alignment = sagrow.run(auto_k=(1000, 0.01), silent=True)
+        alignment = get_clean_alignment(alignment, adj_set1, adj_set2)
+        size = len(alignment)
+        nc = get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2)
+        s3 = get_s3(alignment, adj_set1, adj_set2)
+        print(f'run with s3={sagrow._s3_threshold} generated', size, nc, s3, file=sys.stderr)
+        s3_threshold -= s3_threshold_step
+
     return (size, nc, s3)
 
 def get_idstr():
@@ -40,16 +46,25 @@ def multiple_k_many_runs(k_list, num_runs_per_k):
 
 # all the functions use these same global variables
 if __name__ == '__main__':
-    gtag1 = 'mouse'
-    gtag2 = 'rat'
-    algo = 'stairs'
     p_func = ALWAYS_P_FUNC
-    s3_threshold = 0.8
-    
-    adj_set1 = read_in_adj_set(get_graph_path(gtag1))
-    adj_set2 = read_in_adj_set(get_graph_path(gtag2))
-    g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
-    
-    blocks = get_mcl_blocks(gtag1, gtag2, 5, 0.6, 'no1')
-    result = e2e(10000)
-    print(result)
+    starting_s3_threshold = 1
+    ending_s3_threshold = 0.74
+    s3_threshold_step = 0.05
+    algo = 'stairs'
+    # pairs = [('mouse', 'rat'), ('cat', 'cow'), ('mouse', 'pig'), ('horse', 'mouse'), ('guineapig', 'sheep'), ('human', 'rat')]
+    pairs = [(sys.argv[1], sys.argv[2])]
+    results = []
+
+    for gtag1, gtag2 in pairs:
+        adj_set1 = read_in_adj_set(get_graph_path(gtag1))
+        adj_set2 = read_in_adj_set(get_graph_path(gtag2))
+        g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
+
+        # blocks = get_mcl_blocks(gtag1, gtag2, 5, 0.6, 'no1')
+        seeds_path = get_seeds_path(gtag1, gtag2, algo=algo, prox=1, target_num_matching=1)
+        seeds = read_in_seeds(seeds_path)
+        blocks = seeds_to_blocks(seeds)
+        results.append(e2e())
+
+    for (gtag1, gtag2), result in zip(pairs, results):
+        print(f'{gtag1}-{gtag2}: {result}')

@@ -283,8 +283,6 @@ class SimAnnealGrow:
         else:
             raise AssertionError('either k_max or auto_k has to be set')
 
-        self._reset()
-        
         lowest_energy = None
         size_after_last_move = 0
         best_alignment = []

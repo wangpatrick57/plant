@@ -49,27 +49,23 @@ def run_cytomcs_for_pair(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_no
     alignment_path = get_cytomcs_alignment_path(gtag1, gtag2, perturbation=perturbation, max_nonimproving=max_nonimproving, max_num_steps=max_num_steps)
 
     if overwrite or not os.path.exists(alignment_path):
-        build_faithmcs_package()
+        # don't build the package since that could create concurrency issues
         r = subprocess.run(f'java -jar {CYTOMCS_DIR}/target/faithmcs-0.2.jar -p{perturbation / 100} -i{max_nonimproving} -s{max_num_steps} -o{alignment_path} {sif_path1} {sif_path2}'.split())
         r.check_returncode()
     else:
         print(f'using old alignment file for {gtag1}-{gtag2}')
 
-def print_cytomcs_results(pairs, perturbation=DEFAULT_PERTURBATION, max_nonimproving=DEFAULT_MAX_NONIMPROVING, max_num_steps=DEFAULT_MAX_NUM_STEPS):
-    for gtag1, gtag2 in pairs:
-        alignment_path = get_cytomcs_alignment_path(gtag1, gtag2, perturbation=perturbation, max_nonimproving=max_nonimproving, max_num_steps=max_num_steps)
-        adj_set1 = read_in_adj_set(get_graph_path(gtag1))
-        adj_set2 = read_in_adj_set(get_graph_path(gtag2))
-        g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
-        alignment = read_in_cytomcs_alignment(alignment_path, adj_set1, adj_set2)
-        size = len(alignment)
-        nc = get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2)
-        s3 = get_s3(alignment, adj_set1, adj_set2)
-        print(f'{gtag1}-{gtag2}', size, nc, s3)
+    adj_set1 = read_in_adj_set(get_graph_path(gtag1))
+    adj_set2 = read_in_adj_set(get_graph_path(gtag2))
+    g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
+    alignment = read_in_cytomcs_alignment(alignment_path, adj_set1, adj_set2)
+    size = len(alignment)
+    nc = get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2)
+    s3 = get_s3(alignment, adj_set1, adj_set2)
+    print(f'{gtag1}-{gtag2}', size, nc, s3)
     
 if __name__ == '__main__':
-    max_num_steps = 5
+    max_num_steps = 1
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
     run_cytomcs_for_pair(gtag1, gtag2, max_num_steps=max_num_steps, overwrite=False)
-    # print_cytomcs_results([('email_s0', 'email_s1'), ('email_s0', 'email_s3')], max_num_steps=max_num_steps)

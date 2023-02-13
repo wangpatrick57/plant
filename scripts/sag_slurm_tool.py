@@ -8,9 +8,9 @@ from all_helpers import *
 # SLURM BEHAVIOR
 # sometimes the log files contain partial output before the program is actually done. don't be surprised by this
 
-jobname = 'nov30mn'
-pairs = get_paper_all_pairs()
-# pairs = [('cat', 'rat'), ('human', 'pig'), ('human', 'sheep'), ('mouse', 'rabbit')]
+jobname = 'feb11aft1'
+# pairs = get_paper_all_pairs()
+pairs = [('cat', 'rat'), ('human', 'pig'), ('human', 'sheep'), ('mouse', 'rabbit')]
 
 for gtag1, gtag2 in pairs:
     print(f'./run_sag.py {gtag1} {gtag2}')
