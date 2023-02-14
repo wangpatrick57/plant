@@ -3,6 +3,20 @@ from collections import defaultdict
 from all_helpers import *
 import networkx as nx
 
+def eval_alignment(gtag1, gtag2, alignment, eval_s3=True):
+    adj_set1 = read_in_adj_set(get_graph_path(gtag1))
+    adj_set2 = read_in_adj_set(get_graph_path(gtag2))
+    g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
+    size = len(alignment)
+    nc = get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2)
+
+    if eval_s3:
+        s3 = get_s3(alignment, adj_set1, adj_set2)
+    else:
+        s3 = None
+        
+    return size, nc, s3
+
 def get_seeds_deg_distr(seeds, adj_set, use_first_species=True):
     flattened_nodes = []
 
