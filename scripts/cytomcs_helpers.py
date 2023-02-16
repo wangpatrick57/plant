@@ -35,8 +35,8 @@ def build_faithmcs_package():
         r = subprocess.run(f'mvn package -f {CYTOMCS_DIR}'.split())
         r.check_returncode()
         
-def get_cytomcs_alignment_path(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_nonimproving=DEFAULT_MAX_NONIMPROVING, max_num_steps=DEFAULT_MAX_NUM_STEPS):
-    return get_data_path(f'cytomcs/cytomcs-{gtag1}-{gtag2}-p{perturbation}-i{max_nonimproving}-s{max_num_steps}.out')
+def get_cytomcs_alignment_path(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_nonimproving=DEFAULT_MAX_NONIMPROVING, max_num_steps=DEFAULT_MAX_NUM_STEPS, random_seed=None):
+    return get_data_path(f'cytomcs/cytomcs-{gtag1}-{gtag2}-p{perturbation}-i{max_nonimproving}-s{max_num_steps}-r{random_seed}.out')
 
 def read_in_cytomcs_alignment(alignment_path, adj_set1, adj_set2):
     alignment = read_in_m2m(alignment_path, ignore_invalid_lines=True)
@@ -44,14 +44,21 @@ def read_in_cytomcs_alignment(alignment_path, adj_set1, adj_set2):
     assert_is_clean_alignment(alignment, adj_set1, adj_set2)
     return alignment
 
-def run_cytomcs_for_pair(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_nonimproving=DEFAULT_MAX_NONIMPROVING, max_num_steps=DEFAULT_MAX_NUM_STEPS, random_seed=-1, silent=False, overwrite=False):
+def get_java_random_seed(random_seed):
+    if random_seed == None:
+        return -1
+    else:
+        assert type(random_seed) is int
+        return random_seed
+
+def run_cytomcs_for_pair(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_nonimproving=DEFAULT_MAX_NONIMPROVING, max_num_steps=DEFAULT_MAX_NUM_STEPS, random_seed=None, silent=False, overwrite=False):
     sif_path1 = write_gtag_as_sif_file(gtag1, silent=silent)
     sif_path2 = write_gtag_as_sif_file(gtag2, silent=silent)
-    alignment_path = get_cytomcs_alignment_path(gtag1, gtag2, perturbation=perturbation, max_nonimproving=max_nonimproving, max_num_steps=max_num_steps)
+    alignment_path = get_cytomcs_alignment_path(gtag1, gtag2, perturbation=perturbation, max_nonimproving=max_nonimproving, max_num_steps=max_num_steps, random_seed=random_seed)
 
     if overwrite or not os.path.exists(alignment_path):
         # don't build the package since that could create concurrency issues
-        r = subprocess.run(f'java -jar {CYTOMCS_DIR}/target/faithmcs-0.2.jar -p{perturbation / 100} -i{max_nonimproving} -s{max_num_steps} -o{alignment_path} -r{random_seed} {sif_path1} {sif_path2}'.split(), capture_output=silent)
+        r = subprocess.run(f'java -jar {CYTOMCS_DIR}/target/faithmcs-0.2.jar -p{perturbation / 100} -i{max_nonimproving} -s{max_num_steps} -o{alignment_path} -r{get_java_random_seed(random_seed)} {sif_path1} {sif_path2}'.split(), capture_output=silent)
         r.check_returncode()
     else:
         if not silent:
@@ -60,10 +67,11 @@ def run_cytomcs_for_pair(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_no
     adj_set1 = read_in_adj_set(get_graph_path(gtag1))
     adj_set2 = read_in_adj_set(get_graph_path(gtag2))
     alignment = read_in_cytomcs_alignment(alignment_path, adj_set1, adj_set2)
-    results = eval_alignment(gtag1, gtag2, alignment)
+    results = eval_alignment(gtag1, gtag2, alignment, eval_s3=False)
             
     if not silent:
         print(f'{gtag1}-{gtag2}', ' '.join(map(str, results)))
+        print(f'results in {alignment_path}')
 
     return results
         
