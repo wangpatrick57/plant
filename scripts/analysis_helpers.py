@@ -59,17 +59,22 @@ def print_distr(distr, name):
 def print_deg_distr(deg_distr):
     print_distr(deg_distr, 'degree')
 
-def get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2):
+def get_alignment_orthologs(alignment, g1_to_g2_ort, adj_set1, adj_set2):
     from ortholog_helpers import is_ortholog
 
     assert_is_clean_alignment(alignment, adj_set1, adj_set2)
-    num_orts = 0
+    orts = []
 
     for node1, node2 in alignment:
         if is_ortholog(node1, node2, g1_to_g2_ort):
-            num_orts += 1
+            orts.append((node1, node2))
 
-    return num_orts / len(alignment) if len(alignment) > 0 else 0
+    return orts
+    
+def get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2):
+    # we don't check if the alignment is clean because we already do that in get_alignment_orthologs
+    orts = get_alignment_orthologs(alignment, g1_to_g2_ort, adj_set1, adj_set2)
+    return len(orts) / len(alignment) if len(alignment) > 0 else 0
 
 def get_seed_nc(seeds, g1_to_g2_ort):
     from ortholog_helpers import is_ortholog
