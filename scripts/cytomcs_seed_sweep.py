@@ -11,7 +11,7 @@ if __name__ == '__main__':
     num_bad = 0
     weirds = []
 
-    for random_seed in range(100):
+    for random_seed in range(10):
         size, nc, s3 = run_cytomcs_for_pair(gtag1, gtag2, max_num_steps=max_num_steps, perturbation=perturbation, random_seed=random_seed, overwrite=False, silent=True)
 
         if nc < 0.1:

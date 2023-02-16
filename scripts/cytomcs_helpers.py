@@ -77,8 +77,9 @@ def run_cytomcs_for_pair(gtag1, gtag2, perturbation=DEFAULT_PERTURBATION, max_no
         
     
 if __name__ == '__main__':
-    max_num_steps = 1
-    perturbation = 0
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
-    run_cytomcs_for_pair(gtag1, gtag2, max_num_steps=max_num_steps, perturbation=perturbation)
+    perturbation = int(sys.argv[3])
+    max_num_steps = int(sys.argv[4])
+    random_seed = int(sys.argv[5])
+    run_cytomcs_for_pair(gtag1, gtag2, max_num_steps=max_num_steps, perturbation=perturbation, random_seed=random_seed)

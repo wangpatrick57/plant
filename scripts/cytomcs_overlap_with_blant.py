@@ -5,7 +5,10 @@ import sys
 import os
 
 if __name__ == '__main__':
-    for gtag1, gtag2 in get_iid_mammal_pairs():
+    pairs = get_iid_mammal_pairs()
+    pairs = pairs[pairs.index(('dog', 'horse')):]
+    
+    for gtag1, gtag2 in pairs:
         adj_set1 = read_in_adj_set(get_graph_path(gtag1))
         adj_set2 = read_in_adj_set(get_graph_path(gtag2))
         g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
@@ -20,4 +23,6 @@ if __name__ == '__main__':
             cytomcs_orts = set(get_alignment_orthologs(cytomcs_alignment, g1_to_g2_ort, adj_set1, adj_set2))
             print(f'{gtag1}-{gtag2}', len(sag_orts), len(sag_alignment), len(cytomcs_orts), len(cytomcs_alignment), len(sag_orts.intersection(cytomcs_orts)))
         else:
+            print(sag_alignment_path)
+            print(cytomcs_alignment_path)
             print(f'{gtag1}-{gtag2} missing')
