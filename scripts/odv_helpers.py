@@ -46,9 +46,14 @@ def get_gtag_to_n_cache_path():
     return get_data_path('caches/gtag_to_n_cache.txt')
     
 def read_gtag_to_n_cache():
+    path = get_gtag_to_n_cache_path()
+
+    if not os.path.exists(path):
+        return dict()
+
     g2n_cache = dict()
 
-    with open(get_gtag_to_n_cache_path(), 'r') as f:
+    with open(path, 'r') as f:
         for line in f:
             gtag, n = line.strip().split()
             n = int(n)

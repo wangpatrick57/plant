@@ -4,7 +4,8 @@ import re
 from graph_helpers import *
 from collections import namedtuple
 
-HOME_DIR = '/home/wangph1'
+# HOME_DIR = '/home/wangph1'
+HOME_DIR = '/Users/patrickwang/Documents/collegeStuff/research'
 PLANT_DIR = f'{HOME_DIR}/plant'
 BLANT_DIR = f'{HOME_DIR}/BLANT'
 
@@ -139,6 +140,8 @@ def write_el_to_file(el, file_path):
     outfile.close()
 
 def write_to_file(s, fpath):
+    os.makedirs(os.path.dirname(fpath), exist_ok=True)
+
     with open(fpath, 'w') as f:
         f.write(s)
         

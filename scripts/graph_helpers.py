@@ -7,7 +7,7 @@ from collections import defaultdict
 from file_helpers import *
 from el_conv import *
 
-NETWORKS_DIR = '/home/wangph1/plant/networks'
+NETWORKS_DIR = f'{PLANT_DIR}/networks'
 SYEAST = 'syeast'
 IID = 'iid'
 TPRL = 'tprl'
