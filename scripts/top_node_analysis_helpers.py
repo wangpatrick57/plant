@@ -15,6 +15,9 @@ def get_top_nodes(adj_set, n):
     degrees.sort(key=(lambda data : data[1]), reverse=True)
     return degrees[:n]
 
+def convert_top_nodes_to_ranked_nodes(top_nodes):
+    return {node: rank for rank, (node, deg) in enumerate(top_nodes)}
+
 def get_top_nodes_el(gtag, n):
     adj_set = cache_read_in_adj_set(gtag)
     top_nodes = get_top_nodes(adj_set, n)
@@ -53,11 +56,22 @@ def analyze_top_nodes_similarity(gtag1, gtag2, n):
 
     return (num_matches, num_total)
 
-if __name__ == '__main__':
-    path = get_graph_path('slashdotaug_5v1')
+def get_top_nodes_of_gtag(gtag):
+    path = get_graph_path(gtag)
     el = read_in_el(path)
     adj_set = adj_set_of_el(el)
     top_nodes = get_top_nodes(adj_set, 5)
-    sg = induced_subgraph(el, [node for node, deg in top_nodes])
-    print(top_nodes)
-    print_el(sg)
+    return top_nodes
+
+def get_ranked_nodes_of_gtag(gtag):
+    top_nodes = get_top_nodes_of_gtag(gtag)
+    ranked_nodes = convert_top_nodes_to_ranked_nodes(top_nodes)
+    return ranked_nodes
+
+def compare_top_nodes_in_alignment(gtag1, gtag2, alignment):
+    ranked_nodes1 = get_ranked_nodes_of_gtag(gtag1)
+    ranked_nodes2 = get_ranked_nodes_of_gtag(gtag2)
+    print(ranked_nodes1, ranked_nodes2)
+
+if __name__ == '__main__':
+    compare_top_nodes_in_alignment('mouse', 'rat', [])

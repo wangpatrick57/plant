@@ -8,13 +8,13 @@ from all_helpers import *
 # SLURM BEHAVIOR
 # sometimes the log files contain partial output before the program is actually done. don't be surprised by this
 
-jobname = 'feb15nt1'
-# pairs = get_iid_mammal_pairs()
-pairs = [('human', 'pig'), ('mouse', 'rabbit'), ('rabbit', 'rat')]
-perturbation = 20
-max_num_steps = 1
+jobname = 'feb16aft2'
+pairs = get_iid_mammal_pairs()
+# pairs = [('human', 'pig'), ('mouse', 'rabbit'), ('rabbit', 'rat')]
+perturbation = 0
+max_num_steps = 0
+random_seed = 0
 
-for random_seed in range(10):
-    for gtag1, gtag2 in pairs:
-        print(f'./cytomcs_wrapper.sh {jobname} {gtag1} {gtag2} {perturbation} {max_num_steps} {random_seed}')
+for gtag1, gtag2 in pairs:
+    print(f'./cytomcs_wrapper.sh {jobname} {gtag1} {gtag2} {perturbation} {max_num_steps} {random_seed}')
 

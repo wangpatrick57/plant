@@ -3,22 +3,28 @@ from all_helpers import *
 import sys
 
 if __name__ == '__main__':
-    max_num_steps = 1
+    max_num_steps = 0
     perturbation = 0
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
-    num_good = 0
-    num_bad = 0
-    weirds = []
+
+    print(f'sweeping seeds for {gtag1}-{gtag2} s{max_num_steps} p{perturbation}')
 
     for random_seed in range(10):
-        size, nc, s3 = run_cytomcs_for_pair(gtag1, gtag2, max_num_steps=max_num_steps, perturbation=perturbation, random_seed=random_seed, overwrite=False, silent=True)
+        alignment_path = get_cytomcs_alignment_path(gtag1, gtag2, perturbation=perturbation, max_num_steps=max_num_steps, random_seed=random_seed)
 
-        if nc < 0.1:
-            num_bad += 1
-        elif nc > 0.8:
-            num_good += 1
+        if os.path.exists(alignment_path):
+            size, nc, s3 = run_cytomcs_for_pair(gtag1, gtag2, max_num_steps=max_num_steps, perturbation=perturbation, random_seed=random_seed, overwrite=False, silent=True)
+
+            print(f'r{random_seed} | ', end='')
+
+            if nc < 0.15:
+                print('bad', end='')
+            elif nc > 0.8:
+                print('good', end='')
+            else:
+                print('weird', end='')
+
+            print(f' (nc={nc})')
         else:
-            weirds.append((random_seed, nc))
-
-        print(f'results after r{random_seed} | {gtag1}-{gtag2} s{max_num_steps} p{perturbation}: {num_good} good, {num_bad} bad, {weirds} weird')
+            print(f'skipping r{random_seed}')

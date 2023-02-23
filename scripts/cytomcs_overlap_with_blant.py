@@ -23,6 +23,4 @@ if __name__ == '__main__':
             cytomcs_orts = set(get_alignment_orthologs(cytomcs_alignment, g1_to_g2_ort, adj_set1, adj_set2))
             print(f'{gtag1}-{gtag2}', len(sag_orts), len(sag_alignment), len(cytomcs_orts), len(cytomcs_alignment), len(sag_orts.intersection(cytomcs_orts)))
         else:
-            print(sag_alignment_path)
-            print(cytomcs_alignment_path)
             print(f'{gtag1}-{gtag2} missing')
