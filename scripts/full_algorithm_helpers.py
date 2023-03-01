@@ -41,11 +41,25 @@ def investigate_alphrev_effect(gtag1, gtag2):
         print(f'{gtag1}-{gtag2} ({alphrev_str}): {len(seeds)} {seed_metrics} {extr_metrics}')
 
 # low param means T=0, M=1, p=0, o=0 with only two index files (no combining)
-def raw_full_low_param_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, prox=1, target_num_matching=1, k=8):
-    s1_index = get_patched_index(k, s1_index_path, s1_graph_path, prox=prox, target_num_matching=target_num_matching)
-    s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=prox, target_num_matching=target_num_matching)
-    seeds = find_seeds(s1_index, s2_index, SeedingAlgorithmSettings(max_indices=1, sims_threshold=0), print_progress=False)
-    return seeds
+def raw_full_low_param_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, k=8, overwrite=False, quiet=False):
+    return raw_full_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, k=k, settings=SeedingAlgorithmSettings(1, 0, 1), overwrite=overwrite, quiet=quiet)
+
+def raw_full_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, settings=SeedingAlgorithmSettings(), k=8, overwrite=False, quiet=False):
+    if not quiet:
+        print('starting run')
+        
+    s1_index = get_patched_index(k, s1_index_path, s1_graph_path, prox=1, target_num_matching=1)
+    
+    if not quiet:
+        print('got s1 patched index')
+        
+    s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=1, target_num_matching=1)
+
+    if not quiet:
+        print('got s2 patched index')
+    
+    seeds = find_seeds(s1_index, s2_index, settings, print_progress=(not quiet))
+    return seeds    
 
 def get_all_metrics(seeds, g1_to_g2_ort, gtag1='', gtag2=''):
     from analysis_helpers import get_avg_size, get_seed_nc

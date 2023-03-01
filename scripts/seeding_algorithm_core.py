@@ -6,11 +6,11 @@ from general_helpers import *
 from selector_helpers import *
 
 class SeedingAlgorithmSettings:
-    def __init__(self, max_indices=15, sims_threshold=0.79, speedup=1):
+    def __init__(self, max_indices=1, sims_threshold=0, speedup=1):
         self.max_indices = max_indices
         self.sims_threshold = sims_threshold
         self.speedup = speedup
-
+        
 # takes in necessary inputs and settings and returns a list of all found seeds
 def find_seeds(s1_index, s2_index, settings=SeedingAlgorithmSettings(), s1_odv_dir=None, s2_odv_dir=None, print_progress=False):
     total_pairs_to_process = estimate_total_pairs_to_process(s1_index, s2_index, settings)

@@ -12,12 +12,11 @@ def print_cytomcs_results(pairs, perturbation=DEFAULT_PERTURBATION, max_nonimpro
             alignment = read_in_cytomcs_alignment(alignment_path, adj_set1, adj_set2)
             size = len(alignment)
             nc = get_alignment_nc(alignment, g1_to_g2_ort, adj_set1, adj_set2)
-            # s3 = get_s3(alignment, adj_set1, adj_set2)
-            s3 = 999
+            s3 = get_s3(alignment, adj_set1, adj_set2)
             print(f'{gtag1}-{gtag2}', size, nc, size * nc, s3)
         else:
             print(f'{gtag1}-{gtag2} doesn\'t exist')
 
 if __name__ == '__main__':
     pairs = get_iid_mammal_pairs()
-    print_cytomcs_results(pairs, max_num_steps=0, perturbation=0, random_seed=0)
+    print_cytomcs_results(pairs, max_num_steps=1, perturbation=0)
