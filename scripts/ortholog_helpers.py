@@ -1,8 +1,9 @@
 #!/pkg/python/3.7.4/bin/python3
 import re
 import sys
+from file_helpers import *
 
-ORTHO_FILE_PATH = '/home/wayne/src/bionets/SANA/Jurisica/IID/Orthologs.Uniprot.tsv'
+ORTHO_FILE_PATH = get_data_path('static/Orthologs.Uniprot.tsv')
 
 class SelfOrthos(dict):
     def __setitem__(self, key):
@@ -86,8 +87,9 @@ def is_ortholog(node1, node2, s1_to_s2_orthologs):
     
     return unmarked1 in s1_to_s2_orthologs and s1_to_s2_orthologs[unmarked1] == unmarked2
 
-def get_g1_to_g2_orthologs(gtag1, gtag2):
+def get_gtags_are_species(gtag1, gtag2):
     from graph_helpers import is_species
+
     base_gtag1 = gtag1.split('_')[0]
     base_gtag2 = gtag2.split('_')[0]
     g1_is_species = is_species(base_gtag1)
@@ -95,11 +97,34 @@ def get_g1_to_g2_orthologs(gtag1, gtag2):
 
     if g1_is_species != g2_is_species:
         raise AssertionError
+    
+    return g1_is_species
 
-    if g1_is_species:
+def get_g1_to_g2_orthologs(gtag1, gtag2):
+    base_gtag1 = gtag1.split('_')[0]
+    base_gtag2 = gtag2.split('_')[0]
+
+    if get_gtags_are_species(gtag1, gtag2):
         return get_s1_to_s2_orthologs(base_gtag1, base_gtag2)
     else:
         return SelfOrthos()
+
+def get_g1_to_g2_orthologs_as_alignment(gtag1, gtag2):
+    from graph_helpers import read_in_adj_set, get_graph_path
+    from analysis_helpers import get_clean_alignment
+
+    ort = get_g1_to_g2_orthologs(gtag1, gtag2)
+    adj_set1 = read_in_adj_set(get_graph_path(gtag1))
+    adj_set2 = read_in_adj_set(get_graph_path(gtag2))
+
+    if get_gtags_are_species(gtag1, gtag2):
+        raw_ort_alignment = [(node1, node2) for node1, node2 in ort.items()]
+        alignment_with_only_existing_nodes = [(node1, node2) for node1, node2 in raw_ort_alignment if node1 in adj_set1 and node2 in adj_set2]
+        clean_alignment = get_clean_alignment(alignment_with_only_existing_nodes, adj_set1, adj_set2)
+        return clean_alignment
+    else:
+        assert type(ort) is SelfOrthos
+        raise NotImplementedError
 
 def get_species_to_index(ortho_file):
     species_to_index = dict()
