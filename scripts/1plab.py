@@ -7,7 +7,5 @@ if __name__ == '__main__':
     
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
-    seeds = raw_full_run(*get_gtag_run_info(gtag1, gtag2), settings=SeedingAlgorithmSettings(2, 0, 1))
-    g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
-    seed_metrics, extr_metrics = get_all_metrics(seeds, g1_to_g2_ort, gtag1=gtag1, gtag2=gtag2)
+    seeds, seed_metrics, extr_metrics = simplified_run_with_metrics(gtag1, gtag2, settings=SeedingAlgorithmSettings(2, 0, 1))
     print(len(seeds), seed_metrics)

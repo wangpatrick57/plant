@@ -41,24 +41,21 @@ def investigate_alphrev_effect(gtag1, gtag2):
         print(f'{gtag1}-{gtag2} ({alphrev_str}): {len(seeds)} {seed_metrics} {extr_metrics}')
 
 # low param means T=0, M=1, p=0, o=0 with only two index files (no combining)
-def raw_full_low_param_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, k=8, overwrite=False, quiet=False):
-    return raw_full_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, k=k, settings=SeedingAlgorithmSettings(1, 0, 1), overwrite=overwrite, quiet=quiet)
-
-def raw_full_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, settings=SeedingAlgorithmSettings(), k=8, overwrite=False, quiet=False):
-    if not quiet:
+def raw_full_low_param_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, k=8, silent=False):
+    if not silent:
         print('starting run')
         
     s1_index = get_patched_index(k, s1_index_path, s1_graph_path, prox=1, target_num_matching=1)
     
-    if not quiet:
+    if not silent:
         print('got s1 patched index')
         
     s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=1, target_num_matching=1)
 
-    if not quiet:
+    if not silent:
         print('got s2 patched index')
     
-    seeds = find_seeds(s1_index, s2_index, settings, print_progress=(not quiet))
+    seeds = find_seeds(s1_index, s2_index, settings=SeedingAlgorithmSettings(1, 0, 1), print_progress=(not silent))
     return seeds    
 
 def get_all_metrics(seeds, g1_to_g2_ort, gtag1='', gtag2=''):
@@ -84,14 +81,14 @@ def seeds_to_str(seeds):
     return '\n'.join(lines) + '\n'
 
 # does everything. period.
-def simplified_run_with_metrics(gtag1, gtag2, algo='stairs', prox=1, target_num_matching=1, overwrite=False, silent=False):
+def simplified_run_with_metrics(gtag1, gtag2, algo='stairs', overwrite=False, silent=False):
     from file_helpers import file_exists
     from ortholog_helpers import get_g1_to_g2_orthologs
 
-    seeds_path = get_seeds_path(gtag1, gtag2, algo=algo, prox=prox, target_num_matching=target_num_matching)
+    seeds_path = get_seeds_path(gtag1, gtag2, algo=algo)
 
     if overwrite or not file_exists(seeds_path):
-        seeds = raw_full_low_param_run(*get_gtag_run_info(gtag1, gtag2, algo=algo), prox=prox, target_num_matching=target_num_matching)
+        seeds = raw_full_low_param_run(*get_gtag_run_info(gtag1, gtag2, algo=algo), silent=silent)
         seeds_str = seeds_to_str(seeds)
         write_to_file(seeds_str, seeds_path)
     else:

@@ -1,19 +1,18 @@
 #!/pkg/python/3.7.4/bin/python3
 import os
 import re
-from graph_helpers import *
 from collections import namedtuple
 
-# HOME_DIR = '/home/wangph1'
-HOME_DIR = '/Users/patrickwang/Documents/collegeStuff/research'
+HOME_DIR = '/home/wangph1'
+# HOME_DIR = '/Users/patrickwang/Documents/collegeStuff/research'
 PLANT_DIR = f'{HOME_DIR}/plant'
 BLANT_DIR = f'{HOME_DIR}/BLANT'
 
 def get_tmp_path(path):
     return f'/tmp/{path}'
 
-def get_seeds_path(gtag1, gtag2, algo='stairs', max_indices=1):
-    return get_data_path(f'seeds/{gtag1}-{gtag2}-{algo}-mi{max_indices}.seeds')
+def get_seeds_path(gtag1, gtag2, algo='stairs'):
+    return get_data_path(f'seeds/{gtag1}-{gtag2}-{algo}.seeds')
 
 def get_plant_path(path):
     return f'{PLANT_DIR}/{path}'
@@ -107,6 +106,8 @@ def alignments_to_str(alignments):
     return s
 
 def write_perfect_orthologs_to_file(gtag, path):
+    from graph_helpers import read_in_nodes
+    
     graph_path = get_graph_path(gtag)
     nodes = read_in_nodes(graph_path)
     mark = gtag_to_mark(gtag)
