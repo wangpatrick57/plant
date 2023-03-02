@@ -1,5 +1,6 @@
 #!/bin/python3
 from collections import defaultdict
+import sys
 
 class SeedingAlgorithmSettings:
     def __init__(self, max_indices=1, sims_threshold=0, speedup=1):
