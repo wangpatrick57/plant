@@ -2,6 +2,7 @@
 import os
 import re
 from collections import namedtuple
+from seeding_algorithm_core import SeedingAlgorithmSettings
 
 HOME_DIR = '/home/wangph1'
 # HOME_DIR = '/Users/patrickwang/Documents/collegeStuff/research'
