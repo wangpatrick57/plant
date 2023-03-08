@@ -138,6 +138,9 @@ def get_syeast_pairs():
 
     return pairs
 
+def get_iid_representative_pairs():
+    return [('cat', 'cow'), ('mouse', 'rat'), ('mouse', 'pig'), ('horse', 'mouse'), ('guineapig', 'sheep'), ('human', 'rat')]
+
 def get_iid_mammal_pairs():
     pairs = []
     mammals = get_all_iid_mammals()

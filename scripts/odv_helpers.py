@@ -277,8 +277,9 @@ class ODV:
 
     @staticmethod
     def set_weights_vars(k):
-        ODV.WEIGHTS = calc_weights(k)
-        ODV.WEIGHT_SUM = sum(ODV.WEIGHTS) # 45.08670802954777 <- calculated value from .sim file
+        if len(ODV.WEIGHTS) == 0:
+            ODV.WEIGHTS = calc_weights(k)
+            ODV.WEIGHT_SUM = sum(ODV.WEIGHTS) # 45.08670802954777 <- calculated value from .sim file
 
     def __init__(self, node, odv_list):
         self._node = node

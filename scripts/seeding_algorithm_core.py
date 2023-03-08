@@ -78,6 +78,8 @@ def should_be_seed(g1_entry_nodes, g2_entry_nodes, g1_odv_dir, g2_odv_dir, thres
     if threshold == 0:
         return True
 
+    assert abs(threshold) < 1
+
     sims = []
 
     for g1_node, g2_node in zip(g1_entry_nodes, g2_entry_nodes):
@@ -85,7 +87,10 @@ def should_be_seed(g1_entry_nodes, g2_entry_nodes, g1_odv_dir, g2_odv_dir, thres
         g2_odv = g2_odv_dir.get_odv(g2_node)
         sims.append(g1_odv.get_similarity(g2_odv))
 
-    return mean(sims) >= threshold
+    if threshold < 0:
+        return sum(sims) / len(sims) < -threshold
+    else:
+        return sum(sims) / len(sims) >= threshold
 
 if __name__ == '__main__':
     from index_helpers import get_index_path
