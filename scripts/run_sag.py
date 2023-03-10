@@ -2,13 +2,12 @@
 import sys
 from all_helpers import *
 
-def run_sag(gtag1, gtag2, max_indices, sims_threshold):
+def run_sag(gtag1, gtag2, max_indices, sims_threshold, overwrite=False):
     k_max = 1000
     # auto_k = (10000, 0.01)
     auto_k = None
 
     algo = 'stairs'
-    overwrite = True
     adj_set1 = read_in_adj_set(get_graph_path(gtag1))
     adj_set2 = read_in_adj_set(get_graph_path(gtag2))
     g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
@@ -45,6 +44,7 @@ def get_sag_alignment_path(gtag1, gtag2, k_max=None, auto_k=None):
     else:
         raise AssertionError()
 
+# THE RUN_SAG.PY FILE OVERWRITES, BUT THE PAPER_ALL_* FILES THAT CALL RUN_SAG DON'T OVERWRITE
 if __name__ == '__main__':
     from seeding_algorithm_core import SeedingAlgorithmSettings
     
@@ -53,4 +53,4 @@ if __name__ == '__main__':
     max_indices = int(sys.argv[3])
     sims_threshold = float(sys.argv[4])
     
-    print(run_sag(gtag1, gtag2, max_indices, sims_threshold))
+    print(run_sag(gtag1, gtag2, max_indices, sims_threshold, overwrite=True))
