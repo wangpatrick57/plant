@@ -12,8 +12,8 @@ BLANT_DIR = f'{HOME_DIR}/BLANT'
 def get_tmp_path(path):
     return f'/tmp/{path}'
 
-def get_seeds_path(gtag1, gtag2, algo='stairs', settings=SeedingAlgorithmSettings()):
-    return get_data_path(f'seeds/{gtag1}-{gtag2}_{algo}_mi{settings.max_indices}_st{settings.sims_threshold}.seeds')
+def get_seeds_path(gtag1, gtag2, algo='stairs', settings=SeedingAlgorithmSettings(), do_patch=True):
+    return get_data_path(f'seeds/{gtag1}-{gtag2}_{algo}_mi{settings.max_indices}_st{settings.sims_threshold}_patch{do_patch}.seeds')
 
 def get_plant_path(path):
     return f'{PLANT_DIR}/{path}'

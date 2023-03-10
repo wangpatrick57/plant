@@ -44,22 +44,23 @@ def investigate_alphrev_effect(gtag1, gtag2):
 def raw_full_low_param_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, k=8, silent=False):
     raw_full_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, k=k, settings=SeedingAlgorithmSettings(1, 0, 1), silent=silent)
     
-def raw_full_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, k=8, settings=SeedingAlgorithmSettings(), s1_odv_dir=None, s2_odv_dir=None, silent=False):
+def raw_full_run(s1_index_path, s1_graph_path, s2_index_path, s2_graph_path, s1_to_s2_orthologs, k=8, settings=SeedingAlgorithmSettings(), s1_odv_dir=None, s2_odv_dir=None, do_patch=True, silent=False):
     if not silent:
         print('starting run')
         
-    s1_index = get_patched_index(k, s1_index_path, s1_graph_path, prox=1, target_num_matching=1)
-    
-    if not silent:
-        print('got s1 patched index')
-        
-    s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=1, target_num_matching=1)
+    if do_patch:
+        s1_index = get_patched_index(k, s1_index_path, s1_graph_path, prox=1, target_num_matching=1)
+        if not silent:
+            print('got s1 patched index')
+        s2_index = get_patched_index(k, s2_index_path, s2_graph_path, prox=1, target_num_matching=1)
+        if not silent:
+            print('got s2 patched index')
+    else:
+        s1_index = read_in_index(s1_index_path, k)
+        s2_index = read_in_index(s2_index_path, k)
 
-    if not silent:
-        print('got s2 patched index')
-        
     seeds = find_seeds(s1_index, s2_index, settings=settings, g1_odv_dir=s1_odv_dir, g2_odv_dir=s2_odv_dir, print_progress=(not silent))
-    return seeds    
+    return seeds
 
 def get_all_metrics(seeds, g1_to_g2_ort, gtag1='', gtag2=''):
     from analysis_helpers import get_avg_size, get_seed_nc
@@ -84,12 +85,12 @@ def seeds_to_str(seeds):
     return '\n'.join(lines) + '\n'
 
 # does everything. period.
-def simplified_run_with_metrics(gtag1, gtag2, algo='stairs', settings=SeedingAlgorithmSettings(), overwrite=False, silent=False):
+def simplified_run_with_metrics(gtag1, gtag2, algo='stairs', settings=SeedingAlgorithmSettings(), overwrite=False, do_patch=True, silent=False):
     from file_helpers import file_exists
     from ortholog_helpers import get_g1_to_g2_orthologs
     from odv_helpers import ODVDirectory, ODV, get_odv_path, two_gtags_to_k
 
-    seeds_path = get_seeds_path(gtag1, gtag2, algo=algo, settings=settings)
+    seeds_path = get_seeds_path(gtag1, gtag2, algo=algo, settings=settings, do_patch=do_patch)
 
     if overwrite or not file_exists(seeds_path):
         if settings.sims_threshold == 0:
@@ -100,7 +101,7 @@ def simplified_run_with_metrics(gtag1, gtag2, algo='stairs', settings=SeedingAlg
             s1_odv_dir = ODVDirectory(get_odv_path(gtag1, two_gtags_to_k(gtag1, gtag2)))
             s2_odv_dir = ODVDirectory(get_odv_path(gtag2, two_gtags_to_k(gtag1, gtag2)))
         
-        seeds = raw_full_run(*get_gtag_run_info(gtag1, gtag2, algo=algo), settings=settings, s1_odv_dir=s1_odv_dir, s2_odv_dir=s2_odv_dir, silent=silent)
+        seeds = raw_full_run(*get_gtag_run_info(gtag1, gtag2, algo=algo), settings=settings, s1_odv_dir=s1_odv_dir, s2_odv_dir=s2_odv_dir, do_patch=do_patch, silent=silent)
         seeds_str = seeds_to_str(seeds)
         write_to_file(seeds_str, seeds_path)
     else:
