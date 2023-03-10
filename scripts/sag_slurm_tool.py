@@ -8,7 +8,7 @@ from all_helpers import *
 # SLURM BEHAVIOR
 # sometimes the log files contain partial output before the program is actually done. don't be surprised by this
 
-jobname = 'mar10mn5'
+jobname = 'mar10mn6'
 pairs = get_iid_mammal_pairs()
 # pairs = get_iid_representative_pairs()
 MAX_INDICES = 1

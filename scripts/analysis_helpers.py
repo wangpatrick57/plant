@@ -205,6 +205,18 @@ def read_in_frontier_results(frontier_results_path):
 
     return frontier_dir
 
+def get_s3_filtered_alignments(alignments, adj_set1, adj_set2, filter_s3=0.95):
+    filtered_alignments = []
+
+    for alignment in alignments:
+        size = len(alignment)
+        s3 = get_s3(alignment, adj_set1, adj_set2)
+        
+        if s3 > filter_s3:
+            filtered_alignments.append(alignment)
+
+    return filtered_alignments
+
 def get_topofunc_perfect_alignments(alignments, g1_to_g2_ort, adj_set1, adj_set2):
     tfp_aligns = []
     

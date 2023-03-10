@@ -3,7 +3,7 @@ import sys
 from all_helpers import *
 
 def run_sag(gtag1, gtag2, max_indices, sims_threshold, overwrite=False):
-    k_max = 1000
+    k_max = 5000
     # auto_k = (10000, 0.01)
     auto_k = None
 
@@ -21,7 +21,7 @@ def run_sag(gtag1, gtag2, max_indices, sims_threshold, overwrite=False):
         start_time = time.time()
         seeds, _, _ = simplified_run_with_metrics(gtag1, gtag2, settings=SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold))
         blocks = seeds_to_blocks(seeds)
-        sagrow = SimAnnealGrow(blocks, adj_set1, adj_set2, p_func=ALWAYS_P_FUNC, s3_threshold=1)
+        sagrow = SimAnnealGrow(blocks, adj_set1, adj_set2, p_func=ALWAYS_P_FUNC, s3_threshold=0.95)
         alignment = sagrow.run(k_max=k_max, auto_k=auto_k, silent=False)
         alignment = get_clean_alignment(alignment, adj_set1, adj_set2)
         end_time = time.time()
