@@ -163,6 +163,9 @@ def get_tprl_gtags():
 
     return gtags
 
+def get_tprl_representative_pairs():
+    return [('sxso_s0', 'sxso_s1'), ('reddit_s0', 'reddit_s5'), ('super_s0', 'super_s3'), ('ubuntu_s0', 'ubuntu_s1'), ('college_s0', 'college_s1'), ('otc_s0', 'otc_s5'), ('alpha_s0', 'alpha_s3')]
+
 def get_tprl_pairs():
     from temporal_graph_helpers import get_std_percents, get_gtag_from_tgtag
 
