@@ -43,7 +43,7 @@ def read_in_temporal_el(graph_path, edge_limit=None):
         for i, line in enumerate(graph_file):
             node1, node2, time = re.split('[\s\t]', line.strip())
             time = int(time)
-            
+
             assert node1 != node2
             assert get_canon_edge(node1, node2) not in added_canon_edges
 
@@ -195,7 +195,15 @@ def get_tgraph_path(tgtag):
 if __name__ == '__main__':
     from graph_helpers import get_paper_tprl_snap
 
-    for tgtag in get_paper_tprl_snap():
-        print(f'starting {tgtag}')
+    # tgtags = get_paper_tprl_snap()
+    tgtags = ['sxso']
+
+    for tgtag in tgtags:
+        print(f'cleaning {tgtag}')
+        clean_tel(get_tgraph_path(tgtag))
+        print(f'cleaned {tgtag}')
+    
+    for tgtag in tgtags:
+        print(f'generating el files for {tgtag}')
         gen_std_tgtag_els(tgtag)
-        print(f'done with {tgtag}')
+        print(f'generated el files for {tgtag}')

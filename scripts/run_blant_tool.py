@@ -4,9 +4,9 @@ from paper_low_k import *
 import sys
 
 gtag = sys.argv[1]
-# algo = sys.argv[2]
-k = int(sys.argv[2])
-p, _ = run_blant_low_k(gtag, k)
+algo = sys.argv[2]
+# k = int(sys.argv[2])
+p, _ = run_blant(gtag, algo=algo)
 
 if p != None:
     p.wait()

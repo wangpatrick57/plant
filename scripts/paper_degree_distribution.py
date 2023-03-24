@@ -1,5 +1,6 @@
 #!/pkg/python/3.7.4/bin/python3
 from all_helpers import *
+import sys
 
 def get_dds_list(gtags, delim=',', scale_deg=False, scale_count=False):
     dds_list = []
@@ -64,5 +65,7 @@ def print_gnuplot_dat(gtags, delim=',', scale_deg=False, scale_count=False):
         print()
         
 if __name__ == '__main__':
-    gtags = get_tprl_gtags()
-    print_gnuplot_dat(gtags, delim='\t', scale_deg=False, scale_count=True)
+    # gtags = get_tprl_gtags()
+    base = sys.argv[1]
+    gtags = [f'{base}_s0', f'{base}_s1', f'{base}_s3', f'{base}_s5']
+    print_gnuplot_dat(gtags, delim='\t', scale_deg=False, scale_count=False)

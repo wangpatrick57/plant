@@ -4,7 +4,8 @@ import sys
 from functools import partial
 
 if __name__ == '__main__':
-    pairs = get_iid_mammal_pairs()
+    # pairs = get_iid_mammal_pairs()
+    pairs = get_tprl_pairs()
 
     for gtag1, gtag2 in pairs:
         k = two_gtags_to_k(gtag1, gtag2)
@@ -26,4 +27,4 @@ if __name__ == '__main__':
                 if len(filtered_alignment) >= 10:
                     print(f'{gtag1}-{gtag2}', len(filtered_alignment), nc, s3, sep='\t')
         else:
-            print(f'{gtag1}-{gtag2} missing', file=sys.stderr)
+            print(f'file {out_path} missing', file=sys.stderr)

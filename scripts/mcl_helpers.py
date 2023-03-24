@@ -233,7 +233,7 @@ def clean_mcl_pair(gtag1, gtag2, notes=''):
     ort_path = get_odv_ort_path(gtag1, gtag2, k, n, notes=notes)
     out_path, ag_path, time_path = get_mcl_paths(gtag1, gtag2, k, n, notes=notes)
 
-    for path in [ort_path, mcl_out_path, ag_path, time_path]:
+    for path in [ort_path, out_path, ag_path, time_path]:
         try:
             os.remove(path)
             print(f'removed {path}')
@@ -249,7 +249,7 @@ if __name__ == '__main__':
     mode = sys.argv[1]
     gtag1 = sys.argv[2]
     gtag2 = sys.argv[3]
-    notes = sys.argv[4] if len(sys.argv) > 4 else ''
+    notes = sys.argv[4]
 
     if mode == 'prep':
         prepare_mcl(gtag1, gtag2, notes=notes)
@@ -264,4 +264,4 @@ if __name__ == '__main__':
     elif mode == 'wcpy':
         wayne_copy_mcl(gtag1, gtag2, notes=notes)
     else:
-        print('USAGE: mcl_helpers.py gtag1 gtag2 mode, where mode is prep or proc')
+        print('USAGE: mcl_helpers.py gtag1 gtag2 mode')
