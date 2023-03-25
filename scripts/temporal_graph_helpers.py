@@ -196,7 +196,7 @@ if __name__ == '__main__':
     from graph_helpers import get_paper_tprl_snap
 
     # tgtags = get_paper_tprl_snap()
-    tgtags = ['sxso']
+    tgtags = ['sxso', 'wiki']
 
     for tgtag in tgtags:
         print(f'cleaning {tgtag}')
