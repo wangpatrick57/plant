@@ -2,7 +2,6 @@
 import sys
 from all_helpers import *
 
-# THE RUN_SAG.PY FILE OVERWRITES, BUT THE PAPER_ALL_* FILES THAT CALL RUN_SAG DON'T OVERWRITE
 if __name__ == '__main__':
     from seeding_algorithm_core import SeedingAlgorithmSettings
     
