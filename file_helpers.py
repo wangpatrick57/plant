@@ -42,7 +42,7 @@ def get_num_lines(path):
         return len(f.readlines())
 
 def get_data_path(data_path):
-    return f'{PLANT_DIR}/data/{data_path}'
+    return f'{os.environ["PLANT_DATA_DIR"]}/{data_path}'
 
 def get_home_path(home_path):
     return f'{HOME_DIR}/{home_path}'

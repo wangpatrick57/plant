@@ -3,7 +3,7 @@ from collections import defaultdict
 from general_helpers import *
 from file_helpers import *
 
-CACHE_BASE_DIR = f'{PLANT_DIR}/data/seeding_cached_data'
+CACHE_BASE_DIR = get_data_path('seeding_cached_data')
 
 class Index(defaultdict):
     def __init__(self):

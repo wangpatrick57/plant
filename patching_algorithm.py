@@ -275,42 +275,6 @@ def get_orthologs_list(base_indexes, comp_indexes_list, base_to_comp_list, adj_s
     debug_print(f'on settings NUM_MATCHING_NODES={NUM_MATCHING_NODES} PATCH_PROX_INC={PATCH_PROX_INC}, there are {num_orthologs} {MISSING_ALLOWED}|miss orthologs out of {pairs_processed} processed patched pairs, representing {ortholog_percent}%')
     return orthologs_list
 
-def get_modified_patched_indexes(patched_indexes):
-    nauty_output_file = open('/home/wangph1/plant/data/why_patch_works/ids_mouse_rat_61.txt', 'r')
-    patchids_file = open('/home/wangph1/plant/data/why_patch_works/patchids_mouse_rat_61.txt', 'r')
-    nauty_converter = dict()
-
-    for patchid_line, output_line in zip(patchids_file, nauty_output_file):
-        output_line_split = output_line.strip().split()
-        nautyid = output_line_split[0]
-        is_m1 = int(output_line_split[1])
-        labels = [int(e) for e in output_line_split[2:]]
-        nauty_converter[patchid_line.strip()] = (nautyid, is_m1, labels)
-
-    new_patched_indexes = dict()
-
-    for patchid, index_list in patched_indexes.items():
-        if patchid not in nauty_converter:
-            continue
-
-        nautyid = nauty_converter[patchid][0]
-        is_m1 = nauty_converter[patchid][1]
-        labels = nauty_converter[patchid][2]
-
-        if is_m1 == 0:
-            continue
-        
-        if nautyid not in new_patched_indexes:
-            new_patched_indexes[nautyid] = []
-
-        '''for index in index_list:
-            node_arr = index.get_node_arr()
-            canonical_node_arr = [node_arr[index_pos] for index_pos in labels]
-            new_patched_indexes[nautyid].append(CanonicalIndex(canonical_node_arr))'''
-        
-        new_patched_indexes[patchid] = index_list
-    
-    return new_patched_indexes
 
 def seed_to_str(patch_id, index1, index2):
     return f'{patch_id} {",".join(index1)} {",".join(index2)}'
@@ -347,8 +311,6 @@ def main():
     debug_print('done patching indexes')
 
     ## CHANGE MODE
-    # s1_patched_indexes = get_modified_patched_indexes(s1_patched_indexes)
-    # s2_patched_indexes = get_modified_patched_indexes(s2_patched_indexes)
     # print_sorted_sparsegraphs([s1_patched_indexes, s2_patched_indexes], [s1_adj_set, s2_adj_set])
 
     # calculate ortholog percentage

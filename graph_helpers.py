@@ -7,7 +7,6 @@ from collections import defaultdict
 from file_helpers import *
 from el_conv import *
 
-NETWORKS_DIR = f'{PLANT_DIR}/networks'
 SYEAST = 'syeast'
 IID = 'iid'
 TPRL = 'tprl'
@@ -342,7 +341,7 @@ def base_gtag_to_mark(gtag):
         return gtag[2:]
 
 def get_base_graph_path(name, ext='el'):
-    return f'{NETWORKS_DIR}/{name}.{ext}'
+    return f'{os.environ["PLANT_NETWORKS_DIR"]}/{name}.{ext}'
 
 def get_custom_graph_path(name):
     return get_base_graph_path(f'custom/{name}')
@@ -363,7 +362,7 @@ def get_species_graph_path(species):
         return get_base_graph_path(f'iid/{species}')
 
 def get_snap_graph_path(snap):
-    return f'{NETWORKS_DIR}/snap/{snap}.el'
+    return f'{os.environ["PLANT_NETWORKS_DIR"]}/snap/{snap}.el'
 
 def get_biogrid_graph_path(bg):
     return get_base_graph_path(f'biogrid/{bg}')
