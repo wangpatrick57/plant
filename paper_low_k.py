@@ -7,25 +7,6 @@ def get_low_k_index_path(gtag, k):
 def get_low_k_seeds_path(gtag1, gtag2, k):
     return get_data_path(f'low_k/{gtag1}-{gtag2}-{k}.seeds')
 
-def run_blant_low_k(gtag, k, overwrite=False):
-    lDEG = 2
-    alph = True
-    algo = 'stairs'
-    assert alph != None # alph can't be None because we need a different .sh script for that
-    assert algo != None # just cuz I was too lazy to make a run command that used the default algo and also allowed a custom k
-    graph_path = get_graph_path(gtag)
-    out_path = get_low_k_index_path(gtag, k)
-
-    if overwrite or not file_exists(out_path):
-        settings = f'{algo} {graph_path} {lDEG} {bool_conv(alph)} {out_path} {k}'
-        cmd = f'run_blant_low_k.sh {settings}'
-        p = subprocess.Popen(cmd.split())
-    else:
-        p = None
-        print(f'using old index file for {gtag}', file=sys.stderr)
-
-    return p, out_path
-
 def run_seeding_low_k(gtag1, gtag2, k, overwrite=False):
     seeds_path = get_low_k_seeds_path(gtag1, gtag2, k)
     g1_index_path = get_low_k_index_path(gtag1, k)

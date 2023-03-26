@@ -25,7 +25,7 @@ def run_blant(gtag, lDEG=2, alph=True, algo='stairs', overwrite=False):
         p = subprocess.Popen(cmd.split())
     else:
         p = None
-        print(f'using old index file for {gtag}', file=sys.stderr)
+        print(f'using old index file for {gtag}, {out_path}', file=sys.stderr)
 
     return p, out_path
 
@@ -40,22 +40,6 @@ def run_blant_sample_raw(k, n, graph_path):
 
     os.remove(out_path)
     return out
-
-# should be modified to call run_blant_sample_raw to be consistent with orca, but I'm too lazy to do so
-def run_blant_sample(gtag, k, n, overwrite=False):
-    from odv_helpers import get_blantspl_path
-    
-    graph_path = get_graph_path(gtag)
-    out_path = get_blantspl_path(gtag, k, n)
-
-    if overwrite or not file_exists(out_path):
-        cmd = f'run_blant_sample.sh {graph_path} {k} {n} {out_path}'
-        p = subprocess.Popen(cmd.split())
-    else:
-        p = None
-        print(f'using old index file for {gtag}', file=sys.stderr)
-
-    return p, out_path
 
 def run_outsend(path):
     cmd = f'outsend {path}'
@@ -88,7 +72,7 @@ def run_orca_for_gtag(gtag, override_k=None, overwrite=False):
         out = p.stdout.decode('utf-8')
         write_to_file(out, odv_path)
     else:
-        print(f'using old odv file for {gtag}', file=sys.stderr)
+        print(f'using old odv file for {gtag}, {odv_path}', file=sys.stderr)
 
 def run_align_mcl(gtag1, gtag2, overwrite=False, notes=''):
     from graph_helpers import get_nif_path

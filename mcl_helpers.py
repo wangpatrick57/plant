@@ -76,7 +76,7 @@ def gen_odv_ort_file(gtag1, gtag2, override_k=None, bnstr=None, overwrite=False,
         ort_str = odv_ort_to_str(odv_ort, mark1, mark2)
         write_to_file(ort_str, ort_path)
     else:
-        print(f'using old odv ort file for {gtag1}-{gtag2}', file=sys.stderr)
+        print(f'using old odv ort file for {gtag1}-{gtag2}, {ort_path}', file=sys.stderr)
 
 def copy_to_out(gtag1, gtag2, notes=''):
     from bash_helpers import run_outsend
