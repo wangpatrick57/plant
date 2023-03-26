@@ -115,8 +115,6 @@ def simplified_run_with_metrics(gtag1, gtag2, algo='stairs', settings=SeedingAlg
     return (seeds, seed_metrics, extr_metrics)
 
 if __name__ == '__main__':
-    from full_report_helpers import gen_all_indexes
-
     gtag1 = sys.argv[1]
     gtag2 = sys.argv[2]
     seeds, seed_metrics, extr_metrics = simplified_run_with_metrics(gtag1, gtag2)

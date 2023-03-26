@@ -1,7 +1,6 @@
 #!/bin/python3
 import sys
 from all_helpers import *
-from paper_low_k import *
 
 gtag1 = sys.argv[1]
 gtag2 = sys.argv[2]
