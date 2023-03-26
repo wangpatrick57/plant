@@ -2,6 +2,8 @@
 import sys
 from all_helpers import *
 
+# "sag" stands for Simulated Annealing Grow
+
 def run_sag(gtag1, gtag2, max_indices, sims_threshold, overwrite=False):
     k_max = 5000
     # auto_k = (10000, 0.01)

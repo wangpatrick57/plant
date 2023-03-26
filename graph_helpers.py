@@ -271,11 +271,17 @@ def is_biogrid_induced(gtag):
 def is_iid_mammal(gtag):
     return gtag in get_all_iid_mammals()
 
+def is_testing_gtag(gtag):
+    return 'testing' in gtag
+
+def get_testing_graph_path(gtag):
+    return get_base_graph_path(f'testing/{gtag}')
+
 def get_graph_path(gtag):
     from noise_helpers import is_noisy_gtag, get_noisy_graph_path
 
-    if gtag == 'tester':
-        return get_base_graph_path(gtag)
+    if is_testing_gtag(gtag):
+        return get_testing_graph_path(gtag)
     elif gtag in {'alphabet', 'alpha10'}:
         return get_custom_graph_path(gtag)
     elif '_adv' in gtag:
