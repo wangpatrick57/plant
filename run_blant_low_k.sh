@@ -12,5 +12,5 @@ cd ~/BLANT
 { time ~/BLANT/blant$algo -k$k -lDEG$lDEG -mi -sINDEX -a$alph $el_file 2>&1 >$out_file ; } 2> $time_file
 cd -
 
-dedup.sh $out_file
+tools/dedup.sh $out_file
 

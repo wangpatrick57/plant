@@ -10,4 +10,4 @@ cd ~/BLANT
 ~/BLANT/blant -k8 -lDEG$lDEG -mi -sINDEX -o$orbit -T$top_thousandth -f$orca4_file $el_file > $out_file
 cd -
 
-dedup.sh $out_file
+tools/dedup.sh $out_file

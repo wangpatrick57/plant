@@ -1,7 +1,7 @@
 #!/pkg/python/3.7.4/bin/python3
 import sys
 from graph_helpers import *
-from pyblant import *
+from tools.pyblant import *
 
 # adv_num=0 is the edge between the top two nodes
 def get_adversarial_edge(edge_set, sorted_nodes, rm_num):

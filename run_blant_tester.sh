@@ -7,4 +7,4 @@ cd ~/BLANT
 ./blant -k8 -lDEG1 -M0 -mi -sINDEX $el_file >$out_file
 cd -
 
-dedup.sh $out_file
+tools/dedup.sh $out_file

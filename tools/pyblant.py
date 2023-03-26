@@ -15,6 +15,7 @@ def parse_rank_str(rank_str):
         return None
 
     return [int(r) for r in rank_str.split(' -> ')]
+
 RANK_PATH_FILTER = parse_rank_str(None)
 NODE_PATH_FILTER = None
 WHITELISTED_NODES_FILTER = ['NUP1', 'RPS22A', 'RRP40', 'RRP6', 'SRP1', 'STO1']
