@@ -12,7 +12,7 @@ TESTING2 = 'testing2'
 LDEG = 2
 ALPH = True
 ALGO = 'stairs'
-MCL_NOTES = 'no1'
+ORT_ALGO = 'no1'
 ODV_K = two_gtags_to_k(TESTING1, TESTING2)
 ODV_N = two_gtags_to_n(TESTING1, TESTING2)
 SEEDING_ALGORITHM_SETTINGS = SeedingAlgorithmSettings(max_indices=1, sims_threshold=-0.95)
@@ -21,7 +21,7 @@ TESTING2_BLANT_OUT_PATH = get_index_path(TESTING2, lDEG=LDEG, alph=ALPH, algo=AL
 TESTING1_ODV_OUT_PATH = get_odv_path(TESTING1, ODV_K)
 TESTING2_ODV_OUT_PATH = get_odv_path(TESTING2, ODV_K)
 SEEDS_PATH = get_seeds_path(TESTING1, TESTING2, algo=ALGO, settings=SEEDING_ALGORITHM_SETTINGS)
-MCL_PATH = get_mcl_out_path(TESTING1, TESTING2, ODV_K, ODV_N, notes=MCL_NOTES)
+MCL_PATH = get_mcl_out_path(TESTING1, TESTING2, ODV_K, ODV_N, notes=ORT_ALGO)
 
 def get_num_lines(path):
     p = subprocess.run(f'wc -l {path}'.split(), capture_output=True)
@@ -40,7 +40,7 @@ p = subprocess.run(f'rm {TESTING2_BLANT_OUT_PATH}'.split())
 p = subprocess.run(f'rm {TESTING1_ODV_OUT_PATH}'.split())
 p = subprocess.run(f'rm {TESTING2_ODV_OUT_PATH}'.split())
 p = subprocess.run(f'rm {SEEDS_PATH}'.split())
-clean_mcl(TESTING1, TESTING2, MCL_NOTES) # there are a lot of MCL files to clean, so I'm going to reuse the existing function that does so
+clean_mcl(TESTING1, TESTING2, ORT_ALGO) # there are a lot of MCL files to clean, so I'm going to reuse the existing function that does so
 
 # run blant for both
 p = subprocess.run(f'run_blant.py {TESTING1} --algo stairs'.split())
@@ -76,7 +76,7 @@ p.check_returncode()
 print('sag good')
 
 # run AlignMCL
-p = subprocess.run(f'run_mcl.py {TESTING1} {TESTING2} {MCL_NOTES}'.split())
+p = subprocess.run(f'run_mcl.py {TESTING1} {TESTING2} -o{ORT_ALGO}'.split())
 p.check_returncode()
 assert_num_lines(MCL_PATH, 89)
 print('mcl good')
