@@ -2,14 +2,14 @@
 from all_helpers import *
 
 # HOW TO USE SLURM
-# run ./seeds_slurm_tool.py | distrib_slurm [jobName] --ntasks-per-node 1 --mem=10000
+# run seeds_slurm_tool.py | distrib_slurm [jobName] --ntasks-per-node 1 --mem=10000
 # use squeue (after module load slurm) to see currently running jobs
 
 # SLURM BEHAVIOR
 # sometimes the log files contain partial output before the program is actually done. don't be surprised by this
 
-# pairs = get_iid_mammal_pairs()
-pairs = get_tprl_pairs()
+pairs = get_iid_mammal_pairs()
+# pairs = get_tprl_pairs()
 # pairs = get_iid_representative_pairs()
 # pairs = get_tprl_representative_pairs()
 MAX_INDICES = 1

@@ -17,7 +17,7 @@ depth1_subdirectories=$(find "$PLANT_REPO_DIR" -maxdepth 1 -type d \( ! -name ".
 export PYTHONPATH=$(echo "$depth1_subdirectories" | tr '\n' ':' | sed 's/:$//')
 
 # add main_runnable_programs to PATH
-export PATH="$PATH:$PLANT_REPO_DIR/main_runnable_programs"
+export PATH="$PATH:$PLANT_REPO_DIR/main_runnable_programs:$PLANT_REPO_DIR/paper_result_scripts"
 
 # MCL_DIR
 export MCL_DIR="$PLANT_REPO_DIR/alignMCL"
