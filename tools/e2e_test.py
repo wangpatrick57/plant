@@ -43,12 +43,12 @@ p = subprocess.run(f'rm {SEEDS_PATH}'.split())
 clean_mcl(TESTING1, TESTING2, MCL_NOTES) # there are a lot of MCL files to clean, so I'm going to reuse the existing function that does so
 
 # run blant for both
-p = subprocess.run(f'run_blant.py {TESTING1} stairs'.split())
+p = subprocess.run(f'run_blant.py {TESTING1} --algo stairs'.split())
 p.check_returncode()
 assert_num_lines(TESTING1_BLANT_OUT_PATH, 2493)
 print('testing1 blant good')
 
-p = subprocess.run(f'run_blant.py {TESTING2} stairs'.split())
+p = subprocess.run(f'run_blant.py {TESTING2} --algo stairs'.split())
 p.check_returncode()
 assert_num_lines(TESTING2_BLANT_OUT_PATH, 5240)
 print('testing2 blant good')
