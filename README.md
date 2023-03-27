@@ -24,6 +24,8 @@ Below, the directories and some of the less intuitive files are described
   * Additionally, results for long-running (ranging from minutes to hours) algorithm runs are automatically cached in various subdirectories within data/
 5. To ensure that all of this is working, run ```tools/e2e_test.py```
   * Don't worry about error messages. The test only fails if the program crashes. If the test succeeds, you should see the message
-```=======================
+```
+=======================
 END2END TESTS SUCCEEDED
-=======================```
+=======================
+```
