@@ -5,12 +5,11 @@ import argparse
 
 # "sag" stands for Simulated Annealing Grow
 
-def run_sag(gtag1, gtag2, max_indices, sims_threshold, overwrite=False):
+def run_sag(gtag1, gtag2, max_indices, sims_threshold, algo='stairs', overwrite=False):
     k_max = 5000
     # auto_k = (10000, 0.01)
     auto_k = None
 
-    algo = 'stairs'
     adj_set1 = read_in_adj_set(get_graph_path(gtag1))
     adj_set2 = read_in_adj_set(get_graph_path(gtag2))
     g1_to_g2_ort = get_g1_to_g2_orthologs(gtag1, gtag2)
@@ -22,7 +21,7 @@ def run_sag(gtag1, gtag2, max_indices, sims_threshold, overwrite=False):
         alignment = read_in_alignment(sag_alignment_path, adj_set1, adj_set2)
     else:
         start_time = time.time()
-        seeds, _, _ = simplified_run_with_metrics(gtag1, gtag2, settings=SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold))
+        seeds, _, _ = simplified_run_with_metrics(gtag1, gtag2, algo=algo, settings=SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold))
         blocks = seeds_to_blocks(seeds)
         sagrow = SimAnnealGrow(blocks, adj_set1, adj_set2, p_func=ALWAYS_P_FUNC, s3_threshold=0.95)
         alignment = sagrow.run(k_max=k_max, auto_k=auto_k, silent=False)
@@ -55,4 +54,4 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--max-indices', type=int, default=1, help='The max_indices parameter of the seeds file to be used')
     parser.add_argument('-s', '--sims-threshold', type=float, default=-0.95, help='The sims_threshold parameter of the seeds file to be used')
     args = parser.parse_args()
-    print(run_sag(args.gtag1, args.gtag2, args.max_indices, args.sims_threshold, overwrite=True))
+    print(run_sag(args.gtag1, args.gtag2, args.max_indices, args.sims_threshold, algo=None, overwrite=True))
