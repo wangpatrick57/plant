@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
 from graph_helpers import *
 from ortholog_helpers import *
 from odv_helpers import *

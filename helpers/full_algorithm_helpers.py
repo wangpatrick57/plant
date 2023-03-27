@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
 from seeding_algorithm_core import *
 from node_pair_extraction_helpers import *
 from index_helpers import *

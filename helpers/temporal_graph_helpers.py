@@ -1,6 +1,7 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
 import re
 import math
+import sys
 from file_helpers import *
 from graph_helpers import *
 

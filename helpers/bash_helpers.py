@@ -1,9 +1,10 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
 from graph_helpers import *
 from index_helpers import *
 from file_helpers import *
 import subprocess
 import time
+import sys
 
 def bool_conv(b):
     return 1 if b else 0

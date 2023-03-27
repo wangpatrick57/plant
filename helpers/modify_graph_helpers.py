@@ -1,4 +1,5 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
+import sys
 from graph_helpers import *
 from tools.pyblant import *
 

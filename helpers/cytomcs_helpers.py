@@ -1,6 +1,8 @@
 #!/bin/python3
+import sys
 from graph_helpers import *
 from analysis_helpers import *
+import os
 
 CYTOMCS_DIR = f'{os.path.expanduser("~")}/faithmcs'
 DEFAULT_PERTURBATION = 20

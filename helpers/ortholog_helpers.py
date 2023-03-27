@@ -1,5 +1,6 @@
-#!/bin/python3
+#!/pkg/python/3.7.4/bin/python3
 import re
+import sys
 from file_helpers import *
 
 ORTHO_FILE_PATH = get_data_path('static/Orthologs.Uniprot.tsv')
