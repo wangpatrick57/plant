@@ -54,12 +54,12 @@ assert_num_lines(TESTING2_BLANT_OUT_PATH, 5240)
 print('testing2 blant good')
 
 # run ODV for both
-p = subprocess.run(f'run_orca.py {TESTING1} 4'.split())
+p = subprocess.run(f'run_orca.py {TESTING1}'.split())
 p.check_returncode()
 assert_num_lines(TESTING1_ODV_OUT_PATH, 377)
 print('testing1 odv good')
 
-p = subprocess.run(f'run_orca.py {TESTING2} 4'.split())
+p = subprocess.run(f'run_orca.py {TESTING2}'.split())
 p.check_returncode()
 assert_num_lines(TESTING2_ODV_OUT_PATH, 376)
 print('testing2 odv good')
@@ -71,7 +71,7 @@ assert_num_lines(SEEDS_PATH, 45)
 print('seeds good')
 
 # run SAG
-p = subprocess.run(f'run_sag.py {TESTING1} {TESTING2} 1 -0.95'.split())
+p = subprocess.run(f'run_sag.py {TESTING1} {TESTING2} -m1 -s-0.95'.split())
 p.check_returncode()
 print('sag good')
 

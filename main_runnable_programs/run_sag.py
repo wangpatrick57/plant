@@ -1,6 +1,7 @@
 #!/bin/python3
 import sys
 from all_helpers import *
+import argparse
 
 # "sag" stands for Simulated Annealing Grow
 
@@ -48,11 +49,10 @@ def get_sag_alignment_path(gtag1, gtag2, k_max=None, auto_k=None):
 
 # THE RUN_SAG.PY FILE OVERWRITES, BUT THE PAPER_ALL_* FILES THAT CALL RUN_SAG DON'T OVERWRITE
 if __name__ == '__main__':
-    from seeding_algorithm_core import SeedingAlgorithmSettings
-    
-    gtag1 = sys.argv[1]
-    gtag2 = sys.argv[2]
-    max_indices = int(sys.argv[3])
-    sims_threshold = float(sys.argv[4])
-    
-    print(run_sag(gtag1, gtag2, max_indices, sims_threshold, overwrite=True))
+    parser = argparse.ArgumentParser(prog='run_sag.py', description='Run the simulated annealing algorithm (Algorithm 3 in the paper)')
+    parser.add_argument('gtag1', help='The graph tag (gtag) of the first graph')
+    parser.add_argument('gtag2', help='The graph tag (gtag) of the second graph')
+    parser.add_argument('-m', '--max-indices', type=int, default=1, help='The max_indices parameter of the seeds file to be used')
+    parser.add_argument('-s', '--sims-threshold', type=float, default=-0.95, help='The sims_threshold parameter of the seeds file to be used')
+    args = parser.parse_args()
+    print(run_sag(args.gtag1, args.gtag2, args.max_indices, args.sims_threshold, overwrite=True))

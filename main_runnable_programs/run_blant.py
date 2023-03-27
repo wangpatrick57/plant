@@ -4,7 +4,7 @@ import sys
 import argparse
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog='run_blant.py', description='A convenience wrapper around BLANT (Algorithm 1 in the paper)')
+    parser = argparse.ArgumentParser(prog='run_blant.py', description='A wrapper around BLANT (Algorithm 1 in the paper) that integrates into the plant data/ and networks/ ecosystem')
     parser.add_argument('gtag', help='The graph tag (gtag) of the graph to run BLANT on')
     parser.add_argument('-a', '--algo', default='stairs', help='Which BLANT variation to use. BLANT executables are compiled in the format blant{algo} based on their variation')
     args = parser.parse_args()
