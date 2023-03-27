@@ -16,5 +16,14 @@ Below, the directories and some of the less intuitive files are described
   * nauty_patch_correspondence - a tool to convert patch IDs to canonical IDs using NAUTY
   * pyblant.py - a Python reimplementation of BLANT for exploratory use
 ## Setup
-clone BLANT and AlignMCL as well
-describe gtags
+1. Clone and set up [BLANT](https://github.com/waynebhayes/BLANT) according to its README.md
+2. Edit ```set_up.sh``` to point to the base location of this repo and the BLANT repo, and then run ```. ./set_up.sh``` to set the environment variables correctly
+3. If reproducing the results in the paper, clone [plant_supplementary](https://github.com/wangpatrick57/plant_supplementary/blob/main/README.md) to download the necessary networks and cached data files. Follow its README.md accordingly
+4. If you are not performing step 3, instead create the directories data/ and networks/ and set the environment variables ```PLANT_DATA_DIR``` and ```PLANT_NETWORKS_DIR``` to point to them
+  * This step is necessary because the graph tag system (see ```graph_helpers.py```) allows convenient access of networks/ and data/ files for a given graph
+  * Additionally, results for long-running (ranging from minutes to hours) algorithm runs are automatically cached in various subdirectories within data/
+5. To ensure that all of this is working, run ```tools/e2e_test.py```
+  * Don't worry about error messages. The test only fails if the program crashes. If the test succeeds, you should see the message
+```=======================
+END2END TESTS SUCCEEDED
+=======================```
