@@ -49,7 +49,7 @@ def get_sag_alignment_path(gtag1, gtag2, k_max=None, auto_k=None):
 
 # THE RUN_SAG.PY FILE OVERWRITES, BUT THE PAPER_ALL_* FILES THAT CALL RUN_SAG DON'T OVERWRITE
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog='run_sag.py', description='Run the simulated annealing algorithm (Algorithm 3 in the paper)')
+    parser = argparse.ArgumentParser(prog='run_sag.py', description='Run the merging algorithm (Algorithm 3 in the paper)')
     parser.add_argument('gtag1', help='The graph tag (gtag) of the first graph')
     parser.add_argument('gtag2', help='The graph tag (gtag) of the second graph')
     parser.add_argument('-m', '--max-indices', type=int, default=1, help='The max_indices parameter of the seeds file to be used')
