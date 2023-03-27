@@ -4,11 +4,6 @@ import re
 from collections import namedtuple
 from seeding_algorithm_core import SeedingAlgorithmSettings
 
-HOME_DIR = '/home/wangph1'
-# HOME_DIR = '/Users/patrickwang/Documents/collegeStuff/research'
-PLANT_DIR = f'{HOME_DIR}/plant'
-BLANT_DIR = f'{HOME_DIR}/BLANT'
-
 def get_tmp_path(path):
     return f'/tmp/{path}'
 
@@ -16,10 +11,12 @@ def get_seeds_path(gtag1, gtag2, algo='stairs', settings=SeedingAlgorithmSetting
     return get_data_path(f'seeds/{gtag1}-{gtag2}_{algo}_mi{settings.max_indices}_st{settings.sims_threshold}_patch{do_patch}.seeds')
 
 def get_plant_path(path):
-    return f'{PLANT_DIR}/{path}'
+    assert 'PLANT_REPO_DIR' in os.environ and os.environ['PLANT_REPO_DIR'] != '', 'PLANT_REPO_DIR is not set'
+    return f'{os.environ["PLANT_REPO_DIR"]}/{path}'
 
 def get_blant_path(path):
-    return f'{BLANT_DIR}/{path}'
+    assert 'BLANT_DIR' in os.environ and os.environ['BLANT_DIR'] != '', 'BLANT_DIR is not set'
+    return f'{os.environ["BLANT_DIR"]}/{path}'
 
 def get_wayne_path(path):
     return get_data_path(f'wayne/{path}')
@@ -43,9 +40,6 @@ def get_num_lines(path):
 
 def get_data_path(data_path):
     return f'{os.environ["PLANT_DATA_DIR"]}/{data_path}'
-
-def get_home_path(home_path):
-    return f'{HOME_DIR}/{home_path}'
 
 def remove_extension(path):
     return '.'.join(path.split('.')[:-1])

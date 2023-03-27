@@ -5,11 +5,13 @@ from file_helpers import *
 import subprocess
 import time
 import sys
+import os
 
 def bool_conv(b):
     return 1 if b else 0
 
 def run_blant(gtag, lDEG=2, alph=True, algo='stairs', overwrite=False):
+    assert 'BLANT_DIR' in os.environ and os.environ['BLANT_DIR'] != '', 'BLANT_DIR is not set'
     assert alph != None # alph can't be None because we need a different .sh script for that
     graph_path = get_graph_path(gtag)
     out_path = get_index_path(gtag, lDEG=lDEG, alph=alph, algo=algo)
@@ -28,18 +30,6 @@ def run_blant(gtag, lDEG=2, alph=True, algo='stairs', overwrite=False):
         print(f'using old index file for {gtag}, {out_path}', file=sys.stderr)
 
     return p, out_path
-
-def run_blant_sample_raw(k, n, graph_path):
-    out_path = get_tmp_path(f'blantspl-k{k}-n{n}.out')
-    # we need to call run_blant_sample.sh because it takes care of cd for us
-    cmd = f'run_blant_sample.sh {graph_path} {k} {n} {out_path}'
-    p = subprocess.run(cmd.split(), capture_output=True)
-
-    with open(out_path, 'r') as f:
-        out = ''.join(f.readlines())
-
-    os.remove(out_path)
-    return out
 
 def run_outsend(path):
     cmd = f'outsend {path}'
@@ -78,8 +68,9 @@ def run_align_mcl(gtag1, gtag2, overwrite=False, notes=''):
     from graph_helpers import get_nif_path
     from odv_helpers import two_gtags_to_k, two_gtags_to_n, get_odv_ort_path
     from mcl_helpers import get_mcl_out_path
-    from file_helpers import file_exists, get_home_path, remove_extension
-    MCL_SCRIPT_PATH = get_home_path('alignMCL/raw_run_align_mcl.sh')
+    from file_helpers import file_exists, remove_extension
+    assert 'MCL_DIR' in os.environ and os.environ['MCL_DIR'] != '', 'MCL_DIR is not set'
+    MCL_SCRIPT_PATH = f'{os.environ["MCL_DIR"]}/raw_run_align_mcl.sh'
 
     k = two_gtags_to_k(gtag1, gtag2)
     n = two_gtags_to_n(gtag1, gtag2)

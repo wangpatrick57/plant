@@ -12,9 +12,9 @@ startlogf=$LOG_DIR/$scrname-$jobname-starts.log
 endlogf=$LOG_DIR/$scrname-$jobname-ends.log
 
 # running
-echo "run_blant_tool.py $gtag $algo &>$logf"
+echo "run_blant.py $gtag $algo &>$logf"
 echo $logf >>$startlogf
-run_blant_tool.py $gtag $algo &>$logf
+run_blant.py $gtag $algo &>$logf
 
 # end
 echo "JOBSFINISHED" >>$logf
