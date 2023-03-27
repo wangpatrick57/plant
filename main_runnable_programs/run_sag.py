@@ -5,8 +5,7 @@ import argparse
 
 # "sag" stands for Simulated Annealing Grow
 
-def run_sag(gtag1, gtag2, max_indices, sims_threshold, algo='stairs', overwrite=False):
-    k_max = 5000
+def run_sag(gtag1, gtag2, max_indices, sims_threshold, k_max, s3_threshold, algo='stairs', overwrite=False):
     # auto_k = (10000, 0.01)
     auto_k = None
 
@@ -23,7 +22,7 @@ def run_sag(gtag1, gtag2, max_indices, sims_threshold, algo='stairs', overwrite=
         start_time = time.time()
         seeds, _, _ = simplified_run_with_metrics(gtag1, gtag2, algo=algo, settings=SeedingAlgorithmSettings(max_indices=max_indices, sims_threshold=sims_threshold))
         blocks = seeds_to_blocks(seeds)
-        sagrow = SimAnnealGrow(blocks, adj_set1, adj_set2, p_func=ALWAYS_P_FUNC, s3_threshold=0.95)
+        sagrow = SimAnnealGrow(blocks, adj_set1, adj_set2, p_func=ALWAYS_P_FUNC, s3_threshold=s3_threshold)
         alignment = sagrow.run(k_max=k_max, auto_k=auto_k, silent=False)
         alignment = get_clean_alignment(alignment, adj_set1, adj_set2)
         end_time = time.time()
@@ -53,5 +52,7 @@ if __name__ == '__main__':
     parser.add_argument('gtag2', help='The graph tag (gtag) of the second graph')
     parser.add_argument('-m', '--max-indices', type=int, default=1, help='The max_indices parameter of the seeds file to be used')
     parser.add_argument('-s', '--sims-threshold', type=float, default=-0.95, help='The sims_threshold parameter of the seeds file to be used')
+    parser.add_argument('-t', '--s3-threshold', type=float, default=0.95, help='The minimum S3 allowed while merging')
+    parser.add_argument('-i', '--num-iterations', type=float, default=1000, help='The number of simulated annealing iterations to run')
     args = parser.parse_args()
-    print(run_sag(args.gtag1, args.gtag2, args.max_indices, args.sims_threshold, algo=None, overwrite=True))
+    print(run_sag(args.gtag1, args.gtag2, args.max_indices, args.sims_threshold, args.num_iterations, args.s3_threshold, algo=None, overwrite=True))
