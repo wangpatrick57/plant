@@ -1,5 +1,5 @@
 ## Contents
-Below, the main directories and non-self-explanatory files are explained
+Below, the directories and some of the less intuitive files are described
 * alignMCL - the source code for the AlignMCL algorithm
 * core_algorithms - code that performs the core logic of the seed creation and merging algorithms
 * helpers - various helpers for code which is often reused, such as managing network files, managing various forms of cached data, manipulating network or alignment objects, calculating statistics and other metrics, etc.
