@@ -1,4 +1,4 @@
-#!/pkg/python/3.7.4/bin/python3
+#!/bin/python3
 import sys
 import math
 import heapq

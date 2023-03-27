@@ -1,4 +1,4 @@
-#!/pkg/python/3.7.4/bin/python3
+#!/bin/python3
 from collections import defaultdict
 from general_helpers import *
 from file_helpers import *

@@ -1,4 +1,4 @@
-#!/pkg/python/3.7.4/bin/python3
+#!/bin/python3
 from collections import defaultdict
 from all_helpers import *
 import networkx as nx
