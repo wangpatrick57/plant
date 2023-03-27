@@ -1,14 +1,23 @@
 #!/bin/python3
 import subprocess
 import random
+from index_helpers import get_index_path
+from odv_helpers import get_odv_path
+from file_helpers import get_seeds_path
+from seeding_algorithm_core import SeedingAlgorithmSettings
 
 TESTING1 = 'testing1'
 TESTING2 = 'testing2'
-TESTING1_BLANT_OUT_PATH = '/home/wangph1/data/seeding_cached_data/blant_out/p0-o0-testing1-stairs-lDEG2-alph.out'
-TESTING2_BLANT_OUT_PATH = '/home/wangph1/data/seeding_cached_data/blant_out/p0-o0-testing2-stairs-lDEG2-alph.out'
-TESTING1_ODV_OUT_PATH = '/home/wangph1/data/odv/testing1-k4.odv'
-TESTING2_ODV_OUT_PATH = '/home/wangph1/data/odv/testing2-k4.odv'
-SEEDS_PATH = '/home/wangph1/data/seeds/testing1-testing2_stairs_mi1_st-0.95_patchTrue.seeds'
+LDEG = 2
+ALPH = True
+ALGO = 'stairs'
+ODV_K = 4
+SEEDING_ALGORITHM_SETTINGS = SeedingAlgorithmSettings(max_indices=1, sims_threshold=-0.95)
+TESTING1_BLANT_OUT_PATH = get_index_path(TESTING1, lDEG=LDEG, alph=ALPH, algo=ALGO)
+TESTING2_BLANT_OUT_PATH = get_index_path(TESTING2, lDEG=LDEG, alph=ALPH, algo=ALGO)
+TESTING1_ODV_OUT_PATH = get_odv_path(TESTING1, ODV_K)
+TESTING2_ODV_OUT_PATH = get_odv_path(TESTING2, ODV_K)
+SEEDS_PATH = get_seeds_path(TESTING1, TESTING2, algo=ALGO, settings=SEEDING_ALGORITHM_SETTINGS)
 
 def get_num_lines(path):
     p = subprocess.run(f'wc -l {path}'.split(), capture_output=True)

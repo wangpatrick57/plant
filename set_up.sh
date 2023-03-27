@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# THIS VARIABLE IS THE ONLY ONE THAT NEEDS TO BE CHANGED
+# THESE VARIABLES ARE THE ONLY ONE THAT NEED TO BE CHANGED
 # ======================================================
-PLANT_REPO_DIR="/home/wangph1/plant"
+PLANT_REPO_DIR="$HOME/plant"
 # ======================================================
 
 # set up PYTHONPATH
