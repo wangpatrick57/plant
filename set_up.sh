@@ -6,7 +6,6 @@
 # ======================================================
 export PLANT_REPO_DIR="$HOME/plant"
 export BLANT_DIR="$HOME/BLANT"
-export MCL_DIR="$HOME/alignMCL"
 # if you're using your own data/ or networks/ directories instead of those in https://github.com/wangpatrick57/plant_supplementary, uncomment these
 # if you're cloning plant_supplementary, it comes with a script to set these envvars automatically
 # export PLANT_DATA_DIR="/path/to/your/data/dir"
@@ -19,3 +18,6 @@ export PYTHONPATH=$(echo "$depth1_subdirectories" | tr '\n' ':' | sed 's/:$//')
 
 # add main_runnable_programs to PATH
 export PATH="$PATH:$PLANT_REPO_DIR/main_runnable_programs"
+
+# MCL_DIR
+export MCL_DIR="$PLANT_REPO_DIR/alignMCL"

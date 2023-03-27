@@ -1,0 +1,1246 @@
+#!/pkg/python/2.7.14/bin/python
+# -*- coding: iso-8859-1 -*-
+__author__="Marco Mina"
+__email__="marco.mina.85@gmail.com"
+'''
+Copyright 2011-2013 Marco Mina. All rights reserved.
+
+This is the version 1.1 of pyAlignmentGraph. This file is part of AlignMCL
+
+AlignMCL is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AlignMCL is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AlignMCL.  If not, see <http://www.gnu.org/licenses/>.
+'''
+
+import sys
+import os
+import argparse
+import datetime
+
+import UnionGraph
+from parser.Parser import *
+from parser.RowParser import *
+from parser.NifFileParser import *
+from parser.NetParser import *
+from array import array
+import igraph
+
+
+
+
+
+
+################
+# Load functions
+################
+
+
+def load_Net(input_file):
+	sfp = NetParser()
+	parser = Parser()
+	parser.set_chain([sfp])
+	parser.input(input_file)
+	parser.parse()
+	return parser.output_data
+#
+
+
+
+
+
+
+################
+# Output  functions
+################
+
+
+
+def summary(g):
+	names = g.vs['name']
+	weights = g.es['weight']
+	
+	v_total = len(names)
+	v_composite = 0
+	v_1 = 0
+	v_2 = 0
+	v_null = 0
+	
+	if 'type' in g.vs.attribute_names():
+		modes = g.vs['type']
+		for i in modes:
+			if i==0:
+				v_composite+=1
+			elif i==1:
+				v_1+=1
+			elif i==2:
+				v_2+=1
+			else:
+				print i
+				raise Exception
+
+	if 'ref' in g.vs.attribute_names():
+		refs = g.vs['ref']
+		for i in refs:
+			if i[0] == None and i[1] == None:
+				v_null += 1
+
+	e_total = len(weights)
+
+	print "Total nodes: " + str(v_total)
+	print "Composite nodes: " + str(v_composite)
+	print "Simple nodes from 1: " + str(v_1)
+	print "Simple nodes from 2: " + str(v_2)
+	print "Total edges: " + str(e_total)
+	print "Simple: " + str(g.is_simple())
+	print "Directed: " + str(g.is_directed())
+	print "Average edge density: " + str('%.3E' % (e_total/ float(v_total*(v_total-1)/2)))
+#
+
+
+def write_graph(g, f):
+	h = open(f,'w')
+	ge = g.get_edgelist()
+	vn = g.vs['name']
+	es = g.es['weight']
+	pos = 0
+	for i in ge:
+		#print i
+		h.write(str(vn[i[0]]) + "\t" + 
+						str(vn[i[1]]) + "\t" + 
+						str(es[pos]) + "\n")
+		pos+=1
+	h.close()
+#
+
+
+################
+# Memory efficient version
+################
+
+###################################
+def count_paths(g, merge=True):
+###################################
+# count the number of paths (if simply==False) or merged paths (simply==True) that would be extracted
+# Useful to understand the required space to store the extracted information
+
+	#### Speed hack. Get graph attributes
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+
+	edge_count = 0
+
+	if merge:
+		temp_g2_v2e = [None] * v_c # Hack. Otherwise it copies the same object pointer
+		for i in range(0,len(temp_g2_v2e)): 
+			temp_g2_v2e[i] = {}
+
+	for k in range(0,v_c):
+		neighborhood = g.neighbors(k)
+		print str(float(k)/v_c * 100.0) + "\t" + str(edge_count) + "\t" + str(len(neighborhood))
+		for i in range(0,len(neighborhood)):
+			current_i = neighborhood[i]
+			for j in range(i+1,len(neighborhood)):
+				current_j = neighborhood[j]
+				if not accept_func(current_i, current_j, v_type, v_ref):
+					continue
+
+				first_acc = min(current_i, current_j)
+				second_acc = max(current_i, current_j)
+				
+				if merge:
+					temp_g2_v2e_l1 = temp_g2_v2e[first_acc]
+					if(not second_acc in temp_g2_v2e_l1):
+						temp_g2_v2e_l1[second_acc] = edge_count
+						edge_count+=1
+					else:
+						pass
+				else:
+					edge_count+=1
+
+	return(edge_count)
+#
+
+
+
+
+
+
+
+#####################################
+def neighborhood_scores(g):
+######################################
+# Evaluates neighborhood score. Space preserving hacks O(n), n being the number of vertices
+
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+	v_name = g.vs['name']
+	e_ref = g.es['ref']
+	e_weight = g.es['weight']
+	
+	v_neighborhood_score = array('d')
+	for i in range(0,v_c): 
+		v_neighborhood_score.append(0)
+		
+	edge_count = 0
+
+	for k in range(0,v_c):
+		neighborhood = g.neighbors(k)
+		print str(float(k)/v_c * 100.0) + "\t" + str(edge_count) + "\t" + str(len(neighborhood))
+		for i in range(0,len(neighborhood)):
+			current_i = neighborhood[i]
+			for j in range(i+1,len(neighborhood)):
+				current_j = neighborhood[j]
+
+				if not accept_func(current_i, current_j, v_type, v_ref):
+					continue
+				#### END add controls here
+				eid_1 = g.get_eid(current_i, k)
+				eid_2 = g.get_eid(current_j, k)
+				toadd = 0
+				if not e_weight[eid_1][0] == None:
+					toadd += e_weight[eid_1][0]
+				if not e_weight[eid_1][1] == None:
+					toadd += e_weight[eid_1][1]
+
+				v_neighborhood_score[current_i] += toadd
+				v_neighborhood_score[current_j] += toadd
+				edge_count += 1
+
+	return(v_neighborhood_score)
+#
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+
+
+################
+# Routines to build the alignment graph - no memory efficient. Assume sparse union graph!!!
+################
+
+
+
+###################################
+def accept_func(i,j, v_type, v_ref):
+###################################
+# Whether or not accepting a path
+	if i < 0 or j < 0:
+		return False
+	if i == j: # ignore self loops
+		return False
+	#### START add controls here
+	if not v_type[i] == 0 or not v_type[j] == 0:
+		#print str(current_i) + "\t" + str(current_j)
+		return False
+	if not v_type[i] == v_type[j]:
+		#print str(current_i) + "\t" + str(current_j)
+		return False
+	if v_ref[i][0] == v_ref[j][0] or v_ref[i][1] == v_ref[j][1]:
+		#print str(current_i) + "\t" + str(current_j)
+		return False
+	return True
+#
+
+
+
+
+
+#####################################
+def max_neighborhood_scores(g):
+######################################
+# Evaluates the maximum neighborhood score. Space preserving hacks O(n), n being the number of vertices
+
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+	v_name = g.vs['name']
+	e_ref = g.es['ref']
+	e_weight = g.es['weight']
+	
+	v_neighborhood_score = array('d')
+	for i in range(0,v_c): 
+		v_neighborhood_score.append(0)
+		
+	edge_count = 0
+
+	for k in range(0,v_c):
+		neighborhood = g.neighbors(k)
+		print str(float(k)/v_c * 100.0) + "\t" + str(edge_count) + "\t" + str(len(neighborhood))
+		for i in range(0,len(neighborhood)):
+			current_i = neighborhood[i]
+			for j in range(i+1,len(neighborhood)):
+				current_j = neighborhood[j]
+
+				if not accept_func(current_i, current_j, v_type, v_ref):
+					continue
+				max_n = 0
+				sfidante = common_neighborhood(g, accept_func, current_i, current_j)
+				if(sfidante > max_n):
+					max_n = sfidante
+
+	return(v_neighborhood_score)
+#
+
+
+#####################################
+def extend(g, dist = 1):
+######################################
+# To be finished. Good if number of indirect path is << than n^2/2
+# return the extended union graph in which every path-2 is converted into a direct edge
+	
+
+	#### Speed hack. Get graph attributes
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+	v_name = g.vs['name']
+	e_ref = g.es['ref']
+	e_weight = g.es['weight']
+	
+	#### Speed hack. Get graph attributes. Feasible for many edges?
+	e_list = g.get_edgelist()
+	
+	#### Takes care of nodes - they are the same...
+	g2 = igraph.Graph(v_c)
+	g2.vs['name'] = v_name
+	g2.vs['type'] = v_type
+	g2.vs['ref'] = v_ref
+
+	edge_count = 0
+
+	#### Dist = 2
+	if dist == 2:
+
+		# Size hack. Using array to store edges
+		v_neighborhood_score = array('d')
+		for i in range(0,v_c): 
+			v_neighborhood_score.append(0)
+		v_neighborhood_sum = array('d')
+		for i in range(0,v_c): 
+			v_neighborhood_sum.append(0)
+		
+		temp_g2_v2e = [None] * v_c # Hack. Otherwise it copies the same object pointer
+		for i in range(0,len(temp_g2_v2e)): 
+			temp_g2_v2e[i] = {}
+		
+		for k in range(0,v_c):
+			neighborhood_edges = g.adjacent(k)
+			neighborhood = []
+			for i in neighborhood_edges:
+				f1 = e_list[i][0]
+				f2 = e_list[i][1]
+				if f1==k:
+					f1=f2
+				neighborhood.append(f1)
+				
+			if abs(int(float(k)/v_c * 100.0 ) % 3 - int(float(k-1)/v_c * 100.0 ) % 3) > 1:
+				print "Extending the union graph..." + str(int(float(k)/v_c * 100.0)) + "% completed @ " + str(datetime.datetime.now())
+			for i in range(0,len(neighborhood)):
+				current_i = neighborhood[i]
+				for j in range(i+1,len(neighborhood)):
+					current_j = neighborhood[j]
+					#### START add controls here
+					if not accept_func(current_i, current_j, v_type, v_ref):
+						continue
+					#### END add controls here
+					
+					#### Edges are stored only once, using smaller node id as the first id of the node pair!
+					first_acc = min(current_i, current_j)
+					second_acc = max(current_i, current_j)
+					temp_g2_v2e_l1 = temp_g2_v2e[first_acc]
+					if(not second_acc in temp_g2_v2e_l1):
+						temp_g2_v2e_l1[second_acc] = 0 # through k, unique edge pattern implied
+					toadd = 0
+					if not e_weight[neighborhood_edges[i]][0] == None:
+						toadd += e_weight[neighborhood_edges[i]][0]
+					if not e_weight[neighborhood_edges[i]][1] == None:
+						toadd += e_weight[neighborhood_edges[i]][1]
+					if not e_weight[neighborhood_edges[j]][0] == None:
+						toadd += e_weight[neighborhood_edges[j]][0]
+					if not e_weight[neighborhood_edges[j]][1] == None:
+						toadd += e_weight[neighborhood_edges[j]][1]
+					temp_g2_v2e_l1[second_acc] += toadd
+
+		for i in temp_g2_v2e:
+			temp_g2_v2e_l1 = temp_g2_v2e[i]
+			for j in temp_g2_v2e_l1:
+				v_neighborhood_sum[i]+= temp_g2_v2e_l1[j]
+				v_neighborhood_sum[j]+= temp_g2_v2e_l1[j]
+		
+		for i in temp_g2_v2e:
+			temp_g2_v2e_l1 = temp_g2_v2e[i]
+			for j in temp_g2_v2e_l1:
+				temp_g2_v2e_l1[j]/= (v_neighborhood_sum[i] + v_neighborhood_sum[j])
+				v_neighborhood_score[j] = max(temp_g2_v2e_l1[j], v_neighborhood_score[j])
+				v_neighborhood_score[i] = max(temp_g2_v2e_l1[j], v_neighborhood_score[i])
+				
+		for i in temp_g2_v2e:
+			temp_g2_v2e_l1 = temp_g2_v2e[i]
+			for j in temp_g2_v2e_l1:
+				if (temp_g2_v2e_l1[j] > min(v_neighborhood_score[j], v_neighborhood_score[i])/2.0):
+					edge_count+= 1
+
+		print edge_count
+		
+		#g2.add_edges(g2_edges)
+		#g2.es['weight'] = g2_edges_weigh
+	#
+	####### Dist = 1
+	elif dist == 1:
+
+		g2_edges = []
+		g2_edges_weight = []
+		g2_edges_ref = []
+		
+		temp_g2_v2e = [0] * v_c
+	
+		# Size hack. Using array to store edges
+		v_neighborhood_score = array('d')
+		for i in range(0,v_c): 
+			v_neighborhood_score.append(0)
+		
+		temp_g2_v2e = [None] * v_c # Hack. Otherwise it copies the same object pointer
+		for i in range(0,len(temp_g2_v2e)): 
+			temp_g2_v2e[i] = {}
+			
+		for k in range(0,v_c):
+			neighborhood_edges = g.adjacent(k)
+			neighborhood = []
+			for i in neighborhood_edges:
+				f1 = e_list[i][0]
+				f2 = e_list[i][1]
+				if f1==k:
+					f1=f2
+				neighborhood.append(f1)
+				
+			if abs(int(float(k)/v_c * 100.0 ) % 10 - int(float(k-1)/v_c * 100.0 ) % 10) > 1:
+				print "Extending the union graph..." + str(int(float(k)/v_c * 100.0)) + "% completed @ " + str(datetime.datetime.now())
+			current_j = k
+			for i in range(0,len(neighborhood)):
+				current_i = neighborhood[i]
+				
+					#### START add controls here
+				if not accept_func(current_i, current_j, v_type, v_ref):
+					continue
+				#### END add controls here
+				
+				#### Edges are stored only once, using smaller node id as the first id of the node pair!
+				first_acc = min(current_i, current_j)
+				second_acc = max(current_i, current_j)
+				temp_g2_v2e_l1 = temp_g2_v2e[first_acc]
+				if(not second_acc in temp_g2_v2e_l1):
+					temp_g2_v2e_l1[second_acc] = edge_count
+					g2_edges.append((first_acc, second_acc))
+					toadd = 0
+					if not e_weight[neighborhood_edges[i]][0] == None:
+						toadd += e_weight[neighborhood_edges[i]][0]
+					if not e_weight[neighborhood_edges[i]][1] == None:
+						toadd += e_weight[neighborhood_edges[i]][1]
+
+					g2_edges_weight.append(toadd) # what score?
+					#g2_edges_ref.append([k]) # what ref?
+					edge_count+= 1
+				else:
+					pass
+
+		g2.add_edges(g2_edges)
+		g2.es['weight'] = g2_edges_weight
+	#g2.es['ref'] = g2_edges_ref
+	#summary(g2)
+	return(g2)
+#
+
+#########
+
+
+
+
+
+#####################################
+def extend_dense(g, dist = 1, cut_threshold=0.5, inject=None):
+######################################
+# To be finished. Good if number of indirect path is << than n^2/2
+# return the extended union graph in which every path-2 is converted into a direct edge
+	
+
+	#### Speed hack. Get graph attributes
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+	v_name = g.vs['name']
+
+	#### Speed hack. Get graph attributes. Feasible for many edges?
+	e_weight = g.es['weight']
+	e_list = g.get_edgelist()
+
+	edge_count = 0
+	g2_edges = []
+	g2_edges_weight = []
+	g2_edges_ref = []
+		
+	#### Dist = 2
+	if dist == 2:
+
+		#### Takes care of nodes - they are the same...
+
+		vc_c = 0
+		vc2v_table = {}
+		v2vc_table = [-1]*v_c
+		for i in range(0,v_c):
+			if v_type[i] == 0:
+				vc2v_table[vc_c] = i
+				v2vc_table[i] = vc_c
+				vc_c+=1
+
+		#print(v_c)
+		#print(vc_c)
+
+		# stategy 1. use arrays
+		#v_neighborhood_score = array('d')
+		#for i in range(0,vc_c): 
+			#v_neighborhood_score.append(0)
+		#v_neighborhood_sum = array('d')
+		#for i in range(0,vc_c): 
+			#v_neighborhood_sum.append(0)
+		# stategy 2. use lists
+		
+		v_neighborhood_score = [0]* vc_c
+		v_neighborhood_sum = [0]* vc_c
+
+			
+		temp_g2_v2e = [0] * (vc_c * (vc_c - 1) / 2)
+
+		# collect all the paths
+		for k in range(0,vc_c):
+			rk = vc2v_table[k]
+			neighborhood_edges = g.adjacent(rk)
+			neighborhood = []
+			for i in neighborhood_edges:
+				f1 = e_list[i][0]
+				f2 = e_list[i][1]
+				if f1==rk:
+					f1=f2
+				rf1 = f1
+				neighborhood.append(rf1)
+				
+			if abs(int(float(k)/vc_c * 100.0 ) % 3 - int(float(k-1)/vc_c * 100.0 ) % 3) > 1:
+				print "Extending the union graph..." + str(int(float(k)/vc_c * 100.0)) + "% completed @ " + str(datetime.datetime.now())
+
+			for i in range(0,len(neighborhood)):
+				current_i = neighborhood[i]
+				for j in range(i+1,len(neighborhood)):
+					current_j = neighborhood[j]
+
+					#### START add controls here
+					if not accept_func(current_i, current_j, v_type, v_ref):
+						continue
+					#### END add controls here
+					
+					#### Edges are stored only once, using smaller node id as the first id of the node pair!
+					first_acc = min(v2vc_table[current_i], v2vc_table[current_j])
+					second_acc = max(v2vc_table[current_i], v2vc_table[current_j])
+					#if temp_g2_v2e[second_acc*(second_acc-1)/2 + first_acc] == 0:
+						#pass
+					temp_g2_v2e[second_acc*(second_acc-1)/2 + first_acc] += e_weight[neighborhood_edges[i]]
+
+		# get sum
+		print('Evaluating vertex sums')
+		for i in range(0,vc_c):
+			if abs(int(float(i)/vc_c * 100.0 ) % 3 - int(float(i-1)/vc_c * 100.0 ) % 3) > 1:
+				print "Extending the union graph..." + str(int(float(i)/vc_c * 100.0)) + "% completed @ " + str(datetime.datetime.now())
+			for j in range(0,i):
+				v_neighborhood_sum[i]+= temp_g2_v2e[i*(i-1)/2 + j]
+			for j in range(i+1,vc_c):
+				v_neighborhood_sum[i]+= temp_g2_v2e[j*(j-1)/2 + i]
+		
+		#print v_neighborhood_sum
+		
+		print('Calculating Jaccard scores sums')
+		for i in range(0,vc_c):
+			if abs(int(float(i)/vc_c * 100.0 ) % 3 - int(float(i-1)/vc_c * 100.0 ) % 3) > 1:
+				print "Calculating Jaccard scores sums..." + str(int(float(i)/vc_c * 100.0)) + "% completed @ " + str(datetime.datetime.now())
+			for j in range(0, i):
+				if (v_neighborhood_sum[i] + v_neighborhood_sum[j]) > 0:
+					temp_g2_v2e[i*(i-1)/2 + j] /= float(v_neighborhood_sum[i] + v_neighborhood_sum[j])
+
+		if not inject == None:
+			print 'Injecting direct edges contribution'
+			de_weight = inject.es['weight']
+			de_list = inject.get_edgelist()
+			for k in range(0,len(de_list)):
+				rk1 = v2vc_table[de_list[k][0]]
+				rk2 = v2vc_table[de_list[k][1]]
+				if rk2>=0 and rk1>=0:
+					i = max(rk1, rk2)
+					j = min(rk1, rk2)
+					temp_g2_v2e[i*(i-1)/2 + j] += de_weight[k]
+		
+		print('Obtaining max scores per vertex')
+		for i in range(0,vc_c):
+			if abs(int(float(i)/vc_c * 100.0 ) % 3 - int(float(i-1)/vc_c * 100.0 ) % 3) > 1:
+				print "Obtaining max scores per vertex..." + str(int(float(i)/vc_c * 100.0)) + "% completed @ " + str(datetime.datetime.now())
+			for j in range(0,i):
+				v_neighborhood_score[i] = max(v_neighborhood_score[i], temp_g2_v2e[i*(i-1)/2 + j])
+			for j in range(i+1,vc_c):
+				v_neighborhood_score[i] = max(v_neighborhood_score[i], temp_g2_v2e[j*(j-1)/2 + i])
+
+		#removed_edge_count = 0
+		print('Removing low scoring edges')
+		for i in range(0,vc_c):
+			if abs(int(float(i)/vc_c * 100.0 ) % 3 - int(float(i-1)/vc_c * 100.0 ) % 3) > 1:
+				print "Removing low scoring edges..." + str(int(float(i)/vc_c * 100.0)) + "% completed @ " + str(datetime.datetime.now())
+			for j in range(0, i):
+				if temp_g2_v2e[i*(i-1)/2 + j] < min(v_neighborhood_score[i], v_neighborhood_score[j])*cut_threshold:
+					temp_g2_v2e[i*(i-1)/2 + j] = 0
+					#removed_edge_count+=1
+		#print "Removed edges: " + str(removed_edge_count)
+
+		print('Finalizing extended graph')
+		for i in range(0,vc_c):
+			for j in range(0, i):
+				if temp_g2_v2e[i*(i-1)/2 + j] > 0:
+					g2_edges.append((i, j))
+					g2_edges_weight.append(temp_g2_v2e[i*(i-1)/2 + j])
+					edge_count+= 1
+
+		print edge_count
+		
+		g2 = igraph.Graph(vc_c)
+		
+		nv_name = [None] * vc_c
+		nv_type = [None] * vc_c
+		nv_ref = [None] * vc_c
+		
+		for i in range(0,vc_c):
+			nv_name[i] = v_name[vc2v_table[i]]
+			nv_type[i] = v_type[vc2v_table[i]]
+			nv_ref[i] = v_ref[vc2v_table[i]]
+		
+		g2.vs['name'] = nv_name
+		g2.vs['type'] = nv_type
+		g2.vs['ref'] = nv_ref
+		g2.add_edges(g2_edges)
+		g2.es['weight'] = g2_edges_weight
+		return(g2)
+
+	#
+	####### Dist = 1
+	elif dist == 1:
+
+		temp_g2_v2e = [0] * v_c
+	
+		# Size hack. Using array to store edges
+		v_neighborhood_score = array('d')
+		for i in range(0,v_c): 
+			v_neighborhood_score.append(0)
+		
+		temp_g2_v2e = [None] * v_c # Hack. Otherwise it copies the same object pointer
+		for i in range(0,len(temp_g2_v2e)): 
+			temp_g2_v2e[i] = {}
+			
+		for k in range(0,v_c):
+			neighborhood_edges = g.adjacent(k)
+			neighborhood = []
+			for i in neighborhood_edges:
+				f1 = e_list[i][0]
+				f2 = e_list[i][1]
+				if f1==k:
+					f1=f2
+				neighborhood.append(f1)
+				
+			if abs(int(float(k)/v_c * 100.0 ) % 10 - int(float(k-1)/v_c * 100.0 ) % 10) > 1:
+				print "Extending the union graph..." + str(int(float(k)/v_c * 100.0)) + "% completed @ " + str(datetime.datetime.now())
+			current_j = k
+			for i in range(0,len(neighborhood)):
+				current_i = neighborhood[i]
+				
+					#### START add controls here
+				if not accept_func(current_i, current_j, v_type, v_ref):
+					continue
+				#### END add controls here
+				
+				#### Edges are stored only once, using smaller node id as the first id of the node pair!
+				first_acc = min(current_i, current_j)
+				second_acc = max(current_i, current_j)
+				temp_g2_v2e_l1 = temp_g2_v2e[first_acc]
+				if(not second_acc in temp_g2_v2e_l1):
+					temp_g2_v2e_l1[second_acc] = edge_count
+					g2_edges.append((first_acc, second_acc))
+					toadd = 0
+					if not e_weight[neighborhood_edges[i]][0] == None:
+						toadd += e_weight[neighborhood_edges[i]][0]
+					if not e_weight[neighborhood_edges[i]][1] == None:
+						toadd += e_weight[neighborhood_edges[i]][1]
+
+					g2_edges_weight.append(toadd) # what score?
+					#g2_edges_ref.append([k]) # what ref?
+					edge_count+= 1
+				else:
+					pass
+
+		g2 = igraph.Graph(v_c)
+		g2.vs['name'] = v_name
+		g2.vs['type'] = v_type
+		g2.vs['ref'] = v_ref
+		g2.add_edges(g2_edges)
+		g2.es['weight'] = g2_edges_weight
+	#g2.es['ref'] = g2_edges_ref
+	#summary(g2)
+	return(g2)
+#
+
+
+
+
+#####################################
+def edge_Jaccard(g):
+######################################
+# Good if number of indirect path is << than n^2/2
+# Evaluates the Edge Jaccard index for a given input graph
+# Can be modified to modify the input graph instead of creating a new graph (preserves space!)
+
+	#### Speed hack. Get graph attributes
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+	v_name = g.vs['name']
+	e_c = g.ecount()
+	#e_ref = g.es['ref']
+	e_weight = g.es['weight']
+	#### Speed hack. Get graph attributes. Feasible for many edges?
+	e_list = g.get_edgelist()
+	
+	#### Takes care of nodes - they are the same...
+	g2 = igraph.Graph(v_c)
+	g2.vs['name'] = v_name
+	g2.vs['type'] = v_type
+	g2.vs['ref'] = v_ref
+	
+	#### Size hack. Using array to store edges
+	#g2_edges = array('L')
+	#g2_edges = [] # Not necessary
+	g2_edges_weight = [0] * e_c
+	#g2_edges_ref = []
+
+
+	# Sum scores of edges insisting on each node
+	node_edge_sum = [0] * v_c
+	for k in range(0,v_c):
+		neighborhood_edges = g.adjacent(k)
+		for i in neighborhood_edges:
+			node_edge_sum[k] += e_weight[i]
+
+	# Edge Jaccard for each edge
+	for k in range(0,e_c):
+		current_edge_score = e_weight[k]
+		f1 = e_list[k][0]
+		f2 = e_list[k][1]
+		g2_edges_weight[k] =  float(current_edge_score) / (node_edge_sum[f1] + node_edge_sum[f2] - current_edge_score)
+
+	g2.add_edges(e_list)
+	g2.es['weight'] = g2_edges_weight
+	#g2.es['ref'] = g2_edges_ref
+	#summary(g2)
+	return(g2)
+#
+
+
+#####################################
+def prune_alignment_graph(g, cut_coeff = 0.5):
+######################################
+# Good if number of indirect path is << than n^2/2
+# Evaluates the Edge Jaccard index for a given input graph
+# Can be modified to modify the input graph instead of creating a new graph (preserves space!)
+
+	#### Speed hack. Get graph attributes
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+	v_name = g.vs['name']
+	e_c = g.ecount()
+	#e_ref = g.es['ref']
+	e_weight = g.es['weight']
+	#### Speed hack. Get graph attributes. Feasible for many edges?
+	e_list = g.get_edgelist()
+	
+	#### Takes care of nodes - they are the same...
+	g2 = igraph.Graph(v_c)
+	g2.vs['name'] = v_name
+	g2.vs['type'] = v_type
+	g2.vs['ref'] = v_ref
+	
+	#### Size hack. Using array to store edges
+	#g2_edges = array('L')
+	#g2_edges = [] # Not necessary
+	g2_edges_weight = []
+	g2_edges_list = []
+	#g2_edges_ref = []
+
+
+	# Sum scores of edges insisting on each node
+	node_edge_cut = [0] * v_c
+	for k in range(0,v_c):
+		neighborhood_edges = g.adjacent(k)
+		for i in neighborhood_edges:
+			node_edge_cut[k] = max(node_edge_cut[k], e_weight[i])
+	for k in range(0,v_c):
+		node_edge_cut[k] = node_edge_cut[k] * cut_coeff
+
+		
+	# Edge Jaccard for each edge
+	for k in range(0,e_c):
+		current_edge_score = e_weight[k]
+		f1 = e_list[k][0]
+		f2 = e_list[k][1]
+		if(current_edge_score >= min(node_edge_cut[f1], node_edge_cut[f2])):
+			g2_edges_weight.append(current_edge_score)
+			g2_edges_list.append(e_list[k])
+	g2.add_edges(g2_edges_list)
+	g2.es['weight'] = g2_edges_weight
+	#g2.es['ref'] = g2_edges_ref
+	#summary(g2)
+	return(g2)
+#
+
+
+
+#####################################
+def merge_union_graph_edges(og):
+######################################
+	#g = og.copy() # should not be necessary!
+	g = og
+	is_mult = g.is_multiple()
+	edgeset = g.get_edgelist()
+	edgescore = g.es['weight']
+	#edgeref = g.es['ref']
+	n_mult = 0
+	
+	tomerge = []
+	todel = []
+	
+	for i in range(0,len(is_mult)):
+			if is_mult[i]:
+					n_mult+=1
+					#if not i == g.get_eid(edgeset[i][0], edgeset[i][1]):
+					tomerge.append((edgeset[i][0], edgeset[i][1], edgescore[i]))
+					todel.append(i)
+					#print str(edgeset[i]) + "\t" + str(i) + "\t" + str(g.get_eid(edgeset[i][0], edgeset[i][1]))
+	g.delete_edges(todel)
+	
+	edgeset = g.get_edgelist()
+	edgescore = g.es['weight']
+	#edgeref = g.es['ref']
+
+	for i in range(0,len(tomerge)):
+		cr = tomerge[i]
+		ta = g.get_eid(cr[0], cr[1])
+		cs = edgescore[ta]
+		cs+= cr[2]
+		edgescore[ta] = cs
+
+	g.es['weight'] = edgescore
+	#g.es['ref'] = edgeref
+	return g
+
+def merge_consistent_graphs(g, g1):
+	# merge two networks with the SAME vertices (in the same order in the igraph structure!)
+	
+	if not g.vcount() == g1.vcount():
+		raise Exception
+	#### Speed hack. Get graph attributes
+	
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+	v_name = g.vs['name']
+	#e_ref = g.es['ref']
+	e_weight = g.es['weight']
+	#e1_ref = g1.es['ref']
+	e1_weight = g1.es['weight']
+	
+	
+	#### Speed hack. Get graph attributes. Feasible for many edges?
+	e_list = g.get_edgelist()
+	e1_list = g1.get_edgelist()
+	
+	#### Takes care of nodes - they are the same...
+	g2 = igraph.Graph(v_c)
+	g2.vs['name'] = v_name
+	g2.vs['type'] = v_type
+	g2.vs['ref'] = v_ref
+	
+	#### Size hack. Using array to store edges
+	#g2_edges = array('L')
+	g2_edges = e_list + e1_list
+	g2_edges_weight =  e_weight + e1_weight
+	#g2_edges_ref = zip(e_ref, e1_ref)
+	
+	g2.add_edges(g2_edges)
+	g2.es['weight'] = g2_edges_weight
+	#g2.es['ref'] = g2_edges_ref
+	#summary(g2)
+	g2 = merge_union_graph_edges(g2)
+	#summary(g2)
+	return(g2)
+#
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+
+def simplify_union_graph_scores(g):
+
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+	v_name = g.vs['name']
+	e_ref = g.es['ref']
+	e_weight = g.es['weight']
+	
+	
+	#### Speed hack. Get graph attributes. Feasible for many edges?
+	e_list = g.get_edgelist()
+	
+	#### Takes care of nodes - they are the same...
+	g2 = igraph.Graph(v_c)
+	g2.vs['name'] = v_name
+	g2.vs['type'] = v_type
+	g2.vs['ref'] = v_ref
+	
+	e_weight = g.es['weight']
+	ne_weight = [0] * len(e_weight)
+	
+	for i in range(0,len(e_weight)):
+		toadd = 0
+		if not e_weight[i][0] == None:
+			toadd += e_weight[i][0]
+		if not e_weight[i][1] == None:
+			toadd += e_weight[i][1]
+		ne_weight[i] = toadd
+
+	g2.add_edges(e_list)
+	g2.es['weight'] = ne_weight
+	g2.es['ref'] = e_ref
+	return(g2)
+#
+
+def sanitize_union_graph(g):
+
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+	v_name = g.vs['name']
+	e_ref = g.es['ref']
+	e_weight = g.es['weight']
+	
+	
+	#### Speed hack. Get graph attributes. Feasible for many edges?
+	e_list = g.get_edgelist()
+	
+	#### Takes care of nodes - they are the same...
+	g2 = igraph.Graph(v_c)
+	g2.vs['name'] = v_name
+	g2.vs['type'] = v_type
+	g2.vs['ref'] = v_ref
+	
+	ne_weight = []
+	ne_ref = []
+	ne_list = []
+	
+	for i in range(0,len(e_weight)):
+
+		ci = e_list[i][0]
+		cj = e_list[i][1]
+		if ci == cj: # ignore self loops
+			continue
+		if not v_type[ci] == v_type[cj] == 0:
+			if v_ref[ci][0] == v_ref[cj][0] or v_ref[ci][1] == v_ref[cj][1]:
+				continue
+
+		ne_weight.append(e_weight[i])
+		ne_ref.append(e_ref[i])
+		ne_list.append(e_list[i])
+
+	g2.add_edges(ne_list)
+	g2.es['weight'] = ne_weight
+	g2.es['ref'] = ne_ref
+	return(g2)
+
+
+################
+# Put everything together
+################
+
+
+
+
+#####################################
+def count_extension_size(g, dist = 1):
+######################################
+# Count the number of raw edges that would be added. Useful to understand whether it is necessary to use the enhanced version
+# return the extended union graph in which every path-2 is converted into a direct edge
+	
+
+	#### Speed hack. Get graph attributes
+	v_c = g.vcount()
+	v_ref = g.vs['ref']
+	v_type = g.vs['type']
+	v_name = g.vs['name']
+	#e_ref = g.es['ref']
+	e_weight = g.es['weight']
+	
+	#### Speed hack. Get graph attributes. Feasible for many edges?
+	e_list = g.get_edgelist()
+
+	temp_g2_v2e = [None] * v_c # Hack. Otherwise it copies the same object pointer
+	for i in range(0,len(temp_g2_v2e)): 
+		temp_g2_v2e[i] = {}
+
+	edge_count = 0
+
+	#
+	####### Dist = 2
+	if dist == 2:
+		for k in range(0,v_c):
+			neighborhood_edges = g.adjacent(k)
+			neighborhood = []
+			for i in neighborhood_edges:
+				f1 = e_list[i][0]
+				f2 = e_list[i][1]
+				if f1==k:
+					f1=f2
+				neighborhood.append(f1)
+			if abs(int(float(k)/v_c * 100.0 ) % 5 - int(float(k-1)/v_c * 100.0 ) % 5) > 1:
+				print '%s\r' % ' '*20, # clean up row
+				print str(int(float(k)/v_c * 100.0)) + "%"
+			for i in range(0,len(neighborhood)):
+				current_i = neighborhood[i]
+				for j in range(i+1,len(neighborhood)):
+					current_j = neighborhood[j]
+					if not accept_func(current_i, current_j, v_type, v_ref):
+						continue
+					first_acc = min(current_i, current_j)
+					second_acc = max(current_i, current_j)
+					temp_g2_v2e_l1 = temp_g2_v2e[first_acc]
+					if(not second_acc in temp_g2_v2e_l1):
+						temp_g2_v2e_l1[second_acc] = edge_count # through k, unique edge pattern implied
+						edge_count+= 1
+	#
+	####### Dist = 1
+	elif dist == 1:
+		for k in range(0,v_c):
+			neighborhood_edges = g.adjacent(k)
+			neighborhood = []
+			for i in neighborhood_edges:
+				f1 = e_list[i][0]
+				f2 = e_list[i][1]
+				if f1==k:
+					f1=f2
+				neighborhood.append(f1)
+			#if abs(int(float(k)/v_c * 100.0 ) % 10 - int(float(k-1)/v_c * 100.0 ) % 10) > 1:
+				#print "Extending the union graph..." + str(int(float(k)/v_c * 100.0)) + "% completed @ " + str(datetime.datetime.now())
+			current_j = k
+			for i in range(0,len(neighborhood)):
+				current_i = neighborhood[i]
+				if not accept_func(current_i, current_j, v_type, v_ref):
+					continue
+				first_acc = min(current_i, current_j)
+				second_acc = max(current_i, current_j)
+				temp_g2_v2e_l1 = temp_g2_v2e[first_acc]
+				if(not second_acc in temp_g2_v2e_l1):
+					temp_g2_v2e_l1[second_acc] = edge_count
+					edge_count+= 1
+
+	return(edge_count)
+#
+
+
+
+
+
+
+#####################################
+def prune_ort(g, cut_coeff = 0.5):
+######################################
+# Good if number of indirect path is << than n^2/2
+# Evaluates the Edge Jaccard index for a given input graph
+# Can be modified to modify the input graph instead of creating a new graph (preserves space!)
+
+	#### Speed hack. Get graph attributes
+	v_c = g.vcount()
+	v_name = g.vs['name']
+	e_c = g.ecount()
+	#e_ref = g.es['ref']
+	e_weight = g.es['weight']
+	#### Speed hack. Get graph attributes. Feasible for many edges?
+	e_list = g.get_edgelist()
+	
+	#### Takes care of nodes - they are the same...
+	g2 = igraph.Graph(v_c)
+	g2.vs['name'] = v_name
+	
+	#### Size hack. Using array to store edges
+	#g2_edges = array('L')
+	#g2_edges = [] # Not necessary
+	g2_edges_weight = []
+	g2_edges_list = []
+	#g2_edges_ref = []
+
+
+	# Sum scores of edges insisting on each node
+	node_edge_cut = [0] * v_c
+	for k in range(0,v_c):
+		neighborhood_edges = g.adjacent(k)
+		for i in neighborhood_edges:
+			node_edge_cut[k] = max(node_edge_cut[k], e_weight[i])
+	for k in range(0,v_c):
+		node_edge_cut[k] = node_edge_cut[k] * cut_coeff
+
+		
+	# Edge Jaccard for each edge
+	for k in range(0,e_c):
+		current_edge_score = e_weight[k]
+		f1 = e_list[k][0]
+		f2 = e_list[k][1]
+		if(current_edge_score >= min(node_edge_cut[f1], node_edge_cut[f2])):
+			g2_edges_weight.append(current_edge_score)
+			g2_edges_list.append(e_list[k])
+	g2.add_edges(g2_edges_list)
+	g2.es['weight'] = g2_edges_weight
+	#g2.es['ref'] = g2_edges_ref
+	#summary(g2)
+	return(g2)
+#
+
+
+
+#########
+def load(std_file):
+	global net1, net2, ort
+	print "Loading input data"
+	print std_file[0]
+	input_file = std_file[0]
+	net1 = load_Net(input_file)
+	print std_file[1]
+	input_file = std_file[1]
+	net2 = load_Net(input_file)
+	print std_file[2]
+	input_file = std_file[2]
+	ort = load_Net(input_file)
+
+
+def go(std_file, count_only = False):
+	global net1, net2, ort, union_graph, extended_union_graph_1, extended_union_graph_2, alignment_graph, simplified_union_graph, coherent_union_graph
+
+	#v# load data
+	load(std_file)
+	ort[0] = prune_ort(ort[0],0.9)
+	
+	#v# build the union graph
+	print "Building the union graph"
+	union_graph = build_union_graph(net1, net2, ort)
+	print "Pruning the union graph"
+	coherent_union_graph = sanitize_union_graph(union_graph)
+	simplified_union_graph = simplify_union_graph_scores(coherent_union_graph)
+	
+	#v# build the extended union graph (dist = 2)
+	
+	#if count_only:
+		#size_ext_1 = count_extension_size(coherent_union_graph, 1)
+		#size_ext_2 = count_extension_size(coherent_union_graph, 2)
+		#return (size_ext_1, size_ext_2)
+	
+	extended_union_graph_1 = build_extended_union_graph(coherent_union_graph, 1)
+	print "Edge Jaccard on extended union graph dist 1"
+	#union_graph = simplify_union_graph_scores(union_graph) # No need for this anymore
+	extended_union_graph_1 = edge_Jaccard(extended_union_graph_1)
+	#alignment_graph = prune_alignment_graph(extended_union_graph_1, 0.5)
+	#return(alignment_graph)
+	
+	extended_union_graph_2 = build_extended_union_graph(simplified_union_graph, 2, 0.5, extended_union_graph_1)
+	
+	#v# jaccard on extended union graphs
+
+	#print "Edge Jaccard on extended union graph dist 2"
+	#extended_union_graph_2 = edge_Jaccard(extended_union_graph_2)
+	#v# sum jaccards
+	#print "Building the Alignment Graph"
+	#alignment_graph = merge_consistent_graphs(extended_union_graph_1, extended_union_graph_2)
+	#v# remove locally low-scoring edges
+	#alignment_graph = prune_alignment_graph(alignment_graph)
+	alignment_graph = extended_union_graph_2
+	return(alignment_graph)
+#
+
+
+
+
+
+def build_union_graph(net1, net2, ort):
+	global union_graph
+	union_graph = UnionGraph.build_union_graph(net1[0],net2[0],ort[0])
+	#summary(union_graph)
+	return union_graph
+#
+
+def build_extended_union_graph(union_graph, dist=1, thresh = 0.5, other = None):
+	global extended_union_graph
+	print "Building the extended union graph"
+	extended_union_graph = extend_dense(union_graph, dist, thresh, other)
+	#summary(extended_union_graph)
+	return extended_union_graph
+#
+
+
+params_help = dict()
+params_help['ag'] = 'Output file where the alignment graph will be written.'
+params_help['ppi1'] = 'Input PPI network 1. Row format: p1 [tab] p2 [tab] [score]'
+params_help['ppi2'] = 'Input PPI network 2. See ppi1 for info on required file format'
+params_help['ort'] = 'Input orthologs file. Each line represents an orthology between two proteins. Row format: p1 [tab] p2 [tab] [score], where p1 is a protein from PPI ppi1, and p2 is a protein from PPI ppi2. The score is optional.'
+
+def parse_args():
+	parser = argparse.ArgumentParser(
+		description='pyAligner commad line tool',
+		prog='pyAligner', usage=None, epilog=None, 
+		fromfile_prefix_chars='@', add_help=True)
+
+	param_ac = parser.add_argument_group(title='Ipunt data', description='Input data required by AlignMCL')
+
+	param_ac.add_argument('--ppi1', action='store', nargs=1, default=None, required=True, help=params_help['ppi1'], metavar='ppi1_file', dest='ppi1_file')
+	param_ac.add_argument('--ppi2', action='store', nargs=1, default=None, required=True, help=params_help['ppi2'], metavar='ppi2_file', dest='ppi2_file')
+	param_ac.add_argument('-o', '--ort', action='store', nargs=1, default=None, required=True, help=params_help['ort'], metavar='ort_file', dest='ort_file')
+	param_ac.add_argument('-a', '--ag', action='store', nargs=1, default=None, required=True, help=params_help['ag'], metavar='ag_file', dest='ag_file')
+
+	args = parser.parse_args()
+	return args
+
+if __name__ == '__main__':
+	#ag = go(test_file[int(sys.argv[1])])
+	params = parse_args()
+	print params
+	ag = go((params.ppi1_file[0], params.ppi2_file[0], params.ort_file[0]))
+	write_graph(ag, params.ag_file[0])
