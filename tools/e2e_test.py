@@ -2,22 +2,26 @@
 import subprocess
 import random
 from index_helpers import get_index_path
-from odv_helpers import get_odv_path
+from odv_helpers import get_odv_path, two_gtags_to_k, two_gtags_to_n
 from file_helpers import get_seeds_path
 from seeding_algorithm_core import SeedingAlgorithmSettings
+from mcl_helpers import get_mcl_out_path, clean_mcl
 
 TESTING1 = 'testing1'
 TESTING2 = 'testing2'
 LDEG = 2
 ALPH = True
 ALGO = 'stairs'
-ODV_K = 4
+MCL_NOTES = 'no1'
+ODV_K = two_gtags_to_k(TESTING1, TESTING2)
+ODV_N = two_gtags_to_n(TESTING1, TESTING2)
 SEEDING_ALGORITHM_SETTINGS = SeedingAlgorithmSettings(max_indices=1, sims_threshold=-0.95)
 TESTING1_BLANT_OUT_PATH = get_index_path(TESTING1, lDEG=LDEG, alph=ALPH, algo=ALGO)
 TESTING2_BLANT_OUT_PATH = get_index_path(TESTING2, lDEG=LDEG, alph=ALPH, algo=ALGO)
 TESTING1_ODV_OUT_PATH = get_odv_path(TESTING1, ODV_K)
 TESTING2_ODV_OUT_PATH = get_odv_path(TESTING2, ODV_K)
 SEEDS_PATH = get_seeds_path(TESTING1, TESTING2, algo=ALGO, settings=SEEDING_ALGORITHM_SETTINGS)
+MCL_PATH = get_mcl_out_path(TESTING1, TESTING2, ODV_K, ODV_N, notes=MCL_NOTES)
 
 def get_num_lines(path):
     p = subprocess.run(f'wc -l {path}'.split(), capture_output=True)
@@ -35,6 +39,8 @@ p = subprocess.run(f'rm {TESTING1_BLANT_OUT_PATH}'.split())
 p = subprocess.run(f'rm {TESTING2_BLANT_OUT_PATH}'.split())
 p = subprocess.run(f'rm {TESTING1_ODV_OUT_PATH}'.split())
 p = subprocess.run(f'rm {TESTING2_ODV_OUT_PATH}'.split())
+p = subprocess.run(f'rm {SEEDS_PATH}'.split())
+clean_mcl(TESTING1, TESTING2, MCL_NOTES) # there are a lot of MCL files to clean, so I'm going to reuse the existing function that does so
 
 # run blant for both
 p = subprocess.run(f'run_blant_tool.py {TESTING1} stairs'.split())
@@ -67,3 +73,10 @@ print('seeds good')
 # run SAG
 p = subprocess.run(f'run_sag.py {TESTING1} {TESTING2} 1 -0.95'.split())
 p.check_returncode()
+print('sag good')
+
+# run AlignMCL
+p = subprocess.run(f'run_mcl.py {TESTING1} {TESTING2} {MCL_NOTES}'.split())
+p.check_returncode()
+assert_num_lines(MCL_PATH, 89)
+print('mcl good')

@@ -338,6 +338,10 @@ def base_gtag_to_mark(gtag):
         return gtag.split('-')[-1]
     elif gtag in get_biogrid_gtags_with_bg():
         return gtag[2:]
+    elif is_testing_gtag(gtag):
+        return gtag.replace('testing', 'te')
+    else:
+        raise AssertionError()
 
 def get_base_graph_path(name, ext='el'):
     return f'{os.environ["PLANT_NETWORKS_DIR"]}/{name}.{ext}'

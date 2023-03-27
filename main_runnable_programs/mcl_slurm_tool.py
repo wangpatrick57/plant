@@ -12,4 +12,4 @@ mode = 'full'
 notes = 'no1'
 
 for gtag1, gtag2 in get_tprl_pairs():
-    print(f'./mcl_helpers.py {mode} {gtag1} {gtag2} {notes}')
+    print(f'run_mcl.py {mode} {gtag1} {gtag2} {notes}')
