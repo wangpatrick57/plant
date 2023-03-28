@@ -18,4 +18,4 @@ sims_threshold_list = [-0.95]
 
 for gtag1, gtag2 in pairs:
     for sims_threshold in sims_threshold_list:
-        print(f'./run_seeds.py {gtag1} {gtag2} {MAX_INDICES} {sims_threshold}')
+        print(f'run_seeds.py {gtag1} {gtag2} -m{MAX_INDICES} -s{sims_threshold} -astairs')
