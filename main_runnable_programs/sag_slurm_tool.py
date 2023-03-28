@@ -11,5 +11,5 @@ from all_helpers import *
 pairs = get_paper_all_pairs()
 
 for gtag1, gtag2 in pairs:
-    print(f'paper_sag_prog.py {gtag1} {gtag2}')
+    print(f'run_sag.py -astairs -i20000 {gtag1} {gtag2}')
 

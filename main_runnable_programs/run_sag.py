@@ -54,7 +54,7 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--sims-threshold', type=float, default=-0.95, help='The sims_threshold parameter of the seeds file to be used')
     parser.add_argument('-a', '--algo', default='', help='The algo parameter of the seeds file to be used')
     parser.add_argument('-t', '--s3-threshold', type=float, default=0.95, help='The minimum S3 allowed while merging')
-    parser.add_argument('-i', '--num-iterations', type=float, default=1000, help='The number of simulated annealing iterations to run')
+    parser.add_argument('-i', '--num-iterations', type=int, default=1000, help='The number of simulated annealing iterations to run')
     args = parser.parse_args()
     algo = None if args.algo == '' else args.algo
     print(run_sag(args.gtag1, args.gtag2, args.max_indices, args.sims_threshold, args.num_iterations, args.s3_threshold, algo=algo, overwrite=True))
